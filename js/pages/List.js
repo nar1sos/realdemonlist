@@ -1,97 +1,228 @@
+import * as ContentModule from "../content.js";
+import Spinner from "../components/Spinner.js";
+
 // ⚙️ НАСТРОЙКИ ГИТХАБА
 const GITHUB_USER = "nar1sos";
 const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
 
-// 🔑 Твой пароль для входа в админку
+// 🔑 Пароль админа
 const ADMIN_PASS = "29564329981";
 
-// Токен берется из памяти браузера (не светится в коде!)
+// Токен берется из памяти браузера (не светится в файлах = GitHub не банит)
 let GITHUB_TOKEN = localStorage.getItem("my_gh_token") || "";
 
 export default {
+    components: { Spinner },
     template: `
-        <main v-if="loading" style="color: #fff; padding: 20px;">
-            <h2>Загрузка демонов...</h2>
+        <main v-if="loading">
+            <Spinner />
         </main>
-        <div v-else class="gdl-wrapper" style="padding: 20px; color: #fff;">
+        <div v-else class="gdl-wrapper">
             
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h1>Demon List</h1>
-                
-                <div>
-                    <button v-if="!isAdmin" @click="login" style="padding: 8px 16px; background: #2ecc71; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
-                        🔒 Войти в Админку
-                    </button>
-                    <div v-else style="display: flex; gap: 10px; align-items: center;">
-                        <span style="color: #2ecc71; font-weight: bold;">✅ Админ</span>
-                        <button @click="openAddModal" style="padding: 8px 14px; background: #2ecc71; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">➕ Добавить уровень</button>
-                        <button @click="saveListToGitHub" style="padding: 8px 14px; background: #3498db; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">💾 Сохранить на GitHub</button>
-                        <button @click="logout" style="padding: 8px 14px; background: #e74c3c; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Выйти</button>
-                    </div>
+            <!-- SEARCH BAR -->
+            <div class="gdl-search-bar">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        v-model="searchQuery" 
+                        class="gdl-input" 
+                        placeholder="Search levels..."
+                    />
+                    <button v-if="searchQuery" @click="searchQuery = ''" class="clear-btn">✕</button>
                 </div>
             </div>
 
-            <!-- СПИСОК УРОВНЕЙ -->
-            <div style="display: grid; grid-template-columns: 300px 1fr; gap: 20px;">
+            <!-- GRID -->
+            <div class="gdl-content-grid">
                 
-                <div style="background: #181b20; border: 1px solid #333; border-radius: 8px; padding: 10px;">
-                    <div 
-                        v-for="(lvl, idx) in list" 
-                        :key="idx" 
-                        @click="selectedLevel = lvl"
-                        :style="{
-                            padding: '10px',
-                            marginBottom: '6px',
-                            background: selectedLevel === lvl ? '#2ecc7122' : '#22252b',
-                            border: selectedLevel === lvl ? '1px solid #2ecc71' : '1px solid #333',
-                            borderRadius: '6px',
-                            cursor: 'pointer'
-                        }"
-                    >
-                        <strong>#{{ idx + 1 }} {{ lvl.name }}</strong>
-                        <div style="font-size: 12px; color: #aaa;">by {{ lvl.author || 'Unknown' }}</div>
-                    </div>
-                </div>
+                <!-- LEFT COLUMN -->
+                <div class="gdl-left-column">
+                    <div class="gdl-meta-box">
+                        <h3>List Editors</h3>
+                        <ul class="editors-list">
+                            <li>
+                                <span class="role-icon">👑</span>
+                                <span>nar1sos</span>
+                            </li>
+                        </ul>
 
-                <!-- ДЕТАЛИ УРОВНЯ -->
-                <div v-if="selectedLevel" style="background: #181b20; border: 1px solid #333; border-radius: 8px; padding: 20px;">
-                    <h2>#{{ getRank(selectedLevel) }} — {{ selectedLevel.name }}</h2>
-                    <p style="color: #aaa; margin-bottom: 15px;">
-                        Создатель: <b>{{ selectedLevel.author || 'Unknown' }}</b> | Верификатор: <b>{{ selectedLevel.verifier || 'Unknown' }}</b>
-                    </p>
-
-                    <div v-if="selectedLevel.ytid" style="margin-bottom: 20px;">
-                        <iframe 
-                            :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" 
-                            style="width: 100%; height: 350px; border: none; border-radius: 8px;"
-                            allowfullscreen
-                        ></iframe>
-                    </div>
-
-                    <h3>Рекорды</h3>
-                    <div v-if="selectedLevel.records && selectedLevel.records.length" style="margin-top: 10px;">
-                        <div v-for="(rec, rIdx) in selectedLevel.records" :key="rIdx" style="background: #22252b; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between;">
-                            <span><b>{{ rec.user }}</b> — {{ rec.percent }}%</span>
-                            <a v-if="rec.link" :href="rec.link" target="_blank" style="color: #3498db;">🎬 Видео</a>
+                        <div class="rules-section">
+                            <h3>Rules & Guidelines</h3>
+                            <ul class="rules-list">
+                                <li>Все рекорды должны иметь видеозапись с кликами/тапами или сырым звуком.</li>
+                                <li>Недопустимо использование читов, физических модов или нелегитимных хитбоксов.</li>
+                                <li>Рекорд считается принятым только при достижении минимального требуемого процента.</li>
+                                <li>Прогресс на уровнях из топ-10 принимается строго от 0%.</li>
+                            </ul>
                         </div>
                     </div>
-                    <p v-else style="color: #666; margin-top: 8px;">Рекордов пока нет.</p>
+                </div>
+
+                <!-- CENTER COLUMN -->
+                <div class="gdl-cards-container">
+                    
+                    <!-- ADMIN CONTROL BAR -->
+                    <div class="admin-notice" style="background:#181b20; border: 1px solid #333; color:#fff; padding:12px; border-radius:8px; margin-bottom:12px; text-align:center;">
+                        <div v-if="!isAdmin">
+                            <button @click="loginAdmin" style="background:#2ecc71; color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">
+                                🔒 Войти в Админку
+                            </button>
+                        </div>
+                        <div v-else>
+                            <span style="color:#2ecc71; font-weight:bold; margin-right:10px;">⚡ Режим Редактора</span>
+                            <button @click="openAddModal" style="background:#2ecc71; color:#000; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer; margin-right:8px;">
+                                ➕ Add Level
+                            </button>
+                            <button @click="logoutAdmin" style="background:#e74c3c; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer;">
+                                Выйти
+                            </button>
+                        </div>
+                    </div>
+
+                    <div 
+                        v-for="(level, index) in filteredList" 
+                        :key="level.name"
+                        class="gdl-level-card"
+                        :class="{ 
+                            active: selectedLevel && selectedLevel.name === level.name,
+                            'draggable-card': isAdmin
+                        }"
+                        :draggable="isAdmin"
+                        @dragstart="onDragStart($event, index)"
+                        @dragover.prevent
+                        @dragenter.prevent
+                        @drop="onDrop($event, index)"
+                        @click="selectedLevel = level"
+                    >
+                        <div class="gdl-card-thumb">
+                            <span class="rank-badge">#{{ level.rank }}</span>
+                            <img :src="getThumbnail(level)" alt="">
+                        </div>
+                        <div class="gdl-card-info">
+                            <div class="card-header">
+                                <span class="rank-number">#{{ level.rank }}</span>
+                                <h2 class="level-title">{{ level.name }}</h2>
+                            </div>
+                            <div class="card-authors">
+                                by <strong>{{ level.author || 'Unknown' }}</strong>
+                                <span v-if="level.verifier"> (Verified by <span class="verifier-name">{{ level.verifier }}</span>)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN -->
+                <div class="gdl-details-container" v-if="selectedLevel">
+                    <div class="gdl-level-detail-box">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h1 class="detail-title" style="margin:0;">#{{ selectedLevel.rank }} — {{ selectedLevel.name }}</h1>
+                            <button v-if="isAdmin" @click="openEditModal(selectedLevel)" style="background:#f39c12; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">
+                                ✏️ Edit Level
+                            </button>
+                        </div>
+                        
+                        <div class="authors-clean-block">
+                            <div class="author-item">
+                                <span class="author-label">CREATOR</span>
+                                <span class="author-val">{{ selectedLevel.author || 'Unknown' }}</span>
+                            </div>
+                            <div class="author-item" v-if="selectedLevel.verifier">
+                                <span class="author-label">VERIFIER</span>
+                                <span class="author-val verifier-name">{{ selectedLevel.verifier }}</span>
+                            </div>
+                        </div>
+
+                        <div class="video-wrapper" v-if="selectedLevel.ytid">
+                            <iframe 
+                                :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" 
+                                frameborder="0" 
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+
+                        <div class="records-section">
+                            <div class="records-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span class="records-trophy">🏆</span>
+                                    <div class="records-header-text">
+                                        <h3 class="section-subtitle">Records</h3>
+                                        <p class="records-count-info">
+                                            Total: <strong>{{ (selectedLevel.records || []).length }}</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                                <button v-if="isAdmin" @click="openAddRecordModal" style="background:#2ecc71; color:#000; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:12px;">
+                                    ➕ Add Record
+                                </button>
+                            </div>
+
+                            <div class="records-list" v-if="selectedLevel.records && selectedLevel.records.length > 0">
+                                <div v-for="(rec, idx) in selectedLevel.records" :key="idx" class="record-card" style="display:flex; justify-content:space-between; align-items:center;">
+                                    <div class="record-user-info">
+                                        <span class="user-name">{{ rec.user }}</span>
+                                    </div>
+                                    <div class="record-meta-info" style="display:flex; align-items:center; gap:8px;">
+                                        <span class="percent-tag">{{ rec.percent }}%</span>
+                                        <a v-if="rec.link" :href="rec.link" target="_blank" class="record-video-btn">🎬</a>
+                                        <button v-if="isAdmin" @click="deleteRecord(idx)" style="background:none; border:none; cursor:pointer; font-size:14px;" title="Delete Record">🗑️</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="no-records">
+                                No records yet.
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
 
-            <!-- МОДАЛКА ДОБАВЛЕНИЯ -->
-            <div v-if="showModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:9999;">
-                <div style="background:#181b20; border:1px solid #333; padding:24px; border-radius:12px; width:350px; color:#fff;">
-                    <h3>Добавить новый уровень</h3>
-                    <input v-model="form.name" placeholder="Название уровня" style="width:100%; margin: 8px 0; padding:8px; background:#222; border:1px solid #444; color:#fff; border-radius:4px;" />
-                    <input v-model="form.author" placeholder="Создатель" style="width:100%; margin: 8px 0; padding:8px; background:#222; border:1px solid #444; color:#fff; border-radius:4px;" />
-                    <input v-model="form.verifier" placeholder="Верификатор" style="width:100%; margin: 8px 0; padding:8px; background:#222; border:1px solid #444; color:#fff; border-radius:4px;" />
-                    <input v-model="form.ytid" placeholder="YouTube Video ID (например: dQw4w9WgXcQ)" style="width:100%; margin: 8px 0; padding:8px; background:#222; border:1px solid #444; color:#fff; border-radius:4px;" />
-                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
-                        <button @click="showModal = false" style="padding:6px 12px; background:#444; color:#fff; border:none; border-radius:4px; cursor:pointer;">Отмена</button>
-                        <button @click="addLevel" style="padding:6px 12px; background:#2ecc71; color:#000; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">Добавить</button>
+            <!-- MODAL ADD / EDIT LEVEL -->
+            <div v-if="showLevelModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:9999;">
+                <div style="background:#181b20; border:1px solid #333; padding:24px; border-radius:12px; width:400px; color:#fff;">
+                    <h2 style="margin-bottom:16px;">{{ isEditing ? 'Edit Level' : 'Add New Level' }}</h2>
+                    
+                    <label style="font-size:12px; color:#aaa;">Level Name</label>
+                    <input v-model="levelForm.name" placeholder="e.g. Tidal Wave" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
+                    
+                    <label style="font-size:12px; color:#aaa;">Creator</label>
+                    <input v-model="levelForm.author" placeholder="e.g. OniLink" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
+                    
+                    <label style="font-size:12px; color:#aaa;">Verifier</label>
+                    <input v-model="levelForm.verifier" placeholder="e.g. Zoink" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
+                    
+                    <label style="font-size:12px; color:#aaa;">YouTube Video ID</label>
+                    <input v-model="levelForm.ytid" placeholder="e.g. dQw4w9WgXcQ" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
+                    
+                    <label style="font-size:12px; color:#aaa;">Custom Thumbnail URL (Optional)</label>
+                    <input v-model="levelForm.thumbnail" placeholder="https://i.imgur.com/example.png" class="gdl-input" style="width:100%; margin-bottom:16px; padding:8px;" />
+                    
+                    <div style="display:flex; justify-content:flex-end; gap:8px;">
+                        <button @click="showLevelModal = false" style="background:#444; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">Cancel</button>
+                        <button @click="saveLevel" style="background:#2ecc71; color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL ADD RECORD -->
+            <div v-if="showRecordModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:9999;">
+                <div style="background:#181b20; border:1px solid #333; padding:24px; border-radius:12px; width:360px; color:#fff;">
+                    <h2 style="margin-bottom:16px;">Add Record</h2>
+                    
+                    <label style="font-size:12px; color:#aaa;">Player Name</label>
+                    <input v-model="recordForm.user" placeholder="e.g. Player1" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
+                    
+                    <label style="font-size:12px; color:#aaa;">Percent (%)</label>
+                    <input type="number" v-model.number="recordForm.percent" placeholder="100" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
+                    
+                    <label style="font-size:12px; color:#aaa;">Video Link (YouTube)</label>
+                    <input v-model="recordForm.link" placeholder="https://youtu.be/..." class="gdl-input" style="width:100%; margin-bottom:16px; padding:8px;" />
+                    
+                    <div style="display:flex; justify-content:flex-end; gap:8px;">
+                        <button @click="showRecordModal = false" style="background:#444; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">Cancel</button>
+                        <button @click="saveRecord" style="background:#2ecc71; color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">Add</button>
                     </div>
                 </div>
             </div>
@@ -99,118 +230,285 @@ export default {
         </div>
     `,
 
-    data() {
-        return {
-            list: [],
-            loading: true,
-            selectedLevel: null,
-            isAdmin: false,
-            fileSha: '',
-            showModal: false,
-            form: { name: '', author: '', verifier: '', ytid: '' }
-        };
+    data: () => ({
+        list: [],
+        loading: true,
+        selectedLevel: null,
+        searchQuery: '',
+        draggedIndex: null,
+        fileSha: '',
+        isAdmin: sessionStorage.getItem('is_admin') === 'true',
+        
+        // Modals
+        showLevelModal: false,
+        isEditing: false,
+        levelForm: {
+            name: '',
+            author: '',
+            verifier: '',
+            ytid: '',
+            thumbnail: ''
+        },
+
+        showRecordModal: false,
+        recordForm: {
+            user: '',
+            percent: 100,
+            link: ''
+        }
+    }),
+
+    computed: {
+        filteredList() {
+            if (!this.searchQuery) return this.list;
+            const q = this.searchQuery.toLowerCase();
+            return this.list.filter(item => 
+                (item.name && item.name.toLowerCase().includes(q)) ||
+                (item.author && item.author.toLowerCase().includes(q))
+            );
+        }
     },
 
     async mounted() {
-        if (sessionStorage.getItem("is_admin") === "true") {
-            this.isAdmin = true;
-        }
-        await this.loadList();
+        await this.loadAllData();
     },
 
     methods: {
-        getRank(lvl) {
-            return this.list.indexOf(lvl) + 1;
-        },
-
-        async loadList() {
-            try {
-                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    this.fileSha = data.sha;
-                    const decoded = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
-                    this.list = JSON.parse(decoded);
-                    if (this.list.length > 0) this.selectedLevel = this.list[0];
-                }
-            } catch (err) {
-                console.error("Ошибка загрузки данных:", err);
-            } finally {
-                this.loading = false;
-            }
-        },
-
-        login() {
+        loginAdmin() {
             const pass = prompt("Введите пароль админа:");
             if (pass === ADMIN_PASS) {
                 if (!GITHUB_TOKEN) {
-                    const token = prompt("Введите ваш GitHub Personal Access Token (сохранится 1 раз у вас в браузере):");
+                    const token = prompt("Введите ваш GitHub Personal Access Token (сохранится у вас в браузере):");
                     if (token) {
                         GITHUB_TOKEN = token.trim();
                         localStorage.setItem("my_gh_token", GITHUB_TOKEN);
                     } else {
-                        alert("Без токена нельзя сохранять данные!");
+                        alert("Без токена нельзя сохранять рекорды и уровни!");
                         return;
                     }
                 }
                 this.isAdmin = true;
-                sessionStorage.setItem("is_admin", "true");
+                sessionStorage.setItem('is_admin', 'true');
                 alert("Успешный вход!");
             } else {
                 alert("Неверный пароль!");
             }
         },
 
-        logout() {
+        logoutAdmin() {
             this.isAdmin = false;
-            sessionStorage.removeItem("is_admin");
+            sessionStorage.removeItem('is_admin');
         },
 
+        async loadAllData() {
+            try {
+                let loadedList = [];
+
+                try {
+                    let resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
+                    if (resList.status === 404) {
+                        resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_list.json?ref=${GITHUB_BRANCH}`);
+                    }
+
+                    if (resList.ok) {
+                        const data = await resList.json();
+                        this.fileSha = data.sha;
+                        const decodedContent = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
+                        loadedList = JSON.parse(decodedContent);
+                    }
+                } catch (err) {
+                    console.warn("GitHub fetch error:", err);
+                }
+
+                if (!loadedList || loadedList.length === 0) {
+                    const fetchListFn = ContentModule.fetchList || (async () => []);
+                    loadedList = await fetchListFn();
+                }
+
+                if (Array.isArray(loadedList)) {
+                    this.list = loadedList.map((item, index) => {
+                        if (typeof item === 'string') {
+                            return { name: item, author: 'Unknown', rank: index + 1, records: [] };
+                        } else if (typeof item === 'object' && item !== null) {
+                            return { ...item, rank: index + 1, records: item.records || [] };
+                        }
+                        return { name: "Unknown", rank: index + 1, records: [] };
+                    });
+                } else {
+                    this.list = [];
+                }
+
+                if (this.list.length > 0) {
+                    this.selectedLevel = this.list[0];
+                }
+            } catch (e) {
+                console.error("Data load error:", e);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        getThumbnail(level) {
+            if (level.thumbnail && level.thumbnail.trim() !== '') {
+                return level.thumbnail;
+            }
+            return level.ytid ? `https://i.ytimg.com/vi/${level.ytid}/hqdefault.jpg` : 'https://i.imgur.com/6VBx3io.png';
+        },
+
+        // --- LEVEL MANAGEMENT ---
         openAddModal() {
-            this.form = { name: '', author: '', verifier: '', ytid: '' };
-            this.showModal = true;
+            this.isEditing = false;
+            this.levelForm = { name: '', author: '', verifier: '', ytid: '', thumbnail: '' };
+            this.showLevelModal = true;
         },
 
-        addLevel() {
-            if (!this.form.name) return alert("Введите название уровня!");
-            const newLvl = {
-                name: this.form.name,
-                author: this.form.author || 'Unknown',
-                verifier: this.form.verifier || '',
-                ytid: this.form.ytid || '',
-                records: []
+        openEditModal(level) {
+            this.isEditing = true;
+            this.levelForm = {
+                name: level.name || '',
+                author: level.author || '',
+                verifier: level.verifier || '',
+                ytid: level.ytid || '',
+                thumbnail: level.thumbnail || ''
             };
-            this.list.push(newLvl);
-            this.selectedLevel = newLvl;
-            this.showModal = false;
+            this.showLevelModal = true;
         },
 
-        async saveListToGitHub() {
-            if (!GITHUB_TOKEN) {
-                alert("Ошибка: нет токена GitHub!");
+        async saveLevel() {
+            if (!this.levelForm.name) {
+                alert("Введите название уровня!");
                 return;
             }
 
+            if (this.isEditing) {
+                this.selectedLevel.name = this.levelForm.name;
+                this.selectedLevel.author = this.levelForm.author;
+                this.selectedLevel.verifier = this.levelForm.verifier;
+                this.selectedLevel.ytid = this.levelForm.ytid;
+                this.selectedLevel.thumbnail = this.levelForm.thumbnail;
+            } else {
+                const newLvl = {
+                    name: this.levelForm.name,
+                    author: this.levelForm.author || 'Unknown',
+                    verifier: this.levelForm.verifier || '',
+                    ytid: this.levelForm.ytid || '',
+                    thumbnail: this.levelForm.thumbnail || '',
+                    rank: this.list.length + 1,
+                    records: []
+                };
+                this.list.push(newLvl);
+                this.selectedLevel = newLvl;
+            }
+
+            this.showLevelModal = false;
+            await this.saveListToGitHub();
+        },
+
+        // --- RECORD MANAGEMENT ---
+        openAddRecordModal() {
+            this.recordForm = { user: '', percent: 100, link: '' };
+            this.showRecordModal = true;
+        },
+
+        async saveRecord() {
+            if (!this.recordForm.user) {
+                alert("Введите имя игрока!");
+                return;
+            }
+
+            if (!this.selectedLevel.records) {
+                this.selectedLevel.records = [];
+            }
+
+            this.selectedLevel.records.push({
+                user: this.recordForm.user,
+                percent: this.recordForm.percent || 100,
+                link: this.recordForm.link || ''
+            });
+
+            this.showRecordModal = false;
+            await this.saveListToGitHub();
+        },
+
+        async deleteRecord(index) {
+            if (confirm("Удалить этот рекорд?")) {
+                this.selectedLevel.records.splice(index, 1);
+                await this.saveListToGitHub();
+            }
+        },
+
+        // --- DRAG & DROP ---
+        onDragStart(event, index) {
+            if (!this.isAdmin) return;
+            this.draggedIndex = index;
+            event.dataTransfer.effectAllowed = 'move';
+        },
+
+        async onDrop(event, targetIndex) {
+            if (!this.isAdmin || this.draggedIndex === null || this.draggedIndex === targetIndex) return;
+
+            const movedItem = this.list.splice(this.draggedIndex, 1)[0];
+            this.list.splice(targetIndex, 0, movedItem);
+
+            this.list.forEach((item, idx) => {
+                item.rank = idx + 1;
+            });
+
+            this.draggedIndex = null;
+            await this.saveListToGitHub();
+        },
+
+        // --- SAVE TO GITHUB ---
+        async saveListToGitHub() {
+            if (!GITHUB_TOKEN) {
+                const token = prompt("Введите ваш GitHub Token:");
+                if (token) {
+                    GITHUB_TOKEN = token.trim();
+                    localStorage.setItem("my_gh_token", GITHUB_TOKEN);
+                } else {
+                    alert("Нельзя сохранить без токена!");
+                    return;
+                }
+            }
+
             try {
-                // Получаем актуальный SHA перед отправкой
-                const getRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`, {
-                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                // 1. Свежий SHA перед отправкой
+                const getFileRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`, {
+                    headers: { 
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 });
-                if (getRes.ok) {
-                    const fileData = await getRes.json();
+                
+                if (getFileRes.ok) {
+                    const fileData = await getFileRes.json();
                     this.fileSha = fileData.sha;
                 }
 
-                const jsonString = JSON.stringify(this.list, null, 4);
+                // 2. Структурирование данных
+                const cleanData = this.list.map(item => ({
+                    name: item.name,
+                    author: item.author,
+                    verifier: item.verifier,
+                    ytid: item.ytid,
+                    thumbnail: item.thumbnail || '',
+                    percentToQualify: item.percentToQualify || 100,
+                    records: item.records || []
+                }));
+
+                // 3. Безопасная кодировка UTF-8 для кириллицы
+                const jsonString = JSON.stringify(cleanData, null, 4);
                 const contentEncoded = btoa(encodeURIComponent(jsonString).replace(/%([0-9A-F]{2})/g, (match, p1) => {
                     return String.fromCharCode('0x' + p1);
                 }));
 
+                // 4. PUT-запрос
                 const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
                     },
                     body: JSON.stringify({
                         message: 'Update demonlist via Admin Panel',
@@ -221,13 +519,16 @@ export default {
                 });
 
                 if (response.ok) {
+                    const resData = await response.json();
+                    this.fileSha = resData.content.sha;
                     alert("Успешно сохранено на GitHub!");
                 } else {
-                    const err = await response.json();
-                    alert(`Ошибка сохранения (${response.status}): ${err.message}`);
+                    const errData = await response.json();
+                    alert(`Ошибка GitHub (${response.status}):\n${errData.message || 'Проверьте токен'}`);
                 }
             } catch (err) {
-                alert("Ошибка: " + err.message);
+                console.error("Save error:", err);
+                alert("Ошибка скрипта: " + err.message);
             }
         }
     }
