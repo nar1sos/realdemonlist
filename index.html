@@ -8,7 +8,7 @@
     <!-- Заглушка для favicon -->
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 
-    <!-- Подключение стилей с учетом структуры в css/ и css/pages/ -->
+    <!-- Подключение стилей -->
     <link rel="stylesheet" href="./css/reset.css">
     <link rel="stylesheet" href="./css/typography.css">
     <link rel="stylesheet" href="./css/main.css">
@@ -16,16 +16,42 @@
     <link rel="stylesheet" href="./css/pages/leaderboard.css">
     <link rel="stylesheet" href="./css/pages/roulette.css">
 
-    <!-- Резервные стили -->
+    <!-- Стили шапки и кнопок навигации -->
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #0b0e14; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; }
         
         .gdl-header { background: #111317; border-bottom: 1px solid #222; }
         .header-container { max-width: 1520px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-item { color: #8a94a6; text-decoration: none; font-weight: 600; font-size: 15px; }
-        .nav-item:hover, .nav-item.router-link-active { color: #3b82f6; }
+        .nav-links { display: flex; gap: 12px; }
+
+        /* Оформление ссылок в виде кнопок */
+        .nav-item { 
+            color: #8a94a6; 
+            text-decoration: none; 
+            font-weight: 600; 
+            font-size: 14px;
+            background: #1e222b;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #2a2f3d;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .nav-item:hover { 
+            color: #ffffff; 
+            background: #2b3140;
+            border-color: #3b82f6;
+        }
+
+        /* Стиль для активной кнопки */
+        .nav-item.router-link-active { 
+            color: #ffffff; 
+            background: #2563eb; 
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
     </style>
 
     <!-- Vue 3 и Vue Router 4 -->
@@ -128,7 +154,6 @@
     document.addEventListener("DOMContentLoaded", updateHeaderBtnUI);
     </script>
 
-    <!-- Точка входа в папке js/ -->
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>
