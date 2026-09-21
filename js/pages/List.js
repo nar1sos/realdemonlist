@@ -53,13 +53,25 @@ export default {
                     </div>
                 </div>
 
-                <!-- CENTER COLUMN -->
+                <!-- CENTER COLUMN WITH DRAG & DROP -->
                 <div class="gdl-cards-container">
+                    <div v-if="isAdmin" class="admin-notice" style="background:#2ecc7122; color:#2ecc71; padding:8px; border-radius:6px; margin-bottom:10px; font-size:12px; text-align:center;">
+                        ⚡ Режим Редактора: Перетаскивайте карточки мышкой для смены мест!
+                    </div>
+
                     <div 
                         v-for="(level, index) in filteredList" 
-                        :key="index"
+                        :key="level.name"
                         class="gdl-level-card"
-                        :class="{ active: selectedLevel && selectedLevel.name === level.name }"
+                        :class="{ 
+                            active: selectedLevel && selectedLevel.name === level.name,
+                            'draggable-card': isAdmin
+                        }"
+                        :draggable="isAdmin"
+                        @dragstart="onDragStart($event, index)"
+                        @dragover.prevent
+                        @dragenter.prevent
+                        @drop="onDrop($event, index)"
                         @click="selectedLevel = level"
                     >
                         <div class="gdl-card-thumb">
@@ -138,13 +150,17 @@ export default {
 
     data: () => ({
         list: [],
-        players: [],
         loading: true,
         selectedLevel: null,
-        searchQuery: ''
+        searchQuery: '',
+        draggedIndex: null,
+        fileSha: ''
     }),
 
     computed: {
+        isAdmin() {
+            return localStorage.getItem('gdl_is_admin') === 'true';
+        },
         filteredList() {
             if (!this.searchQuery) return this.list;
             const q = this.searchQuery.toLowerCase();
@@ -172,6 +188,7 @@ export default {
 
                     if (resList.ok) {
                         const data = await resList.json();
+                        this.fileSha = data.sha;
                         loadedList = JSON.parse(decodeURIComponent(escape(atob(data.content))));
                     }
                 } catch (err) {
@@ -208,6 +225,78 @@ export default {
 
         getThumbnail(ytid) {
             return ytid ? `https://i.ytimg.com/vi/${ytid}/hqdefault.jpg` : 'https://i.imgur.com/6VBx3io.png';
+        },
+
+        // --- DRAG AND DROP METHODS ---
+        onDragStart(event, index) {
+            if (!this.isAdmin) return;
+            this.draggedIndex = index;
+            event.dataTransfer.effectAllowed = 'move';
+        },
+
+        async onDrop(event, targetIndex) {
+            if (!this.isAdmin || this.draggedIndex === null || this.draggedIndex === targetIndex) return;
+
+            // Меняем местами элементы в массиве
+            const movedItem = this.list.splice(this.draggedIndex, 1)[0];
+            this.list.splice(targetIndex, 0, movedItem);
+
+            // Обновляем ранги #1, #2, #3...
+            this.list.forEach((item, idx) => {
+                item.rank = idx + 1;
+            });
+
+            this.draggedIndex = null;
+
+            // Автоматически сохраняем изменения на GitHub!
+            await this.saveListToGitHub();
+        },
+
+        async saveListToGitHub() {
+            const token = localStorage.getItem('gdl_gh_token');
+            if (!token) {
+                alert("Ошибка: нет GitHub токена! Нажмите Admin Login заново.");
+                return;
+            }
+
+            try {
+                // Форматируем JSON обратно
+                const cleanData = this.list.map(item => ({
+                    name: item.name,
+                    author: item.author,
+                    verifier: item.verifier,
+                    ytid: item.ytid,
+                    percentToQualify: item.percentToQualify || 100,
+                    records: item.records || []
+                }));
+
+                const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(cleanData, null, 4))));
+
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update level positions via Drag-and-Drop',
+                        content: contentEncoded,
+                        sha: this.fileSha,
+                        branch: GITHUB_BRANCH
+                    })
+                });
+
+                if (response.ok) {
+                    const resData = await response.json();
+                    this.fileSha = resData.content.sha;
+                    console.log("Сохранено на GitHub!");
+                } else {
+                    alert("Ошибка сохранения на GitHub. Проверьте правильность токена!");
+                }
+            } catch (err) {
+                console.error("Save error:", err);
+                alert("Не удалось сохранить список.");
+            }
         }
     }
 };
