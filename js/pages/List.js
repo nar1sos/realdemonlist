@@ -1,117 +1,100 @@
 import * as ContentModule from "../content.js";
 import Spinner from "../components/Spinner.js";
 
-// ⚠️ УКАЖИ ДАННЫЕ СВОЕГО РЕПОЗИТОРИЯ ⚠️
-const GITHUB_USER = "nar1sos"; // Твой логин на GitHub
-const GITHUB_REPO = "realdemonlist"; // Название твоего репозитория (например, demonlist)
-const GITHUB_BRANCH = "main"; // Название ветки (main или master)
+const GITHUB_USER = "nar1sos";
+const GITHUB_REPO = "НАЗВАНИЕ_РЕПОЗИТОРИЯ";
+const GITHUB_BRANCH = "main";
 
 export default {
     components: { Spinner },
     template: `
         <div class="gdl-root">
-            <main v-if="loading" class="gdl-wrapper">
+            <main v-if="loading">
                 <Spinner />
             </main>
 
-            <div v-else class="gdl-wrapper">
-                <!-- ПАНЕЛЬ АДМИНА -->
-                <div class="admin-control-panel" style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
-                    <button @click="toggleAdmin" class="gdl-btn" style="padding: 8px 15px; cursor: pointer;">
-                        {{ isAdmin ? '🔒 Выйти из режима редактора' : '🔓 Включить режим редактора' }}
-                    </button>
-                    <button v-if="isAdmin" @click="saveToGithub" class="gdl-btn" :disabled="saving" style="background: #28a745; color: white; padding: 8px 15px; cursor: pointer;">
-                        {{ saving ? '⏳ Сохраняю на GitHub...' : '🚀 Опубликовать изменения для всех' }}
+            <div v-else class="page-list">
+                <!-- КНОПКА АДМИНКИ ДЛЯ nar1sos -->
+                <div v-if="currentUser && currentUser.isAdmin" class="admin-bar">
+                    <button @click="saveAllToGithub" :disabled="saving">
+                        {{ saving ? 'Сохранение...' : '🚀 Опубликовать изменения на GitHub' }}
                     </button>
                 </div>
 
-                <div class="gdl-content-grid">
-                    
-                    <!-- ЛЕВАЯ КОЛОНКА (ФОРМА ДОБАВЛЕНИЯ УРОВНЯ) -->
-                    <div class="gdl-left-column">
-                        <div class="gdl-meta-box">
-                            <div v-if="isAdmin" class="add-level-box" style="margin-bottom: 20px;">
-                                <h3>➕ Добавить уровень</h3>
-                                <form @submit.prevent="addNewLevel" style="display: flex; flex-direction: column; gap: 8px;">
-                                    <input v-model="newLevel.name" placeholder="Название уровня" required class="gdl-input" />
-                                    <input v-model="newLevel.author" placeholder="Автор" required class="gdl-input" />
-                                    <input v-model="newLevel.verifier" placeholder="Верификатор" required class="gdl-input" />
-                                    <input v-model="newLevel.ytid" placeholder="YouTube Video ID" class="gdl-input" />
-                                    <button type="submit" class="gdl-btn">Добавить в топ</button>
-                                </form>
+                <div class="list-container">
+                    <!-- СПИСОК УРОВНЕЙ -->
+                    <div class="list">
+                        <template v-for="(level, index) in list">
+                            <div 
+                                class="level" 
+                                :class="{ selected: selectedLevel && selectedLevel.name === level.name }"
+                                :draggable="currentUser && currentUser.isAdmin"
+                                @dragstart="onDragStart($event, index)"
+                                @dragover.prevent
+                                @drop="onDrop($event, index)"
+                                @click="selectedLevel = level"
+                            >
+                                <a :href="level.video" target="_blank" class="video" @click.stop>
+                                    <img :src="getThumbnail(level.ytid)" alt="">
+                                </a>
+                                <div class="meta">
+                                    <p>#{{ level.rank }}</p>
+                                    <h2>{{ level.name }}</h2>
+                                    <p>By {{ level.author }} <span v-if="level.verifier">| Verified by {{ level.verifier }}</span></p>
+                                </div>
+                                <button v-if="currentUser && currentUser.isAdmin" class="delete-btn" @click.stop="deleteLevel(index)">✕</button>
                             </div>
+                        </template>
 
-                            <h3>Rules</h3>
-                            <ul class="rules-list">
-                                <li><strong>1.</strong> Records must have video proof.</li>
-                                <li><strong>2.</strong> Secret ways are strictly prohibited.</li>
-                            </ul>
+                        <!-- Форма добавления уровня внизу списка -->
+                        <div v-if="currentUser && currentUser.isAdmin" class="admin-add-box">
+                            <h3>Добавить уровень</h3>
+                            <form @submit.prevent="addNewLevel">
+                                <input v-model="newLevel.name" placeholder="Название" required />
+                                <input v-model="newLevel.author" placeholder="Автор" required />
+                                <input v-model="newLevel.verifier" placeholder="Верификатор" />
+                                <input v-model="newLevel.ytid" placeholder="YouTube Video ID" />
+                                <button type="submit">Добавить</button>
+                            </form>
                         </div>
                     </div>
 
-                    <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА (СПИСОК С DRAG & DROP) -->
-                    <div class="gdl-cards-container">
-                        <div 
-                            v-for="(level, index) in list" 
-                            :key="index" 
-                            class="gdl-level-card"
-                            :class="{ 'active': selectedLevel && selectedLevel.name === level.name }"
-                            :draggable="isAdmin"
-                            @dragstart="onDragStart($event, index)"
-                            @dragover.prevent
-                            @drop="onDrop($event, index)"
-                            @click="selectedLevel = level"
-                            style="display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid #333; margin-bottom: 5px; border-radius: 5px;"
-                        >
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span v-if="isAdmin" style="cursor: grab; font-weight: bold; font-size: 18px;">☰</span>
-                                <div class="gdl-card-thumb" style="width: 80px;">
-                                    <img :src="getThumbnail(level.ytid)" :alt="level.name" style="width: 100%; border-radius: 4px;" />
-                                </div>
-                                <div class="gdl-card-info">
-                                    <h3 style="margin: 0;">#{{ level.rank }} {{ level.name }}</h3>
-                                    <small>By <strong>{{ level.author }}</strong></small>
-                                </div>
-                            </div>
-                            
-                            <button v-if="isAdmin" @click.stop="deleteLevel(index)" style="color: #ff4d4d; background: none; border: none; font-size: 18px; cursor: pointer;">✕</button>
-                        </div>
-                    </div>
+                    <!-- ДЕТАЛИ УРОВНЯ И РЕКОРДЫ -->
+                    <div class="meta-container" v-if="selectedLevel">
+                        <div class="inner">
+                            <h1>#{{ selectedLevel.rank }} — {{ selectedLevel.name }}</h1>
+                            <p>Created by <strong>{{ selectedLevel.author }}</strong></p>
+                            <p v-if="selectedLevel.verifier">Verified by <strong>{{ selectedLevel.verifier }}</strong></p>
 
-                    <!-- ПРАВАЯ КОЛОНКА (ДЕТАЛИ И РЕКОРДЫ) -->
-                    <div class="gdl-details-container" v-if="selectedLevel">
-                        <div class="gdl-level-detail-box">
-                            <h2>#{{ selectedLevel.rank }} {{ selectedLevel.name }}</h2>
-
-                            <div class="video-wrapper" v-if="selectedLevel.ytid" style="margin-bottom: 15px;">
-                                <iframe :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" frameborder="0" allowfullscreen style="width: 100%; height: 250px;"></iframe>
+                            <div class="video-container" v-if="selectedLevel.ytid">
+                                <iframe :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" frameborder="0" allowfullscreen></iframe>
                             </div>
 
                             <!-- Добавление рекорда -->
-                            <div v-if="isAdmin" class="add-record-box" style="margin-bottom: 15px; border-top: 1px solid #444; padding-top: 10px;">
-                                <h4>➕ Добавить рекорд игроку</h4>
-                                <form @submit.prevent="addRecord" style="display: flex; flex-direction: column; gap: 6px;">
-                                    <input v-model="newRecord.user" placeholder="Имя игрока" required class="gdl-input" />
-                                    <input v-model.number="newRecord.percent" type="number" min="1" max="100" placeholder="Процент (%)" required class="gdl-input" />
-                                    <input v-model="newRecord.link" placeholder="Ссылка на видео" class="gdl-input" />
-                                    <button type="submit" class="gdl-btn">Сохранить рекорд</button>
+                            <div v-if="currentUser && currentUser.isAdmin" class="admin-add-box">
+                                <h3>Добавить рекорд</h3>
+                                <form @submit.prevent="addRecord">
+                                    <input v-model="newRecord.user" placeholder="Имя игрока" required />
+                                    <input v-model.number="newRecord.percent" type="number" min="1" max="100" placeholder="Процент (%)" required />
+                                    <input v-model="newRecord.link" placeholder="Ссылка на видео" />
+                                    <button type="submit">Засчитать рекорд</button>
                                 </form>
                             </div>
 
-                            <!-- Список рекордов -->
-                            <div class="records-list">
-                                <h3>Records</h3>
-                                <div v-for="(rec, idx) in (selectedLevel.records || [])" :key="idx" style="display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #222;">
-                                    <span><strong>{{ rec.user }}</strong> — {{ rec.percent }}%</span>
-                                    <div>
-                                        <a v-if="rec.link" :href="rec.link" target="_blank" style="color: #4da6ff; margin-right: 8px;">▶ Video</a>
-                                        <button v-if="isAdmin" @click="deleteRecord(idx)" style="color: #ff4d4d; background: none; border: none; cursor: pointer;">✕</button>
+                            <h2>Records ({{ (selectedLevel.records || []).length }})</h2>
+                            <div class="records">
+                                <div v-for="(rec, idx) in (selectedLevel.records || [])" :key="idx" class="record">
+                                    <div class="user">
+                                        <strong>{{ rec.user }}</strong> — {{ rec.percent }}%
+                                    </div>
+                                    <div class="link">
+                                        <a v-if="rec.link" :href="rec.link" target="_blank">Video</a>
+                                        <button v-if="currentUser && currentUser.isAdmin" @click="deleteRecord(idx)">✕</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -119,45 +102,43 @@ export default {
 
     data: () => ({
         list: [],
+        players: [],
         loading: true,
         saving: false,
         selectedLevel: null,
-        isAdmin: false,
         draggedIndex: null,
-        fileSha: "",
-        githubToken: "",
+        fileShaList: "",
+        fileShaPlayers: "",
+        currentUser: null,
         newLevel: { name: "", author: "", verifier: "", ytid: "" },
         newRecord: { user: "", percent: 100, link: "" }
     }),
 
     async mounted() {
-        // Проверяем, сохранен ли токен админа в браузере
-        const savedToken = localStorage.getItem("gdl_admin_token");
-        if (savedToken) {
-            this.githubToken = savedToken;
-        }
-        await this.loadList();
+        this.currentUser = JSON.parse(localStorage.getItem("gdl_user") || "null");
+        await this.loadAllData();
     },
 
     methods: {
-        toggleAdmin() {
-            this.isAdmin = !this.isAdmin;
-        },
-
-        async loadList() {
+        async loadAllData() {
             try {
-                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    this.fileSha = data.sha;
-                    const content = decodeURIComponent(escape(atob(data.content)));
-                    this.list = JSON.parse(content);
-                } else {
-                    const fetchListFn = ContentModule.fetchList || (async () => []);
-                    this.list = await fetchListFn();
+                // Загрузка _list.json
+                const resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
+                if (resList.ok) {
+                    const data = await resList.json();
+                    this.fileShaList = data.sha;
+                    this.list = JSON.parse(decodeURIComponent(escape(atob(data.content))));
                 }
 
-                this.updateRanks();
+                // Загрузка _players.json
+                const resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_players.json?ref=${GITHUB_BRANCH}`);
+                if (resPlayers.ok) {
+                    const data = await resPlayers.json();
+                    this.fileShaPlayers = data.sha;
+                    this.players = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                }
+
+                this.updateRanksAndScores();
                 if (this.list.length > 0) this.selectedLevel = this.list[0];
             } catch (e) {
                 console.error("Ошибка загрузки:", e);
@@ -166,110 +147,134 @@ export default {
             }
         },
 
-        async saveToGithub() {
-            // Если токена нет, запрашиваем его у пользователя
-            if (!this.githubToken) {
-                const inputToken = prompt("Введи твой GitHub Personal Access Token (ghp_...):");
-                if (!inputToken) return;
-                this.githubToken = inputToken.trim();
-                localStorage.setItem("gdl_admin_token", this.githubToken);
-            }
-
-            this.saving = true;
-            this.updateRanks();
-
-            try {
-                const jsonString = JSON.stringify(this.list, null, 2);
-                const utf8Bytes = new TextEncoder().encode(jsonString);
-                let binary = '';
-                utf8Bytes.forEach(b => binary += String.fromCharCode(b));
-                const contentBase64 = btoa(binary);
-
-                const body = {
-                    message: "Update _list.json via Site Editor",
-                    content: contentBase64,
-                    branch: GITHUB_BRANCH
-                };
-
-                if (this.fileSha) {
-                    body.sha = this.fileSha;
-                }
-
-                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json`, {
-                    method: "PUT",
-                    headers: {
-                        "Authorization": `token ${this.githubToken}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(body)
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    this.fileSha = result.content.sha;
-                    alert("Успешно! Изменения отправлены на GitHub. Через 1-2 минуты сайт обновится у всех.");
-                } else {
-                    const err = await response.json();
-                    if (response.status === 401 || response.status === 403) {
-                        alert("Ошибка доступа! Неверный токен. Попробуй ввести его заново.");
-                        localStorage.removeItem("gdl_admin_token");
-                        this.githubToken = "";
-                    } else {
-                        alert("Ошибка сохранения: " + err.message);
-                    }
-                }
-            } catch (e) {
-                console.error(e);
-                alert("Ошибка сети при отправке на GitHub.");
-            } finally {
-                this.saving = false;
-            }
-        },
-
-        updateRanks() {
-            this.list.forEach((lvl, index) => {
-                lvl.rank = index + 1;
+        updateRanksAndScores() {
+            // Пересчет рангов уровней
+            this.list.forEach((lvl, idx) => {
+                lvl.rank = idx + 1;
             });
+
+            // Автоматическая синхронизация рекордов в Лидеборд
+            if (this.players.length > 0) {
+                this.players.forEach(player => {
+                    player.records = [];
+                    player.score = 0;
+
+                    this.list.forEach(lvl => {
+                        if (lvl.records) {
+                            const rec = lvl.records.find(r => r.user.toLowerCase() === player.name.toLowerCase());
+                            if (rec) {
+                                const pts = Math.max(Math.round(100 - (lvl.rank - 1) * 2), 5);
+                                player.records.push({
+                                    level: lvl.name,
+                                    rank: lvl.rank,
+                                    percent: rec.percent,
+                                    link: rec.link
+                                });
+                                if (rec.percent === 100) {
+                                    player.score += pts;
+                                }
+                            }
+                        }
+                    });
+                });
+            }
         },
 
-        /* DRAG AND DROP LOGIC */
+        /* Drag and Drop */
         onDragStart(e, index) {
-            if (!this.isAdmin) return;
+            if (!this.currentUser || !this.currentUser.isAdmin) return;
             this.draggedIndex = index;
         },
 
         onDrop(e, targetIndex) {
-            if (!this.isAdmin || this.draggedIndex === null) return;
-            const itemToMove = this.list.splice(this.draggedIndex, 1)[0];
-            this.list.splice(targetIndex, 0, itemToMove);
+            if (!this.currentUser || !this.currentUser.isAdmin || this.draggedIndex === null) return;
+            const moved = this.list.splice(this.draggedIndex, 1)[0];
+            this.list.splice(targetIndex, 0, moved);
             this.draggedIndex = null;
-            this.updateRanks();
+            this.updateRanksAndScores();
         },
 
         addNewLevel() {
             if (!this.newLevel.name) return;
-            const level = { ...this.newLevel, records: [], rank: this.list.length + 1 };
-            this.list.push(level);
-            this.updateRanks();
-            this.selectedLevel = level;
+            const lvl = { ...this.newLevel, records: [], rank: this.list.length + 1 };
+            this.list.push(lvl);
+            this.updateRanksAndScores();
+            this.selectedLevel = lvl;
             this.newLevel = { name: "", author: "", verifier: "", ytid: "" };
         },
 
-        deleteLevel(index) {
-            this.list.splice(index, 1);
-            this.updateRanks();
+        deleteLevel(idx) {
+            this.list.splice(idx, 1);
+            this.updateRanksAndScores();
         },
 
         addRecord() {
             if (!this.selectedLevel || !this.newRecord.user) return;
             if (!this.selectedLevel.records) this.selectedLevel.records = [];
+            
             this.selectedLevel.records.push({ ...this.newRecord });
+
+            // Проверяем, есть ли игрок в лидеборде. Если нет — создаем его!
+            let player = this.players.find(p => p.name.toLowerCase() === this.newRecord.user.toLowerCase());
+            if (!player) {
+                player = { name: this.newRecord.user, score: 0, records: [] };
+                this.players.push(player);
+            }
+
+            this.updateRanksAndScores();
             this.newRecord = { user: "", percent: 100, link: "" };
         },
 
-        deleteRecord(index) {
-            if (this.selectedLevel && this.selectedLevel.records) {
-                this.selectedLevel.records.splice(index, 1);
+        deleteRecord(idx) {
+            this.selectedLevel.records.splice(idx, 1);
+            this.updateRanksAndScores();
+        },
+
+        async saveAllToGithub() {
+            const token = this.currentUser.token;
+            if (!token) {
+                alert("Ошибка авторизации! Перевойдите в аккаунт.");
+                return;
+            }
+
+            this.saving = true;
+            try {
+                // Сохраняем _list.json
+                await this.uploadFileToGithub("_list.json", this.list, this.fileShaList, token);
+                // Сохраняем _players.json
+                await this.uploadFileToGithub("_players.json", this.players, this.fileShaPlayers, token);
+
+                alert("Все данные упешно сохранены и обновлены в Лидеборде!");
+            } catch (e) {
+                alert("Ошибка сохранения: " + e.message);
+            } finally {
+                this.saving = false;
+            }
+        },
+
+        async uploadFileToGithub(filename, contentObj, sha, token) {
+            const jsonString = JSON.stringify(contentObj, null, 2);
+            const utf8Bytes = new TextEncoder().encode(jsonString);
+            let binary = '';
+            utf8Bytes.forEach(b => binary += String.fromCharCode(b));
+            const contentBase64 = btoa(binary);
+
+            const body = {
+                message: `Update ${filename}`,
+                content: contentBase64,
+                branch: GITHUB_BRANCH,
+                sha: sha
+            };
+
+            const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/${filename}`, {
+                method: "PUT",
+                headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.message);
             }
         },
 
