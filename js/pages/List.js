@@ -74,39 +74,57 @@ export default {
     methods: {
         async loadAllData() {
             try {
-                // 1. Загрузка списка уровней
-                let resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
-                if (resList.status === 404) {
-                    resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_list.json?ref=${GITHUB_BRANCH}`);
+                let loadedList = [];
+
+                // 1. Пробуем загрузить списки с GitHub
+                try {
+                    let resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
+                    if (resList.status === 404) {
+                        resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_list.json?ref=${GITHUB_BRANCH}`);
+                    }
+
+                    if (resList.ok) {
+                        const data = await resList.json();
+                        loadedList = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                    }
+                } catch (err) {
+                    console.warn("Не удалось загрузить с GitHub API, используем локальный модуль", err);
                 }
 
-                if (resList.ok) {
-                    const data = await resList.json();
-                    this.list = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-                } else {
+                // 2. Если с GitHub загрузить не удалось, берем из content.js
+                if (!loadedList || loadedList.length === 0) {
                     const fetchListFn = ContentModule.fetchList || (async () => []);
-                    const raw = await fetchListFn();
-                    this.list = raw.map(i => typeof i === 'string' ? { name: i, author: "Unknown", records: [] } : i);
+                    loadedList = await fetchListFn();
                 }
 
-                // 2. Загрузка игроков (СТРОГО БЕЗ ПРОБЕЛОВ)
-                let resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_players.json?ref=${GITHUB_BRANCH}`);
-                if (resPlayers.status === 404) {
-                    resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_players.json?ref=${GITHUB_BRANCH}`);
+                // 3. ПРЕОБРАЗОВАНИЕ ДАННЫХ (Защита от ошибки: Cannot create property 'rank' on string)
+                if (Array.isArray(loadedList)) {
+                    this.list = loadedList.map((item, index) => {
+                        if (typeof item === 'string') {
+                            return {
+                                name: item,
+                                author: 'Unknown',
+                                rank: index + 1,
+                                records: []
+                            };
+                        } else if (typeof item === 'object' && item !== null) {
+                            return {
+                                ...item,
+                                rank: index + 1,
+                                records: item.records || []
+                            };
+                        }
+                        return { name: "Unknown", rank: index + 1, records: [] };
+                    });
+                } else {
+                    this.list = [];
                 }
 
-                if (resPlayers.ok) {
-                    const data = await resPlayers.json();
-                    this.players = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-                }
-
-                // Проставляем ранги
-                if (Array.isArray(this.list)) {
-                    this.list.forEach((lvl, i) => lvl.rank = i + 1);
-                    if (this.list.length > 0) this.selectedLevel = this.list[0];
+                if (this.list.length > 0) {
+                    this.selectedLevel = this.list[0];
                 }
             } catch (e) {
-                console.error("Ошибка:", e);
+                console.error("Ошибка при обработке данных:", e);
             } finally {
                 this.loading = false;
             }
