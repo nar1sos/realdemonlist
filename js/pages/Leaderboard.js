@@ -199,7 +199,7 @@ export default {
                         <button 
                             @click="saveSelectedRecords" 
                             :disabled="!selectedLevels.length"
-                            style="flex: 2; padding: 12px; background: #22c55e; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; opacity: 1;"
+                            style="flex: 2; padding: 12px; background: #22c55e; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;"
                             :style="{ opacity: selectedLevels.length ? 1 : 0.5, cursor: selectedLevels.length ? 'pointer' : 'not-allowed' }"
                         >
                             🚀 Добавить {{ selectedLevels.length }} демонов в профиль
@@ -210,16 +210,44 @@ export default {
                 </div>
             </div>
 
-            <!-- МОДАЛКА: РЕДАКТИРОВАНИЕ ИГРОКА -->
+            <!-- МОДАЛКА: МНОЖЕСТВЕННЫЙ ВЫБОР ВЕРИФИКАЦИЙ -->
+            <div v-if="showVerifyModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showVerifyModal = false">
+                <div style="background: #161b26; border: 1px solid #283044; padding: 20px; border-radius: 12px; width: 100%; max-width: 480px; max-height: 85vh; display: flex; flex-direction: column; color: #fff;">
+                    <h3 style="margin-bottom: 10px;">Добавить верификации</h3>
+                    <input type="text" v-model="levelSearch" placeholder="Поиск демона..." style="width:100%; padding:8px 12px; margin-bottom:10px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" />
+                    
+                    <div style="flex: 1; overflow-y: auto; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 8px;">
+                        <div 
+                            v-for="lvl in filteredDemonList" 
+                            :key="lvl"
+                            @click="toggleLevelSelection(lvl)"
+                            style="padding: 8px 12px; border-bottom: 1px solid #1e293b; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                            :style="{ background: selectedLevels.includes(lvl) ? '#1e293b' : 'transparent' }"
+                        >
+                            <span>{{ lvl }}</span>
+                            <span v-if="selectedLevels.includes(lvl)" style="color: #10b981; font-weight: bold;">✓</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button @click="saveSelectedVerifies" style="flex:1; padding:10px; background:#10b981; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">
+                            Добавить выбранные ({{ selectedLevels.length }})
+                        </button>
+                        <button @click="showVerifyModal = false" style="flex:1; padding:10px; background:#475569; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Отмена</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- МОДАЛКА: РЕДАКТИРОВАНИЕ / ДОБАВЛЕНИЕ ИГРОКА -->
             <div v-if="showPlayerModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showPlayerModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; color: #fff;">
                     <h3>{{ isEditing ? 'Редактировать игрока' : 'Добавить игрока' }}</h3>
                     <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Никнейм:*</label>
-                    <input type="text" v-model="playerForm.name" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" />
+                    <input type="text" v-model="playerForm.name" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" placeholder="NaR1" />
                     <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Страна (код):</label>
-                    <input type="text" v-model="playerForm.country" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" maxlength="2" />
+                    <input type="text" v-model="playerForm.country" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" placeholder="ua" maxlength="2" />
                     <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Avatar URL:</label>
-                    <input type="text" v-model="playerForm.avatar" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" />
+                    <input type="text" v-model="playerForm.avatar" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" placeholder="https://..." />
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
                         <button @click="savePlayer" style="flex:1; padding:10px; background:#22c55e; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Сохранить</button>
                         <button @click="showPlayerModal = false" style="flex:1; padding:10px; background:#475569; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Отмена</button>
@@ -349,12 +377,72 @@ export default {
         onAvatarError(e) { e.target.src = this.defaultAvatar; },
         onFlagError(e) { e.target.style.display = 'none'; },
 
-        // --- ВЫБОР ПАЧКОЙ ---
+        // --- УПРАВЛЕНИЕ ИГРОКАМИ (ВЕРНУТЫЕ МЕТОДЫ) ---
+        openAddPlayerModal() {
+            this.isEditing = false;
+            this.playerForm = { name: '', country: '', avatar: '' };
+            this.showPlayerModal = true;
+        },
+
+        openEditPlayerModal(player) {
+            this.isEditing = true;
+            this.playerForm = {
+                name: player.user || player.name || '',
+                country: player.country || player.nationality || '',
+                avatar: player.avatar || ''
+            };
+            this.showPlayerModal = true;
+        },
+
+        async savePlayer() {
+            if (!this.playerForm.name) return alert("Введите имя игрока!");
+
+            if (this.isEditing) {
+                if (this.selectedPlayer.user !== undefined) this.selectedPlayer.user = this.playerForm.name;
+                this.selectedPlayer.name = this.playerForm.name;
+                this.selectedPlayer.country = this.playerForm.country.toLowerCase().trim();
+                this.selectedPlayer.avatar = this.playerForm.avatar.trim();
+            } else {
+                const newPlayer = {
+                    user: this.playerForm.name,
+                    name: this.playerForm.name,
+                    country: this.playerForm.country.toLowerCase().trim(),
+                    avatar: this.playerForm.avatar.trim(),
+                    records: [],
+                    verified: []
+                };
+                this.leaderboard.push(newPlayer);
+                this.selectedPlayer = newPlayer;
+            }
+
+            this.showPlayerModal = false;
+            await this.saveToGitHub();
+        },
+
+        async deletePlayer(player) {
+            const pName = player.user || player.name;
+            if (confirm(`Удалить игрока "${pName}"?`)) {
+                const idx = this.leaderboard.findIndex(p => (p.user || p.name) === pName);
+                if (idx !== -1) {
+                    this.leaderboard.splice(idx, 1);
+                    this.selectedPlayer = this.leaderboard.length > 0 ? this.leaderboard[0] : null;
+                    await this.saveToGitHub();
+                }
+            }
+        },
+
+        // --- ВЫБОР РЕКОРДОВ И ВЕРИФИКАЦИЙ ПАЧКОЙ ---
         openAddRecordModal() {
             this.selectedLevels = [];
             this.levelSearch = '';
             this.recordPercent = 100;
             this.showRecordModal = true;
+        },
+
+        openAddVerifyModal() {
+            this.selectedLevels = [];
+            this.levelSearch = '';
+            this.showVerifyModal = true;
         },
 
         toggleLevelSelection(levelName) {
@@ -378,7 +466,6 @@ export default {
             if (!this.selectedLevels.length) return;
             if (!this.selectedPlayer.records) this.selectedPlayer.records = [];
 
-            // Избегаем дубликатов у игрока
             this.selectedLevels.forEach(lvl => {
                 const isAlreadyAdded = this.selectedPlayer.records.some(r => (typeof r === 'string' ? r : r.levelName) === lvl);
                 if (!isAlreadyAdded) {
@@ -394,6 +481,18 @@ export default {
             await this.saveToGitHub();
         },
 
+        async saveSelectedVerifies() {
+            if (!this.selectedLevels.length) return alert("Выберите хотя бы один уровень!");
+            const targetArray = this.selectedPlayer.verified ? this.selectedPlayer.verified : (this.selectedPlayer.verifies || (this.selectedPlayer.verified = []));
+
+            this.selectedLevels.forEach(lvl => {
+                targetArray.push(lvl);
+            });
+
+            this.showVerifyModal = false;
+            await this.saveToGitHub();
+        },
+
         async deleteRecord(index) {
             if (confirm("Удалить этот уровень из профиля?")) {
                 this.selectedPlayer.records.splice(index, 1);
@@ -401,12 +500,28 @@ export default {
             }
         },
 
-        // --- СОХРАНЕНИЕ НА GITHUB ---
+        async deleteVerify(index) {
+            if (confirm("Удалить эту верификацию?")) {
+                const targetArray = this.selectedPlayer.verified || this.selectedPlayer.verifies;
+                if (targetArray) {
+                    targetArray.splice(index, 1);
+                    await this.saveToGitHub();
+                }
+            }
+        },
+
+        // --- СОХРАНЕНИЕ НА GITHUB С АВТО-ЗАПРОСОМ ТОКЕНА ---
         async saveToGitHub() {
-            const token = sessionStorage.getItem('github_token');
+            let token = sessionStorage.getItem('github_token');
             if (!token) {
-                alert("Токен GitHub не найден!");
-                return;
+                token = prompt("Введите ваш GitHub Personal Access Token (PAT):");
+                if (!token) {
+                    alert("Без токена сохранить изменения на GitHub не получится!");
+                    return;
+                }
+                sessionStorage.setItem('github_token', token);
+                sessionStorage.setItem('is_admin', 'true');
+                this.isAdmin = true;
             }
 
             this.loading = true;
@@ -421,7 +536,7 @@ export default {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: "Bulk update records via admin panel",
+                        message: "Update leaderboard via admin panel",
                         content: encodedContent,
                         sha: this.fileSha,
                         branch: GITHUB_BRANCH
@@ -437,7 +552,7 @@ export default {
                 }
             } catch (err) {
                 console.error("Save error:", err);
-                alert(" Ошибка сети при сохранении!");
+                alert("Ошибка сети при сохранении!");
             } finally {
                 this.loading = false;
             }
