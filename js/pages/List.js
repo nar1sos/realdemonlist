@@ -1,11 +1,12 @@
 import * as ContentModule from "../content.js";
 import Spinner from "../components/Spinner.js";
 
-// ⚙️ НАСТРОЙКИ ГИТХАБА И АДМИНКИ
+// ⚙️ НАСТРОЙКИ ГИТХАБА
 const GITHUB_USER = "nar1sos";
 const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
-const GITHUB_TOKEN = "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"; // 👈 Вставь сюда свой ghp_... токен
+// 🔑 ВСТАВЬ СЮДА СВОЙ ТОКЕН GITHUB
+const GITHUB_TOKEN = "ghp_ВСТАВЬ_СВОЙ_ТОКЕН_СЮДА"; 
 
 export default {
     components: { Spinner },
@@ -274,7 +275,8 @@ export default {
                     if (resList.ok) {
                         const data = await resList.json();
                         this.fileSha = data.sha;
-                        loadedList = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                        const decodedContent = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
+                        loadedList = JSON.parse(decodedContent);
                     }
                 } catch (err) {
                     console.warn("GitHub fetch error:", err);
@@ -422,12 +424,26 @@ export default {
         async saveListToGitHub() {
             const token = GITHUB_TOKEN;
 
-            if (!token || token.includes("ВСТАВЬ_СЮДА")) {
-                alert("Ошибка: Не указан токен GitHub в начале файла List.js!");
+            if (!token || token.includes("ВСТАВЬ_СВОЙ_ТОКЕН")) {
+                alert("Ошибка: Не забудь вставить свой GitHub Токен в переменные GITHUB_TOKEN и MY_GITHUB_TOKEN!");
                 return;
             }
 
             try {
+                // 1. Свежий SHA перед отправкой
+                const getFileRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`, {
+                    headers: { 
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (getFileRes.ok) {
+                    const fileData = await getFileRes.json();
+                    this.fileSha = fileData.sha;
+                }
+
+                // 2. Структурирование данных
                 const cleanData = this.list.map(item => ({
                     name: item.name,
                     author: item.author,
@@ -438,13 +454,19 @@ export default {
                     records: item.records || []
                 }));
 
-                const contentEncoded = btoa(unescape(encodeURIComponent(JSON.stringify(cleanData, null, 4))));
+                // 3. Безопасная кодировка UTF-8 для кириллицы
+                const jsonString = JSON.stringify(cleanData, null, 4);
+                const contentEncoded = btoa(encodeURIComponent(jsonString).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+                    return String.fromCharCode('0x' + p1);
+                }));
 
+                // 4. PUT-запрос
                 const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
                     },
                     body: JSON.stringify({
                         message: 'Update demonlist via Admin Panel',
@@ -457,13 +479,14 @@ export default {
                 if (response.ok) {
                     const resData = await response.json();
                     this.fileSha = resData.content.sha;
-                    console.log("Успешно сохранено на GitHub!");
+                    alert("Успешно сохранено на GitHub!");
                 } else {
-                    alert("Ошибка при сохранении на GitHub! Код ответа: " + response.status);
+                    const errData = await response.json();
+                    alert(`Ошибка GitHub (${response.status}):\n${errData.message || 'Проверьте токен'}`);
                 }
             } catch (err) {
                 console.error("Save error:", err);
-                alert("Не удалось связаться с GitHub API.");
+                alert("Ошибка скрипта: " + err.message);
             }
         }
     }
