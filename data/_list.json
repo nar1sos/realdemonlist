@@ -1,1 +1,11 @@
-[]
+[
+    {
+        "name": "1",
+        "author": "1",
+        "verifier": "1",
+        "ytid": "https://www.youtube.com/watch?v=mgQL2xeviN8",
+        "thumbnail": "1",
+        "percentToQualify": 100,
+        "records": []
+    }
+]
