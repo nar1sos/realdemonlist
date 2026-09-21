@@ -34,5 +34,14 @@
         "thumbnail": "https://i.ytimg.com/vi/zTEERDj1i5Y/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBO-Se4cIvvshQkI40Xx7VXCxyY9Q",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": "Flamewall",
+        "author": "UNarwall",
+        "verifier": "Cuatrocientos",
+        "ytid": "x4Io4zkWVRw",
+        "thumbnail": "https://i.ytimg.com/an_webp/ReVWAw9o7-A/mqdefault_6s.webp?du=3000&sqp=CICqxtUG&rs=AOn4CLAsAcN-xYYjTWYO-faYokhhvIPk2Q",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
