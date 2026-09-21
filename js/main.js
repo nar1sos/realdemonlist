@@ -1,7 +1,7 @@
 import List from './pages/List.js';
 import Leaderboard from './pages/Leaderboard.js';
 import Roulette from './pages/Roulette.js';
-import Login from './pages/Login.js';
+import Login from './pages/login.js';
 
 const routes = [
     { path: '/', component: List },
