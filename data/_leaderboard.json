@@ -3,7 +3,9 @@
         "name": "Zoink",
         "country": "us",
         "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTj80u-TrQdzA-2VSQ6JFOJH5ytejEzkhaWg5EfVoPNZ8wmbEhSYhsW7bEq&s=10",
-        "records": [],
+        "records": [
+            "Tidal wave"
+        ],
         "verifies": []
     }
 ]
