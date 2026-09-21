@@ -377,7 +377,7 @@ export default {
         onAvatarError(e) { e.target.src = this.defaultAvatar; },
         onFlagError(e) { e.target.style.display = 'none'; },
 
-        // --- УПРАВЛЕНИЕ ИГРОКАМИ (ВЕРНУТЫЕ МЕТОДЫ) ---
+        // --- УПРАВЛЕНИЕ ИГРОКАМИ ---
         openAddPlayerModal() {
             this.isEditing = false;
             this.playerForm = { name: '', country: '', avatar: '' };
