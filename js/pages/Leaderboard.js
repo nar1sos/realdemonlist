@@ -28,8 +28,8 @@ export default {
             <Spinner></Spinner>
         </main>
 
-        <div v-else class="leaderboard-container" style="padding: 20px;">
-            <!-- Панель управления админа -->
+        <div v-else class="leaderboard-container">
+            <!-- Панель администратора -->
             <div v-if="isAdmin" style="grid-column: 1 / -1; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <button @click="openAddPlayerModal" style="padding: 10px 16px; background: #22c55e; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">
                     + Добавить игрока
@@ -45,7 +45,6 @@ export default {
 
             <!-- ЛЕВАЯ КОЛОНКА: ПРОФИЛЬ -->
             <div class="profile-card" v-if="selectedPlayer">
-                <!-- Аватарка -->
                 <div class="profile-header">
                     <div class="avatar-ring">
                         <img 
@@ -54,7 +53,6 @@ export default {
                             @error="onAvatarError"
                         />
                     </div>
-                    <!-- Имя с флагом СЛЕВА -->
                     <div class="profile-title">
                         <img 
                             v-if="getPlayerFlag(selectedPlayer)" 
@@ -65,7 +63,6 @@ export default {
                         <h1>{{ selectedPlayer.user || selectedPlayer.name }}</h1>
                     </div>
 
-                    <!-- Кнопки управления профилем (для админа) -->
                     <div v-if="isAdmin" style="margin-top: 10px; display: flex; gap: 8px;">
                         <button @click="openEditPlayerModal(selectedPlayer)" style="background: #3b82f6; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">
                             ✏️ Редактировать
@@ -76,7 +73,6 @@ export default {
                     </div>
                 </div>
 
-                <!-- Статистика: RANK -->
                 <div class="single-stat-container">
                     <div class="card-stat">
                         <span class="stat-icon">🏆</span>
@@ -87,7 +83,6 @@ export default {
                     </div>
                 </div>
 
-                <!-- Hardest level -->
                 <div class="section-box hardest-box" v-if="selectedPlayer.hardest || (selectedPlayer.records && selectedPlayer.records.length)">
                     <div class="box-title red-title">
                         🔥 Hardest level
@@ -97,7 +92,6 @@ export default {
                     </div>
                 </div>
 
-                <!-- Main levels -->
                 <div class="section-box" v-if="mainLevelsList.length || isAdmin">
                     <div class="box-header">
                         <div class="box-title red-title">
@@ -106,7 +100,7 @@ export default {
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="badge-count">{{ mainLevelsList.length }}</span>
                             <button v-if="isAdmin" @click="openAddRecordModal" style="background: #22c55e; color: #fff; border: none; padding: 2px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px;">
-                                + Добавить пачкой
+                                + Добавить
                             </button>
                         </div>
                     </div>
@@ -119,7 +113,7 @@ export default {
                             @dragstart="onRecordDragStart($event, item.originalIndex)"
                             @dragover.prevent
                             @drop="onRecordDrop($event, item.originalIndex)"
-                            style="display: inline-flex; align-items: center; gap: 6px; cursor: grab;"
+                            style="display: inline-flex; align-items: center; gap: 6px;"
                         >
                             <span>{{ item.title }}</span>
                             <button v-if="isAdmin" @click.stop="deleteRecord(item.originalIndex)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
@@ -127,7 +121,6 @@ export default {
                     </div>
                 </div>
 
-                <!-- Progresses -->
                 <div class="section-box" v-if="progressesList.length">
                     <div class="box-header">
                         <div class="box-title blue-title">
@@ -144,7 +137,6 @@ export default {
                             @dragstart="onRecordDragStart($event, prog.originalIndex)"
                             @dragover.prevent
                             @drop="onRecordDrop($event, prog.originalIndex)"
-                            style="cursor: grab;"
                         >
                             {{ prog.item.levelName || prog.item.level || prog.item }} <span v-if="prog.item.percent" class="blue-text">({{ prog.item.percent }}%)</span>
                             <button v-if="isAdmin" @click.stop="deleteRecord(prog.originalIndex)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0; margin-left: 4px;">×</button>
@@ -152,7 +144,6 @@ export default {
                     </div>
                 </div>
 
-                <!-- Which are verified -->
                 <div class="section-box verified-box" v-if="verifiedLevelsList.length || isAdmin">
                     <div class="box-header">
                         <div class="box-title green-title">
@@ -161,7 +152,7 @@ export default {
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="badge-count green-badge">{{ verifiedLevelsList.length }}</span>
                             <button v-if="isAdmin" @click="openAddVerifyModal" style="background: #10b981; color: #fff; border: none; padding: 2px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px;">
-                                + Добавить пачкой
+                                + Добавить
                             </button>
                         </div>
                     </div>
@@ -174,7 +165,7 @@ export default {
                             @dragstart="onVerifyDragStart($event, idx)"
                             @dragover.prevent
                             @drop="onVerifyDrop($event, idx)"
-                            style="display: inline-flex; align-items: center; gap: 6px; cursor: grab;"
+                            style="display: inline-flex; align-items: center; gap: 6px;"
                         >
                             <span>{{ ver.title }}</span>
                             <button v-if="isAdmin" @click.stop="deleteVerify(idx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
@@ -183,7 +174,7 @@ export default {
                 </div>
             </div>
 
-            <!-- ПРАВАЯ КОЛОНКА: СПИСОК ИГРОКОВ -->
+            <!-- ПРАВАЯ КОЛОНКА: ТОП ИГРОКОВ -->
             <div class="sidebar-list">
                 <div 
                     v-for="(player, index) in filteredPlayers" 
@@ -215,7 +206,7 @@ export default {
                 </div>
             </div>
 
-            <!-- МОДАЛКА: Игрок (Добавить / Редактировать) -->
+            <!-- МОДАЛКА: ИГРОК -->
             <div v-if="showPlayerModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showPlayerModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; color: #fff;">
                     <h3 style="margin-bottom: 15px;">{{ isEditing ? 'Редактировать игрока' : 'Добавить игрока' }}</h3>
@@ -236,7 +227,7 @@ export default {
                 </div>
             </div>
 
-            <!-- МОДАЛКА: МНОЖЕСТВЕННЫЙ ВЫБОР УРОВНЕЙ (Main / Progress) -->
+            <!-- МОДАЛКА: МНОЖЕСТВЕННЫЙ ВЫБОР РЕКОРДОВ -->
             <div v-if="showRecordModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showRecordModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 20px; border-radius: 12px; width: 100%; max-width: 520px; max-height: 85vh; display: flex; flex-direction: column; color: #fff;">
                     <h3 style="margin-bottom: 10px;">Добавить демоны в профиль</h3>
@@ -252,7 +243,6 @@ export default {
                         </div>
                     </div>
 
-                    <!-- Панель управления массовым выбором -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: #0f172a; padding: 8px 12px; border-radius: 6px; border: 1px solid #1e293b;">
                         <span style="font-size: 12px; color: #22c55e; font-weight: bold;">
                             Выбрано: {{ selectedLevels.length }} из {{ demonList.length }}
@@ -263,7 +253,6 @@ export default {
                         </div>
                     </div>
 
-                    <!-- Список демонов с ЧЕКБОКСАМИ -->
                     <div style="flex: 1; overflow-y: auto; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 4px;">
                         <label 
                             v-for="lvl in filteredDemonList" 
@@ -304,7 +293,6 @@ export default {
 
                     <input type="text" v-model="levelSearch" placeholder="Поиск демона..." style="width:100%; padding:8px 12px; margin-bottom:10px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" />
 
-                    <!-- Панель управления выбором -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: #0f172a; padding: 8px 12px; border-radius: 6px; border: 1px solid #1e293b;">
                         <span style="font-size: 12px; color: #10b981; font-weight: bold;">
                             Выбрано: {{ selectedLevels.length }} шт.
@@ -522,7 +510,6 @@ export default {
             });
         },
 
-        // --- МАССОВЫЙ ВЫБОР ДЕМОНОВ ---
         selectAllFiltered() {
             this.filteredDemonList.forEach(lvl => {
                 if (!this.selectedLevels.includes(lvl)) {
@@ -579,7 +566,6 @@ export default {
             await this.saveToGitHub();
         },
 
-        // --- DRAG & DROP УРОВНЕЙ В ПРОФИЛЕ ---
         onRecordDragStart(event, originalIndex) {
             if (!this.isAdmin) return;
             this.draggedRecordIndex = originalIndex;
@@ -615,7 +601,6 @@ export default {
             }
         },
 
-        // --- DRAG & DROP ИГРОКОВ В СПИСКЕ ---
         onPlayerDragStart(event, filteredIndex) {
             if (!this.isAdmin || this.searchQuery) return;
             this.draggedPlayerIndex = filteredIndex;
@@ -632,7 +617,6 @@ export default {
             await this.saveToGitHub();
         },
 
-        // --- УПРАВЛЕНИЕ ИГРОКАМИ ---
         openAddPlayerModal() {
             this.isEditing = false;
             this.playerForm = { name: '', country: '', avatar: '' };
@@ -701,7 +685,6 @@ export default {
             }
         },
 
-        // --- СОХРАНЕНИЕ НА GITHUB ---
         async saveToGitHub() {
             let token = localStorage.getItem("my_gh_token") || "";
             if (!token) {
