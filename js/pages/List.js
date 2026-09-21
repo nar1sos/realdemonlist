@@ -4,7 +4,6 @@ import Spinner from "../components/Spinner.js";
 const GITHUB_USER = "nar1sos";
 const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
-const ADMIN_PASS = "29564329981";
 
 export default {
     components: { Spinner },
@@ -14,25 +13,12 @@ export default {
         </main>
         <div v-else class="gdl-wrapper">
             
-            <!-- ADMIN STATUS BAR -->
-            <div style="background:#181b20; border:1px solid #2a2e35; padding:12px 20px; border-radius:10px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span v-if="isAdmin" style="color:#2ecc71; font-weight:bold;">⚡ Режим редактора</span>
-                    <span v-else style="color:#aaa; font-size:14px;">Панель управления</span>
-                </div>
-                <div>
-                    <button v-if="!isAdmin" @click="loginAdmin" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">
-                        🔒 Admin Login
-                    </button>
-                    <div v-else style="display:flex; gap:10px;">
-                        <button @click="openAddModal" style="background:#2ecc71; color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">
-                            ➕ Add Level
-                        </button>
-                        <button @click="logoutAdmin" style="background:#444; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer;">
-                            Выйти
-                        </button>
-                    </div>
-                </div>
+            <!-- ADMIN CONTROLS (Показываются только в режиме редактирования) -->
+            <div v-if="isAdmin" style="background:#181b20; border: 1px solid #333; padding:10px 14px; border-radius:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="color:#2ecc71; font-weight:bold; font-size:14px;">⚡ Режим редактора активен</span>
+                <button @click="openAddModal" style="background:#2ecc71; color:#000; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:13px;">
+                    ➕ Add Level
+                </button>
             </div>
 
             <!-- SEARCH BAR -->
@@ -245,33 +231,17 @@ export default {
     },
 
     async mounted() {
+        window.addEventListener('admin-state-changed', this.updateAdminState);
         await this.loadAllData();
     },
 
-    methods: {
-        loginAdmin() {
-            const pass = prompt("Введите пароль админа:");
-            if (pass === ADMIN_PASS) {
-                let token = localStorage.getItem("my_gh_token");
-                if (!token) {
-                    token = prompt("Введите ваш GitHub Token (сохранится в браузере):");
-                    if (token) {
-                        localStorage.setItem("my_gh_token", token.trim());
-                    } else {
-                        alert("Без токена нельзя сохранять данные!");
-                        return;
-                    }
-                }
-                this.isAdmin = true;
-                sessionStorage.setItem('is_admin', 'true');
-            } else if (pass !== null) {
-                alert("Неверный пароль!");
-            }
-        },
+    unmounted() {
+        window.removeEventListener('admin-state-changed', this.updateAdminState);
+    },
 
-        logoutAdmin() {
-            this.isAdmin = false;
-            sessionStorage.removeItem('is_admin');
+    methods: {
+        updateAdminState() {
+            this.isAdmin = sessionStorage.getItem('is_admin') === 'true';
         },
 
         async loadAllData() {
