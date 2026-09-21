@@ -5,10 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real Demon List</title>
 
+    <!-- Основные стили -->
     <link rel="stylesheet" href="./css/main.css">
-    <link rel="stylesheet" href="./css/list.css">
 
-    <!-- Vue 3 + Router (С компилятором шаблонов) -->
+    <!-- Стили страниц из папки css/pages/ -->
+    <link rel="stylesheet" href="./css/pages/list.css">
+    <link rel="stylesheet" href="./css/pages/leaderboard.css">
+    <link rel="stylesheet" href="./css/pages/roulette.css">
+
+    <!-- Стили компонентов (если есть) -->
+    <!-- <link rel="stylesheet" href="./css/components/spinner.css"> -->
+
+    <!-- Vue 3 (полная сборка с компилятором шаблонов) и Vue Router -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
 </head>
@@ -17,6 +25,7 @@
         <router-view></router-view>
     </div>
 
+    <!-- Точка входа приложения -->
     <script type="module" src="./main.js"></script>
 </body>
 </html>
