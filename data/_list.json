@@ -52,5 +52,14 @@
         "thumbnail": "",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": "Green Bullet",
+        "author": "MinAY",
+        "verifier": "nickname",
+        "ytid": "JG-qcvVkZFw",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
