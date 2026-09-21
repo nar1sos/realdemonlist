@@ -1,17 +1,19 @@
 export default {
     template: `
-        <div class="page-login" style="max-width: 400px; margin: 50px auto; padding: 20px;">
-            <h2>Вход в аккаунт</h2>
-            <form @submit.prevent="login">
-                <div style="margin-bottom: 10px;">
-                    <label>Логин:</label>
-                    <input v-model="username" required style="width: 100%; padding: 8px;" />
+        <div class="page-login" style="max-width: 400px; margin: 60px auto; padding: 25px; border: 1px solid #333; border-radius: 8px; background: #181818; color: #fff;">
+            <h2 style="margin-top: 0; text-align: center;">Вход для Админа</h2>
+            <form @submit.prevent="login" style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">Логин:</label>
+                    <input v-model="username" placeholder="Введи nar1sos" required style="width: 100%; padding: 8px; box-sizing: border-box; background: #222; color: #fff; border: 1px solid #444;" />
                 </div>
-                <div style="margin-bottom: 10px;">
-                    <label>GitHub Personal Token (для админки):</label>
-                    <input v-model="token" type="password" placeholder="ghp_..." style="width: 100%; padding: 8px;" />
+                <div>
+                    <label style="display: block; margin-bottom: 5px;">GitHub Personal Access Token:</label>
+                    <input v-model="token" type="password" placeholder="ghp_..." required style="width: 100%; padding: 8px; box-sizing: border-box; background: #222; color: #fff; border: 1px solid #444;" />
                 </div>
-                <button type="submit" style="padding: 10px 20px; cursor: pointer;">Войти</button>
+                <button type="submit" style="padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    Войти в аккаунт
+                </button>
             </form>
         </div>
     `,
@@ -21,14 +23,19 @@ export default {
     }),
     methods: {
         login() {
-            const isAdmin = (this.username.toLowerCase() === "nar1sos");
+            const isAdmin = (this.username.trim().toLowerCase() === "nar1sos");
             const userData = {
-                username: this.username,
+                username: this.username.trim(),
                 isAdmin: isAdmin,
-                token: this.token
+                token: this.token.trim()
             };
             localStorage.setItem("gdl_user", JSON.stringify(userData));
-            alert(isAdmin ? "Добро пожаловать, Админ!" : "Вы вошли как обычный пользователь.");
+            if (isAdmin) {
+                alert("Добро пожаловать, nar1sos! Режим админа включен.");
+            } else {
+                alert("Вы вошли как обычный пользователь.");
+            }
+            window.location.href = "#/";
             window.location.reload();
         }
     }
