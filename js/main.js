@@ -21,7 +21,7 @@ const store = Vue.reactive({
     toggleDark() {
         this.dark = !this.dark;
     },
-    toggleAdmin() {
+    async toggleAdmin() {
         if (this.isAdmin) {
             if (confirm("Выйти из режима админа?")) {
                 this.isAdmin = false;
@@ -31,13 +31,27 @@ const store = Vue.reactive({
                 location.reload();
             }
         } else {
-            const token = prompt("Введите ваш Personal Access Token от GitHub:");
-            if (token) {
-                this.githubToken = token;
-                this.isAdmin = true;
-                localStorage.setItem('gdl_is_admin', 'true');
-                localStorage.setItem('gdl_gh_token', token);
-                location.reload();
+            const token = prompt("Введите ваш GitHub Personal Access Token:");
+            if (!token) return;
+
+            // Проверка токена через API GitHub
+            try {
+                const res = await fetch("https://api.github.com/user", {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+
+                if (res.ok) {
+                    this.githubToken = token;
+                    this.isAdmin = true;
+                    localStorage.setItem('gdl_is_admin', 'true');
+                    localStorage.setItem('gdl_gh_token', token);
+                    alert("Успешный вход в админку!");
+                    location.reload();
+                } else {
+                    alert("Неверный GitHub Токен! В доступе отказано.");
+                }
+            } catch (err) {
+                alert("Ошибка проверки токена. Проверьте интернет-соединение.");
             }
         }
     }
