@@ -88,5 +88,14 @@
         "thumbnail": "https://i.ytimg.com/vi/FmeeyDzivzI/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDBEKB-PHVOhebdHM2ljSl1m7wHNQ",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": "в",
+        "author": "в",
+        "verifier": "в",
+        "ytid": "",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
