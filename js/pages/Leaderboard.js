@@ -45,38 +45,23 @@ export default {
 
             <!-- ЛЕВАЯ КОЛОНКА: ПРОФИЛЬ -->
             <div class="profile-card" v-if="selectedPlayer">
-                <!-- Аватарка -->
+                <!-- Аватарка и Ник -->
                 <div class="profile-header">
                     <div class="avatar-ring">
-                        <img 
-                            :src="getAvatarUrl(selectedPlayer)" 
-                            class="profile-avatar"
-                            @error="onAvatarError"
-                        />
+                        <img :src="getAvatarUrl(selectedPlayer)" class="profile-avatar" @error="onAvatarError" />
                     </div>
-                    <!-- Имя с флагом СЛЕВА -->
                     <div class="profile-title">
-                        <img 
-                            v-if="getPlayerFlag(selectedPlayer)" 
-                            :src="getPlayerFlag(selectedPlayer)" 
-                            class="flag-img" 
-                            @error="onFlagError"
-                        />
+                        <img v-if="getPlayerFlag(selectedPlayer)" :src="getPlayerFlag(selectedPlayer)" class="flag-img" @error="onFlagError" />
                         <h1>{{ selectedPlayer.user || selectedPlayer.name }}</h1>
                     </div>
 
-                    <!-- Кнопки управления профилем (для админа) -->
                     <div v-if="isAdmin" style="margin-top: 10px; display: flex; gap: 8px;">
-                        <button @click="openEditPlayerModal(selectedPlayer)" style="background: #3b82f6; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">
-                            ✏️ Редактировать
-                        </button>
-                        <button @click="deletePlayer(selectedPlayer)" style="background: #ef4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">
-                            🗑️ Удалить
-                        </button>
+                        <button @click="openEditPlayerModal(selectedPlayer)" style="background: #3b82f6; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">✏️ Редактировать</button>
+                        <button @click="deletePlayer(selectedPlayer)" style="background: #ef4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">🗑️ Удалить</button>
                     </div>
                 </div>
 
-                <!-- Статистика: RANK -->
+                <!-- Rank -->
                 <div class="single-stat-container">
                     <div class="card-stat">
                         <span class="stat-icon">🏆</span>
@@ -89,38 +74,23 @@ export default {
 
                 <!-- Hardest level -->
                 <div class="section-box hardest-box" v-if="selectedPlayer.hardest || (selectedPlayer.records && selectedPlayer.records.length)">
-                    <div class="box-title red-title">
-                        🔥 Hardest level
-                    </div>
-                    <div class="hardest-name">
-                        {{ selectedPlayer.hardest || getHardestName(selectedPlayer) }}
-                    </div>
+                    <div class="box-title red-title">🔥 Hardest level</div>
+                    <div class="hardest-name">{{ selectedPlayer.hardest || getHardestName(selectedPlayer) }}</div>
                 </div>
 
                 <!-- Main levels -->
                 <div class="section-box" v-if="mainLevelsList.length || isAdmin">
                     <div class="box-header">
-                        <div class="box-title red-title">
-                            ★ Main levels
-                        </div>
+                        <div class="box-title red-title">★ Main levels</div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="badge-count">{{ mainLevelsList.length }}</span>
-                            <button v-if="isAdmin" @click="openAddRecordModal" style="background: #22c55e; color: #fff; border: none; padding: 2px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px;">
-                                + Добавить
+                            <button v-if="isAdmin" @click="openAddRecordModal" style="background: #22c55e; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px;">
+                                + Выбрать пачкой
                             </button>
                         </div>
                     </div>
                     <div class="pills-flex">
-                        <div 
-                            v-for="(item, idx) in mainLevelsList" 
-                            :key="idx" 
-                            class="pill-btn"
-                            :draggable="isAdmin"
-                            @dragstart="onRecordDragStart($event, item.originalIndex)"
-                            @dragover.prevent
-                            @drop="onRecordDrop($event, item.originalIndex)"
-                            style="display: inline-flex; align-items: center; gap: 6px; cursor: grab;"
-                        >
+                        <div v-for="(item, idx) in mainLevelsList" :key="idx" class="pill-btn" style="display: inline-flex; align-items: center; gap: 6px;">
                             <span>{{ item.title }}</span>
                             <button v-if="isAdmin" @click.stop="deleteRecord(item.originalIndex)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
                         </div>
@@ -130,51 +100,29 @@ export default {
                 <!-- Progresses -->
                 <div class="section-box" v-if="progressesList.length">
                     <div class="box-header">
-                        <div class="box-title blue-title">
-                            📊 Progresses
-                        </div>
+                        <div class="box-title blue-title">📊 Progresses</div>
                         <span class="badge-count">{{ progressesList.length }}</span>
                     </div>
                     <div class="pills-flex">
-                        <div 
-                            v-for="(prog, idx) in progressesList" 
-                            :key="idx" 
-                            class="pill-btn progress-pill"
-                            :draggable="isAdmin"
-                            @dragstart="onRecordDragStart($event, prog.originalIndex)"
-                            @dragover.prevent
-                            @drop="onRecordDrop($event, prog.originalIndex)"
-                            style="cursor: grab;"
-                        >
+                        <div v-for="(prog, idx) in progressesList" :key="idx" class="pill-btn progress-pill">
                             {{ prog.item.levelName || prog.item.level || prog.item }} <span v-if="prog.item.percent" class="blue-text">({{ prog.item.percent }}%)</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Which are verified -->
+                <!-- Verified levels -->
                 <div class="section-box verified-box" v-if="verifiedLevelsList.length || isAdmin">
                     <div class="box-header">
-                        <div class="box-title green-title">
-                            <span class="check-circle">✓</span> Which are verified
-                        </div>
+                        <div class="box-title green-title"><span class="check-circle">✓</span> Which are verified</div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="badge-count green-badge">{{ verifiedLevelsList.length }}</span>
-                            <button v-if="isAdmin" @click="openAddVerifyModal" style="background: #10b981; color: #fff; border: none; padding: 2px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px;">
-                                + Добавить
+                            <button v-if="isAdmin" @click="openAddVerifyModal" style="background: #10b981; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px;">
+                                + Добавить верификации
                             </button>
                         </div>
                     </div>
                     <div class="pills-flex">
-                        <div 
-                            v-for="(ver, idx) in verifiedLevelsList" 
-                            :key="idx" 
-                            class="pill-btn verified-pill"
-                            :draggable="isAdmin"
-                            @dragstart="onVerifyDragStart($event, idx)"
-                            @dragover.prevent
-                            @drop="onVerifyDrop($event, idx)"
-                            style="display: inline-flex; align-items: center; gap: 6px; cursor: grab;"
-                        >
+                        <div v-for="(ver, idx) in verifiedLevelsList" :key="idx" class="pill-btn verified-pill" style="display: inline-flex; align-items: center; gap: 6px;">
                             <span>{{ ver.title }}</span>
                             <button v-if="isAdmin" @click.stop="deleteVerify(idx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
                         </div>
@@ -190,44 +138,88 @@ export default {
                     class="sidebar-item"
                     :class="{ 'active': (selectedPlayer?.user || selectedPlayer?.name) === (player.user || player.name) }"
                     @click="selectedPlayer = player"
-                    :draggable="isAdmin && !searchQuery"
-                    @dragstart="onPlayerDragStart($event, index)"
-                    @dragover.prevent
-                    @drop="onPlayerDrop($event, index)"
                 >
                     <span class="rank-num">#{{ index + 1 }}</span>
-                    
                     <div class="user-block">
-                        <img 
-                            :src="getAvatarUrl(player)" 
-                            class="list-avatar" 
-                            @error="onAvatarError"
-                        />
-                        <img 
-                            v-if="getPlayerFlag(player)" 
-                            :src="getPlayerFlag(player)" 
-                            class="list-flag-img" 
-                            @error="onFlagError"
-                        />
+                        <img :src="getAvatarUrl(player)" class="list-avatar" @error="onAvatarError" />
+                        <img v-if="getPlayerFlag(player)" :src="getPlayerFlag(player)" class="list-flag-img" @error="onFlagError" />
                         <span class="username">{{ player.user || player.name }}</span>
                     </div>
                 </div>
             </div>
 
-            <!-- МОДАЛКА: Игрок (Добавить / Редактировать) -->
+            <!-- МОДАЛКА: МНОЖЕСТВЕННЫЙ (ПАЧКОЙ) ВЫБОР УРОВНЕЙ -->
+            <div v-if="showRecordModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showRecordModal = false">
+                <div style="background: #161b26; border: 1px solid #283044; padding: 20px; border-radius: 12px; width: 100%; max-width: 520px; max-height: 85vh; display: flex; flex-direction: column; color: #fff;">
+                    
+                    <h3 style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Загрузить уровни пачкой</span>
+                        <span style="font-size: 13px; color: #22c55e;">Выбрано: {{ selectedLevels.length }}</span>
+                    </h3>
+
+                    <!-- Поиск и фильтр -->
+                    <div style="margin-bottom: 12px; display: flex; gap: 10px; align-items: center;">
+                        <input 
+                            type="text" 
+                            v-model="levelSearch" 
+                            placeholder="Поиск демонов по названию..." 
+                            style="flex: 1; padding: 8px 12px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 6px;"
+                        />
+                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                            <label style="font-size: 10px; color: #94a3b8;">Процент:</label>
+                            <input type="number" v-model.number="recordPercent" min="1" max="100" style="width: 70px; padding: 6px; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 6px; text-align: center;" />
+                        </div>
+                    </div>
+
+                    <!-- Панель быстрых действий -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px;">
+                        <button @click="selectAllFiltered" style="background: none; border: none; color: #3b82f6; cursor: pointer; padding: 0;">✓ Выбрать все отфильтрованные</button>
+                        <button @click="selectedLevels = []" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0;">✕ Снять выделение</button>
+                    </div>
+
+                    <!-- Список всех демонов с чекбоксами -->
+                    <div style="flex: 1; overflow-y: auto; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 4px;">
+                        <div 
+                            v-for="lvl in filteredDemonList" 
+                            :key="lvl"
+                            @click="toggleLevelSelection(lvl)"
+                            style="padding: 10px 12px; border-bottom: 1px solid #1e293b; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;"
+                            :style="{ background: selectedLevels.includes(lvl) ? '#1e293b' : 'transparent' }"
+                        >
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" :checked="selectedLevels.includes(lvl)" @click.stop="toggleLevelSelection(lvl)" style="cursor: pointer;" />
+                                <span>{{ lvl }}</span>
+                            </div>
+                            <span v-if="selectedLevels.includes(lvl)" style="color: #22c55e; font-weight: bold; font-size: 12px;">В ПАЧКЕ</span>
+                        </div>
+                    </div>
+
+                    <!-- Кнопки отправки -->
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button 
+                            @click="saveSelectedRecords" 
+                            :disabled="!selectedLevels.length"
+                            style="flex: 2; padding: 12px; background: #22c55e; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; opacity: 1;"
+                            :style="{ opacity: selectedLevels.length ? 1 : 0.5, cursor: selectedLevels.length ? 'pointer' : 'not-allowed' }"
+                        >
+                            🚀 Добавить {{ selectedLevels.length }} демонов в профиль
+                        </button>
+                        <button @click="showRecordModal = false" style="flex: 1; padding: 12px; background: #475569; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">Отмена</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- МОДАЛКА: РЕДАКТИРОВАНИЕ ИГРОКА -->
             <div v-if="showPlayerModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showPlayerModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; color: #fff;">
-                    <h3 style="margin-bottom: 15px;">{{ isEditing ? 'Редактировать игрока' : 'Добавить игрока' }}</h3>
-
-                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Никнейм игрока:*</label>
-                    <input type="text" v-model="playerForm.name" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" placeholder="NaR1" />
-
-                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Код страны (например: ua, ru, us):</label>
-                    <input type="text" v-model="playerForm.country" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" placeholder="ua" maxlength="2" />
-
-                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">URL Аватарки:</label>
-                    <input type="text" v-model="playerForm.avatar" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" placeholder="https://..." />
-
+                    <h3>{{ isEditing ? 'Редактировать игрока' : 'Добавить игрока' }}</h3>
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Никнейм:*</label>
+                    <input type="text" v-model="playerForm.name" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Страна (код):</label>
+                    <input type="text" v-model="playerForm.country" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" maxlength="2" />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Avatar URL:</label>
+                    <input type="text" v-model="playerForm.avatar" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" />
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
                         <button @click="savePlayer" style="flex:1; padding:10px; background:#22c55e; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Сохранить</button>
                         <button @click="showPlayerModal = false" style="flex:1; padding:10px; background:#475569; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Отмена</button>
@@ -235,82 +227,6 @@ export default {
                 </div>
             </div>
 
-            <!-- МОДАЛКА: МНОЖЕСТВЕННЫЙ ВЫБОР УРОВНЕЙ (Main / Progress) -->
-            <div v-if="showRecordModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showRecordModal = false">
-                <div style="background: #161b26; border: 1px solid #283044; padding: 20px; border-radius: 12px; width: 100%; max-width: 480px; max-height: 85vh; display: flex; flex-direction: column; color: #fff;">
-                    <h3 style="margin-bottom: 10px;">Добавить уровни игроку</h3>
-
-                    <div style="margin-bottom: 12px; display: flex; gap: 10px; align-items: center;">
-                        <div style="flex: 1;">
-                            <label style="font-size:11px; color:#94a3b8; display:block;">Процент (100 = пройден):</label>
-                            <input type="number" v-model.number="recordPercent" min="1" max="100" style="width:100%; padding:6px 10px; margin-top:2px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" />
-                        </div>
-                        <div style="flex: 2;">
-                            <label style="font-size:11px; color:#94a3b8; display:block;">Поиск демона:</label>
-                            <input type="text" v-model="levelSearch" placeholder="Tidal Wave..." style="width:100%; padding:6px 10px; margin-top:2px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" />
-                        </div>
-                    </div>
-
-                    <!-- Выбранные сейчас -->
-                    <div v-if="selectedLevels.length > 0" style="margin-bottom: 10px; font-size: 12px; color: #22c55e; font-weight: bold;">
-                        Выбрано: {{ selectedLevels.length }} шт. ({{ selectedLevels.join(', ') }})
-                    </div>
-
-                    <!-- Список демонов -->
-                    <div style="flex: 1; overflow-y: auto; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 8px;">
-                        <div 
-                            v-for="lvl in filteredDemonList" 
-                            :key="lvl"
-                            @click="toggleLevelSelection(lvl)"
-                            style="padding: 8px 12px; border-bottom: 1px solid #1e293b; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
-                            :style="{ background: selectedLevels.includes(lvl) ? '#1e293b' : 'transparent' }"
-                        >
-                            <span>{{ lvl }}</span>
-                            <span v-if="selectedLevels.includes(lvl)" style="color: #22c55e; font-weight: bold;">✓</span>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button @click="saveSelectedRecords" style="flex:1; padding:10px; background:#22c55e; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">
-                            Добавить выбранные ({{ selectedLevels.length }})
-                        </button>
-                        <button @click="showRecordModal = false" style="flex:1; padding:10px; background:#475569; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Отмена</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- МОДАЛКА: МНОЖЕСТВЕННЫЙ ВЫБОР ВЕРИФИКАЦИЙ -->
-            <div v-if="showVerifyModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showVerifyModal = false">
-                <div style="background: #161b26; border: 1px solid #283044; padding: 20px; border-radius: 12px; width: 100%; max-width: 480px; max-height: 85vh; display: flex; flex-direction: column; color: #fff;">
-                    <h3 style="margin-bottom: 10px;">Добавить верификации</h3>
-
-                    <input type="text" v-model="levelSearch" placeholder="Поиск демона..." style="width:100%; padding:8px 12px; margin-bottom:10px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" />
-
-                    <div v-if="selectedLevels.length > 0" style="margin-bottom: 10px; font-size: 12px; color: #10b981; font-weight: bold;">
-                        Выбрано: {{ selectedLevels.length }} шт.
-                    </div>
-
-                    <div style="flex: 1; overflow-y: auto; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 8px;">
-                        <div 
-                            v-for="lvl in filteredDemonList" 
-                            :key="lvl"
-                            @click="toggleLevelSelection(lvl)"
-                            style="padding: 8px 12px; border-bottom: 1px solid #1e293b; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
-                            :style="{ background: selectedLevels.includes(lvl) ? '#1e293b' : 'transparent' }"
-                        >
-                            <span>{{ lvl }}</span>
-                            <span v-if="selectedLevels.includes(lvl)" style="color: #10b981; font-weight: bold;">✓</span>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button @click="saveSelectedVerifies" style="flex:1; padding:10px; background:#10b981; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">
-                            Добавить выбранные ({{ selectedLevels.length }})
-                        </button>
-                        <button @click="showVerifyModal = false" style="flex:1; padding:10px; background:#475569; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Отмена</button>
-                    </div>
-                </div>
-            </div>
         </div>
     `,
 
@@ -324,9 +240,6 @@ export default {
         selectedLevels: [],
         recordPercent: 100,
 
-        draggedPlayerIndex: null,
-        draggedRecordIndex: null,
-        draggedVerifyIndex: null,
         fileSha: '',
         defaultAvatar: 'https://i.imgur.com/6VBx3io.png',
         isAdmin: sessionStorage.getItem('is_admin') === 'true',
@@ -343,10 +256,7 @@ export default {
         filteredPlayers() {
             if (!this.searchQuery) return this.leaderboard;
             const q = this.searchQuery.toLowerCase();
-            return this.leaderboard.filter(p => {
-                const name = p.user || p.name || '';
-                return name.toLowerCase().includes(q);
-            });
+            return this.leaderboard.filter(p => (p.user || p.name || '').toLowerCase().includes(q));
         },
         filteredDemonList() {
             if (!this.levelSearch) return this.demonList;
@@ -386,38 +296,19 @@ export default {
     },
 
     async mounted() {
-        window.addEventListener('admin-state-changed', this.updateAdminState);
         await Promise.all([this.loadLeaderboardData(), this.loadDemonList()]);
     },
 
-    unmounted() {
-        window.removeEventListener('admin-state-changed', this.updateAdminState);
-    },
-
     methods: {
-        updateAdminState() {
-            this.isAdmin = sessionStorage.getItem('is_admin') === 'true';
-        },
-
         async loadLeaderboardData() {
             try {
-                const cacheBuster = `?_t=${Date.now()}`;
-                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_LEADERBOARD_PATH}${cacheBuster}`, {
-                    headers: { 'Accept': 'application/vnd.github.v3+json' }
-                });
-
+                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_LEADERBOARD_PATH}?_t=${Date.now()}`);
                 if (res.ok) {
                     const data = await res.json();
                     this.fileSha = data.sha;
-                    const decoded = base64ToUtf8(data.content);
-                    this.leaderboard = JSON.parse(decoded);
-                } else {
-                    this.leaderboard = [];
+                    this.leaderboard = JSON.parse(base64ToUtf8(data.content));
                 }
-
-                if (this.leaderboard.length > 0) {
-                    this.selectedPlayer = this.leaderboard[0];
-                }
+                if (this.leaderboard.length > 0) this.selectedPlayer = this.leaderboard[0];
             } catch (err) {
                 console.error("Error loading leaderboard:", err);
             } finally {
@@ -445,40 +336,25 @@ export default {
 
         getPlayerFlag(player) {
             if (!player) return null;
-            let raw = player.country || player.nationality || player.nation;
-
-            if (!raw && Array.isArray(player.records)) {
-                for (const rec of player.records) {
-                    if (rec && typeof rec === 'object' && (rec.country || rec.nationality || rec.nation)) {
-                        raw = rec.country || rec.nationality || rec.nation;
-                        break;
-                    }
-                }
-            }
-
-            if (!raw) return null;
-            let code = String(raw).trim().toLowerCase();
-
-            if (code.startsWith('http') || code.startsWith('/')) {
-                return raw;
-            }
-
-            return `https://flagcdn.com/w40/${code.slice(0, 2)}.png`;
+            let code = player.country || player.nationality;
+            if (!code) return null;
+            return `https://flagcdn.com/w40/${code.toLowerCase().slice(0, 2)}.png`;
         },
 
         getAvatarUrl(player) {
             if (player?.avatar) return player.avatar;
-            if (player?.icon) return player.icon;
-            const uname = player?.user || player?.name || 'ghost';
-            return `https://github.com/${uname}.png`;
+            return `https://github.com/${player?.user || player?.name || 'ghost'}.png`;
         },
 
-        onAvatarError(e) {
-            e.target.src = this.defaultAvatar;
-        },
+        onAvatarError(e) { e.target.src = this.defaultAvatar; },
+        onFlagError(e) { e.target.style.display = 'none'; },
 
-        onFlagError(e) {
-            e.target.style.display = 'none';
+        // --- ВЫБОР ПАЧКОЙ ---
+        openAddRecordModal() {
+            this.selectedLevels = [];
+            this.levelSearch = '';
+            this.recordPercent = 100;
+            this.showRecordModal = true;
         },
 
         toggleLevelSelection(levelName) {
@@ -490,26 +366,27 @@ export default {
             }
         },
 
-        // --- ВЫБОР УРОВНЕЙ И ВЕРИФИКАЦИЙ ---
-        openAddRecordModal() {
-            this.selectedLevels = [];
-            this.levelSearch = '';
-            this.recordPercent = 100;
-            this.showRecordModal = true;
+        selectAllFiltered() {
+            this.filteredDemonList.forEach(lvl => {
+                if (!this.selectedLevels.includes(lvl)) {
+                    this.selectedLevels.push(lvl);
+                }
+            });
         },
 
         async saveSelectedRecords() {
-            if (!this.selectedLevels.length) return alert("Выберите хотя бы один уровень!");
+            if (!this.selectedLevels.length) return;
             if (!this.selectedPlayer.records) this.selectedPlayer.records = [];
 
+            // Избегаем дубликатов у игрока
             this.selectedLevels.forEach(lvl => {
-                if (this.recordPercent < 100) {
-                    this.selectedPlayer.records.push({
-                        levelName: lvl,
-                        percent: this.recordPercent
-                    });
-                } else {
-                    this.selectedPlayer.records.push(lvl);
+                const isAlreadyAdded = this.selectedPlayer.records.some(r => (typeof r === 'string' ? r : r.levelName) === lvl);
+                if (!isAlreadyAdded) {
+                    if (this.recordPercent < 100) {
+                        this.selectedPlayer.records.push({ levelName: lvl, percent: this.recordPercent });
+                    } else {
+                        this.selectedPlayer.records.push(lvl);
+                    }
                 }
             });
 
@@ -517,195 +394,52 @@ export default {
             await this.saveToGitHub();
         },
 
-        openAddVerifyModal() {
-            this.selectedLevels = [];
-            this.levelSearch = '';
-            this.showVerifyModal = true;
-        },
-
-        async saveSelectedVerifies() {
-            if (!this.selectedLevels.length) return alert("Выберите хотя бы один уровень!");
-            const targetArray = this.selectedPlayer.verified ? this.selectedPlayer.verified : (this.selectedPlayer.verifies || (this.selectedPlayer.verified = []));
-
-            this.selectedLevels.forEach(lvl => {
-                targetArray.push(lvl);
-            });
-
-            this.showVerifyModal = false;
-            await this.saveToGitHub();
-        },
-
-        // --- DRAG & DROP УРОВНЕЙ В ПРОФИЛЕ ---
-        onRecordDragStart(event, originalIndex) {
-            if (!this.isAdmin) return;
-            this.draggedRecordIndex = originalIndex;
-            event.dataTransfer.effectAllowed = 'move';
-        },
-
-        async onRecordDrop(event, targetIndex) {
-            if (!this.isAdmin || this.draggedRecordIndex === null || this.draggedRecordIndex === targetIndex) return;
-
-            const records = this.selectedPlayer.records;
-            const movedItem = records.splice(this.draggedRecordIndex, 1)[0];
-            records.splice(targetIndex, 0, movedItem);
-
-            this.draggedRecordIndex = null;
-            await this.saveToGitHub();
-        },
-
-        onVerifyDragStart(event, index) {
-            if (!this.isAdmin) return;
-            this.draggedVerifyIndex = index;
-            event.dataTransfer.effectAllowed = 'move';
-        },
-
-        async onVerifyDrop(event, targetIndex) {
-            if (!this.isAdmin || this.draggedVerifyIndex === null || this.draggedVerifyIndex === targetIndex) return;
-
-            const list = this.selectedPlayer.verified || this.selectedPlayer.verifies;
-            if (list) {
-                const movedItem = list.splice(this.draggedVerifyIndex, 1)[0];
-                list.splice(targetIndex, 0, movedItem);
-                this.draggedVerifyIndex = null;
-                await this.saveToGitHub();
-            }
-        },
-
-        // --- DRAG & DROP ИГРОКОВ В СПИСКЕ ---
-        onPlayerDragStart(event, filteredIndex) {
-            if (!this.isAdmin || this.searchQuery) return;
-            this.draggedPlayerIndex = filteredIndex;
-            event.dataTransfer.effectAllowed = 'move';
-        },
-
-        async onPlayerDrop(event, targetIndex) {
-            if (!this.isAdmin || this.searchQuery || this.draggedPlayerIndex === null || this.draggedPlayerIndex === targetIndex) return;
-
-            const movedItem = this.leaderboard.splice(this.draggedPlayerIndex, 1)[0];
-            this.leaderboard.splice(targetIndex, 0, movedItem);
-
-            this.draggedPlayerIndex = null;
-            await this.saveToGitHub();
-        },
-
-        // --- УПРАВЛЕНИЕ ИГРОКАМИ ---
-        openAddPlayerModal() {
-            this.isEditing = false;
-            this.playerForm = { name: '', country: '', avatar: '' };
-            this.showPlayerModal = true;
-        },
-
-        openEditPlayerModal(player) {
-            this.isEditing = true;
-            this.playerForm = {
-                name: player.user || player.name || '',
-                country: player.country || player.nationality || '',
-                avatar: player.avatar || ''
-            };
-            this.showPlayerModal = true;
-        },
-
-        async savePlayer() {
-            if (!this.playerForm.name) return alert("Введите имя игрока!");
-
-            if (this.isEditing) {
-                if (this.selectedPlayer.user !== undefined) this.selectedPlayer.user = this.playerForm.name;
-                this.selectedPlayer.name = this.playerForm.name;
-                this.selectedPlayer.country = this.playerForm.country.toLowerCase().trim();
-                this.selectedPlayer.avatar = this.playerForm.avatar.trim();
-            } else {
-                const newPlayer = {
-                    user: this.playerForm.name,
-                    name: this.playerForm.name,
-                    country: this.playerForm.country.toLowerCase().trim(),
-                    avatar: this.playerForm.avatar.trim(),
-                    records: [],
-                    verified: []
-                };
-                this.leaderboard.push(newPlayer);
-                this.selectedPlayer = newPlayer;
-            }
-
-            this.showPlayerModal = false;
-            await this.saveToGitHub();
-        },
-
-        async deletePlayer(player) {
-            const pName = player.user || player.name;
-            if (confirm(`Удалить игрока "${pName}"?`)) {
-                const idx = this.leaderboard.findIndex(p => (p.user || p.name) === pName);
-                if (idx !== -1) {
-                    this.leaderboard.splice(idx, 1);
-                    this.selectedPlayer = this.leaderboard.length > 0 ? this.leaderboard[0] : null;
-                    await this.saveToGitHub();
-                }
-            }
-        },
-
         async deleteRecord(index) {
-            if (confirm("Удалить этот уровень/прохождение?")) {
+            if (confirm("Удалить этот уровень из профиля?")) {
                 this.selectedPlayer.records.splice(index, 1);
-                await this.saveToGitHub();
-            }
-        },
-
-        async deleteVerify(index) {
-            if (confirm("Удалить эту верификацию?")) {
-                const targetArray = this.selectedPlayer.verified || this.selectedPlayer.verifies;
-                if (targetArray) targetArray.splice(index, 1);
                 await this.saveToGitHub();
             }
         },
 
         // --- СОХРАНЕНИЕ НА GITHUB ---
         async saveToGitHub() {
-            let token = localStorage.getItem("my_gh_token") || "";
+            const token = sessionStorage.getItem('github_token');
             if (!token) {
-                token = prompt("Введите ваш GitHub Token:");
-                if (token) {
-                    token = token.trim();
-                    localStorage.setItem("my_gh_token", token);
-                } else {
-                    return alert("Без токена нельзя сохранить изменения!");
-                }
+                alert("Токен GitHub не найден!");
+                return;
             }
 
+            this.loading = true;
             try {
-                const getFileRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_LEADERBOARD_PATH}?_t=${Date.now()}`, {
-                    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-                });
-                if (getFileRes.ok) {
-                    const fileData = await getFileRes.json();
-                    this.fileSha = fileData.sha;
-                }
+                const encodedContent = utf8ToBase64(JSON.stringify(this.leaderboard, null, 2));
 
-                const jsonString = JSON.stringify(this.leaderboard, null, 4);
-                const contentEncoded = utf8ToBase64(jsonString);
-
-                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_LEADERBOARD_PATH}`, {
+                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${GITHUB_LEADERBOARD_PATH}`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/vnd.github.v3+json'
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: 'Update Leaderboard via Admin Panel',
-                        content: contentEncoded,
+                        message: "Bulk update records via admin panel",
+                        content: encodedContent,
                         sha: this.fileSha,
                         branch: GITHUB_BRANCH
                     })
                 });
 
-                if (response.ok) {
-                    const resData = await response.json();
+                if (res.ok) {
+                    const resData = await res.json();
                     this.fileSha = resData.content.sha;
                 } else {
-                    const errData = await response.json();
-                    alert(`Ошибка GitHub (${response.status}): ${errData.message || 'Проверьте токен'}`);
+                    const errData = await res.json();
+                    alert(`Ошибка сохранения: ${errData.message || res.statusText}`);
                 }
             } catch (err) {
-                alert("Ошибка сохранения: " + err.message);
+                console.error("Save error:", err);
+                alert(" Ошибка сети при сохранении!");
+            } finally {
+                this.loading = false;
             }
         }
     }
