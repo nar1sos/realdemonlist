@@ -11,167 +11,127 @@ export default {
         <main v-if="loading">
             <Spinner />
         </main>
-        <div v-else class="gdlf-container">
-            <!-- Жесткие 3-колоночные стили Global Demonlist -->
-            <style>
-                .gdlf-container {
-                    max-width: 1450px;
-                    margin: 20px auto;
-                    padding: 0 15px;
-                    color: #fff;
-                    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-                }
-                .gdlf-grid {
-                    display: grid;
-                    grid-template-columns: 300px 1fr 420px;
-                    gap: 20px;
-                    align-items: start;
-                }
+        <div v-else class="gdl-wrapper">
+            
+            <!-- SEARCH BAR -->
+            <div class="gdl-search-bar">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        v-model="searchQuery" 
+                        class="gdl-input" 
+                        placeholder="Search levels..."
+                    />
+                    <button v-if="searchQuery" @click="searchQuery = ''" class="clear-btn">✕</button>
+                </div>
+            </div>
 
-                /* ЛЕВАЯ КОЛОНКА: ПРАВИЛА */
-                .gdlf-rules-card {
-                    background: #111318;
-                    border: 1px solid #222630;
-                    border-radius: 8px;
-                    padding: 18px;
-                    position: sticky;
-                    top: 20px;
-                }
-                .gdlf-rules-card h2 {
-                    margin-top: 0;
-                    font-size: 1.2rem;
-                    border-bottom: 1px solid #222630;
-                    padding-bottom: 10px;
-                    color: #fff;
-                }
-                .gdlf-rules-list {
-                    margin: 0;
-                    padding-left: 18px;
-                    color: #a0aec0;
-                    font-size: 0.88rem;
-                    line-height: 1.5;
-                }
-                .gdlf-rules-list li {
-                    margin-bottom: 8px;
-                }
+            <!-- GRID -->
+            <div class="gdl-content-grid">
+                
+                <!-- LEFT COLUMN -->
+                <div class="gdl-left-column">
+                    <div class="gdl-meta-box">
+                        <h3>List Editors</h3>
+                        <ul class="editors-list">
+                            <li>
+                                <span class="role-icon">👑</span>
+                                <span>nar1sos</span>
+                            </li>
+                        </ul>
 
-                /* ЦЕНТРАЛЬНАЯ КОЛОНКА: ТОП УРОВНЕЙ */
-                .gdlf-list-col {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
-                }
-                .gdlf-level-card {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    background: #111318;
-                    border: 1px solid #222630;
-                    border-radius: 8px;
-                    padding: 10px;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                }
-                .gdlf-level-card:hover, .gdlf-level-card.active {
-                    background: #1a1d26;
-                    border-color: #3b82f6;
-                }
-                .gdlf-thumb {
-                    width: 110px;
-                    height: 62px;
-                    object-fit: cover;
-                    border-radius: 6px;
-                }
-                .gdlf-level-info h3 {
-                    margin: 0 0 4px 0;
-                    font-size: 1.05rem;
-                    font-weight: 700;
-                }
-                .gdlf-level-info p {
-                    margin: 0;
-                    color: #8a94a6;
-                    font-size: 0.85rem;
-                }
+                        <div class="rules-section">
+                            <h3>Rules & Guidelines</h3>
+                            <ul class="rules-list">
+                                <li>Все рекорды должны иметь видеозапись с кликами/тапами или сырым звуком.</li>
+                                <li>Недопустимо использование читов, физических модов или нелегитимных хитбоксов.</li>
+                                <li>Рекорд считается принятым только при достижении минимального требуемого процента.</li>
+                                <li>Прогресс на уровнях из топ-10 принимается строго от 0%.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
-                /* ПРАВАЯ КОЛОНКА: ИНФОРМАЦИЯ О ВЫБРАННОМ УРОВНЕ */
-                .gdlf-info-card {
-                    background: #111318;
-                    border: 1px solid #222630;
-                    border-radius: 8px;
-                    padding: 20px;
-                    position: sticky;
-                    top: 20px;
-                }
-                .gdlf-info-card h1 {
-                    margin-top: 0;
-                    font-size: 1.4rem;
-                }
-                .gdlf-record-row {
-                    display: flex;
-                    justify-content: space-between;
-                    padding: 8px 0;
-                    border-bottom: 1px solid #1e222d;
-                    font-size: 0.9rem;
-                }
-            </style>
-
-            <div class="gdlf-grid">
-                <!-- 1. ЛЕВАЯ КОЛОНКА: ПРАВИЛА -->
-                <aside class="gdlf-rules-card">
-                    <h2>📋 Rules & Guidelines</h2>
-                    <ol class="gdlf-rules-list">
-                        <li>Все рекорды должны иметь видеозапись с кликами/тапами или сырым звуком.</li>
-                        <li>Недопустимо использование читов, физических модов или нелегитимных хитбоксов.</li>
-                        <li>Рекорд считается принятым только при достижении минимального требуемого процента.</li>
-                        <li>Прогресс на уровнях из топ-10 принимается строго от 0%.</li>
-                    </ol>
-                </aside>
-
-                <!-- 2. СЕРЕДИНА: САМ ТОП УРОВНЕЙ -->
-                <main class="gdlf-list-col">
+                <!-- CENTER COLUMN -->
+                <div class="gdl-cards-container">
                     <div 
-                        v-for="(level, index) in list" 
+                        v-for="(level, index) in filteredList" 
                         :key="index"
-                        class="gdlf-level-card"
+                        class="gdl-level-card"
                         :class="{ active: selectedLevel && selectedLevel.name === level.name }"
                         @click="selectedLevel = level"
                     >
-                        <img :src="getThumbnail(level.ytid)" class="gdlf-thumb" alt="">
-                        <div class="gdlf-level-info">
-                            <h3>#{{ level.rank }} {{ level.name }}</h3>
-                            <p>by <strong>{{ level.author || 'Unknown' }}</strong></p>
+                        <div class="gdl-card-thumb">
+                            <span class="rank-badge">#{{ level.rank }}</span>
+                            <img :src="getThumbnail(level.ytid)" alt="">
+                        </div>
+                        <div class="gdl-card-info">
+                            <div class="card-header">
+                                <span class="rank-number">#{{ level.rank }}</span>
+                                <h2 class="level-title">{{ level.name }}</h2>
+                            </div>
+                            <div class="card-authors">
+                                by <strong>{{ level.author || 'Unknown' }}</strong>
+                                <span v-if="level.verifier"> (Verified by <span class="verifier-name">{{ level.verifier }}</span>)</span>
+                            </div>
                         </div>
                     </div>
-                </main>
+                </div>
 
-                <!-- 3. СПРАВА: ИНФОРМАЦИЯ ОБ УРОВНЕ -->
-                <aside class="gdlf-info-card" v-if="selectedLevel">
-                    <h1>#{{ selectedLevel.rank }} — {{ selectedLevel.name }}</h1>
-                    <p style="margin: 4px 0; color: #8a94a6;">Created by <strong style="color:#fff;">{{ selectedLevel.author || 'Unknown' }}</strong></p>
-                    <p v-if="selectedLevel.verifier" style="margin: 4px 0; color: #8a94a6;">Verified by <strong style="color:#fff;">{{ selectedLevel.verifier }}</strong></p>
-
-                    <div v-if="selectedLevel.ytid" style="margin: 15px 0;">
-                        <iframe 
-                            :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" 
-                            frameborder="0" 
-                            allowfullscreen 
-                            style="width: 100%; aspect-ratio: 16/9; border-radius: 6px; border: none;"
-                        ></iframe>
-                    </div>
-
-                    <div style="margin-top: 20px;">
-                        <h3 style="font-size: 1.1rem; border-bottom: 1px solid #222630; padding-bottom: 8px; margin-bottom: 10px;">
-                            Records ({{ (selectedLevel.records || []).length }})
-                        </h3>
-                        <div v-for="(rec, idx) in (selectedLevel.records || [])" :key="idx" class="gdlf-record-row">
-                            <div><strong>{{ rec.user }}</strong> — {{ rec.percent }}%</div>
-                            <a v-if="rec.link" :href="rec.link" target="_blank" style="color: #3b82f6; text-decoration: none;">Video ↗</a>
+                <!-- RIGHT COLUMN -->
+                <div class="gdl-details-container" v-if="selectedLevel">
+                    <div class="gdl-level-detail-box">
+                        <h1 class="detail-title">#{{ selectedLevel.rank }} — {{ selectedLevel.name }}</h1>
+                        
+                        <div class="authors-clean-block">
+                            <div class="author-item">
+                                <span class="author-label">CREATOR</span>
+                                <span class="author-val">{{ selectedLevel.author || 'Unknown' }}</span>
+                            </div>
+                            <div class="author-item" v-if="selectedLevel.verifier">
+                                <span class="author-label">VERIFIER</span>
+                                <span class="author-val verifier-name">{{ selectedLevel.verifier }}</span>
+                            </div>
                         </div>
-                        <p v-if="!selectedLevel.records || selectedLevel.records.length === 0" style="color: #666; font-size: 0.85rem; margin: 5px 0;">
-                            Рекордов пока нет
-                        </p>
+
+                        <div class="video-wrapper" v-if="selectedLevel.ytid">
+                            <iframe 
+                                :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" 
+                                frameborder="0" 
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+
+                        <div class="records-section">
+                            <div class="records-header">
+                                <span class="records-trophy">🏆</span>
+                                <div class="records-header-text">
+                                    <h3 class="section-subtitle">Records</h3>
+                                    <p class="records-count-info">
+                                        Total: <strong>{{ (selectedLevel.records || []).length }}</strong>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="records-list" v-if="selectedLevel.records && selectedLevel.records.length > 0">
+                                <div v-for="(rec, idx) in selectedLevel.records" :key="idx" class="record-card">
+                                    <div class="record-user-info">
+                                        <span class="user-name">{{ rec.user }}</span>
+                                    </div>
+                                    <div class="record-meta-info">
+                                        <span class="percent-tag">{{ rec.percent }}%</span>
+                                        <a v-if="rec.link" :href="rec.link" target="_blank" class="record-video-btn">🎬</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="no-records">
+                                No records yet.
+                            </div>
+                        </div>
                     </div>
-                </aside>
+                </div>
+
             </div>
         </div>
     `,
@@ -180,8 +140,20 @@ export default {
         list: [],
         players: [],
         loading: true,
-        selectedLevel: null
+        selectedLevel: null,
+        searchQuery: ''
     }),
+
+    computed: {
+        filteredList() {
+            if (!this.searchQuery) return this.list;
+            const q = this.searchQuery.toLowerCase();
+            return this.list.filter(item => 
+                (item.name && item.name.toLowerCase().includes(q)) ||
+                (item.author && item.author.toLowerCase().includes(q))
+            );
+        }
+    },
 
     async mounted() {
         await this.loadAllData();
