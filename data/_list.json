@@ -7,5 +7,14 @@
         "thumbnail": "https://i.ytimg.com/vi/0iLnQyuk4tU/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDAIyZkOrSXShozF-KNH87SQjbYSA",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": "Society",
+        "author": "Neomarbilan",
+        "verifier": "wPopoff",
+        "ytid": "3CoEaH1CM7o",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
