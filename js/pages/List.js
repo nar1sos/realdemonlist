@@ -2,7 +2,7 @@ import * as ContentModule from "../content.js";
 import Spinner from "../components/Spinner.js";
 
 const GITHUB_USER = "nar1sos";
-const GITHUB_REPO = "realdemonlist"; // 👈 ЗАМЕНИ НА ИМЯ РЕПОЗИТОРИЯ
+const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
 
 export default {
@@ -16,7 +16,7 @@ export default {
             <div v-else class="page-list">
                 <!-- ПАНЕЛЬ АДМИНА -->
                 <div v-if="currentUser && currentUser.isAdmin" class="admin-bar" style="margin-bottom: 15px;">
-                    <button @click="saveAllToGithub" :disabled="saving" class="gdl-btn" style="background: #28a745; color: white;">
+                    <button @click="saveAllToGithub" :disabled="saving" class="gdl-btn" style="background: #28a745; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">
                         {{ saving ? 'Сохранение...' : '🚀 Опубликовать изменения на GitHub' }}
                     </button>
                 </div>
@@ -34,13 +34,13 @@ export default {
                                 @drop="onDrop($event, index)"
                                 @click="selectedLevel = level"
                             >
-                                <a :href="level.video" target="_blank" class="video" @click.stop>
+                                <a :href="level.video || '#'" target="_blank" class="video" @click.stop>
                                     <img :src="getThumbnail(level.ytid)" alt="">
                                 </a>
                                 <div class="meta">
                                     <p>#{{ level.rank }}</p>
                                     <h2>{{ level.name }}</h2>
-                                    <p>By {{ level.author }} <span v-if="level.verifier">| Verified by {{ level.verifier }}</span></p>
+                                    <p>By {{ level.author || 'Unknown' }} <span v-if="level.verifier">| Verified by {{ level.verifier }}</span></p>
                                 </div>
                                 <button v-if="currentUser && currentUser.isAdmin" class="delete-btn" @click.stop="deleteLevel(index)">✕</button>
                             </div>
@@ -63,7 +63,7 @@ export default {
                     <div class="meta-container" v-if="selectedLevel">
                         <div class="inner">
                             <h1>#{{ selectedLevel.rank }} — {{ selectedLevel.name }}</h1>
-                            <p>Created by <strong>{{ selectedLevel.author }}</strong></p>
+                            <p>Created by <strong>{{ selectedLevel.author || 'Unknown' }}</strong></p>
                             <p v-if="selectedLevel.verifier">Verified by <strong>{{ selectedLevel.verifier }}</strong></p>
 
                             <div class="video-container" v-if="selectedLevel.ytid">
@@ -122,7 +122,7 @@ export default {
     methods: {
         async loadAllData() {
             try {
-                // 1. Загрузка списка уровней (_list.json)
+                // 1. Загрузка списка уровней
                 let resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
                 if (resList.status === 404) {
                     resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_list.json?ref=${GITHUB_BRANCH}`);
@@ -134,10 +134,18 @@ export default {
                     this.list = JSON.parse(decodeURIComponent(escape(atob(data.content))));
                 } else {
                     const fetchListFn = ContentModule.fetchList || (async () => []);
-                    this.list = await fetchListFn();
+                    const rawList = await fetchListFn();
+                    
+                    // Преобразуем строковый массив из content.js в объекты при необходимости
+                    this.list = rawList.map(item => {
+                        if (typeof item === 'string') {
+                            return { name: item, author: "Unknown", records: [] };
+                        }
+                        return item;
+                    });
                 }
 
-                // 2. Загрузка игроков (_players.json)
+                // 2. Загрузка игроков
                 let resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_players.json?ref=${GITHUB_BRANCH}`);
                 if (resPlayers.status === 404) {
                     resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_players.json?ref=${GITHUB_BRANCH}`);
@@ -162,20 +170,24 @@ export default {
         },
 
         updateRanksAndScores() {
-            // Пересчитываем ранги уровней
+            if (!Array.isArray(this.list)) return;
+
+            // Пересчет рангов
             this.list.forEach((lvl, idx) => {
-                lvl.rank = idx + 1;
+                if (typeof lvl === 'object' && lvl !== null) {
+                    lvl.rank = idx + 1;
+                }
             });
 
-            // Автоматически обновляем и пересчитываем очки игроков в Лидеборде
-            if (this.players && this.players.length > 0) {
+            // Обновление очков игроков
+            if (Array.isArray(this.players) && this.players.length > 0) {
                 this.players.forEach(player => {
                     player.records = [];
                     player.score = 0;
 
                     this.list.forEach(lvl => {
-                        if (lvl.records) {
-                            const rec = lvl.records.find(r => r.user.toLowerCase() === player.name.toLowerCase());
+                        if (lvl && lvl.records) {
+                            const rec = lvl.records.find(r => r.user && r.user.toLowerCase() === player.name.toLowerCase());
                             if (rec) {
                                 const pts = Math.max(Math.round(100 - (lvl.rank - 1) * 2), 5);
                                 player.records.push({
@@ -194,7 +206,6 @@ export default {
             }
         },
 
-        /* Drag & Drop */
         onDragStart(e, index) {
             if (!this.currentUser || !this.currentUser.isAdmin) return;
             this.draggedIndex = index;
@@ -228,8 +239,7 @@ export default {
             
             this.selectedLevel.records.push({ ...this.newRecord });
 
-            // Если игрока еще нет в лидеборде — автоматически добавляем его туда
-            let player = this.players.find(p => p.name.toLowerCase() === this.newRecord.user.toLowerCase());
+            let player = this.players.find(p => p.name && p.name.toLowerCase() === this.newRecord.user.toLowerCase());
             if (!player) {
                 player = { name: this.newRecord.user, score: 0, records: [] };
                 this.players.push(player);
@@ -246,7 +256,7 @@ export default {
 
         async saveAllToGithub() {
             if (!this.currentUser || !this.currentUser.token) {
-                alert("Ошибка! Вы не ввели токен при входе.");
+                alert("Ошибка! Токен авторизации отсутствует.");
                 return;
             }
 
@@ -254,9 +264,9 @@ export default {
             try {
                 await this.uploadFileToGithub("data/_list.json", this.list, this.fileShaList, this.currentUser.token);
                 await this.uploadFileToGithub("data/_players.json", this.players, this.fileShaPlayers, this.currentUser.token);
-                alert("Успешно! Изменения для Списка и Лидеборда сохранены на GitHub.");
+                alert("Успешно сохранено на GitHub!");
             } catch (e) {
-                alert("Ошибка при сохранении на GitHub: " + e.message);
+                alert("Ошибка сохранения: " + e.message);
             } finally {
                 this.saving = false;
             }
@@ -270,7 +280,7 @@ export default {
             const contentBase64 = btoa(binary);
 
             const body = {
-                message: `Update ${filepath} via Site Admin Panel`,
+                message: `Update ${filepath}`,
                 content: contentBase64,
                 branch: GITHUB_BRANCH
             };
