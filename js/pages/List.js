@@ -4,6 +4,7 @@ import Spinner from "../components/Spinner.js";
 const GITHUB_USER = "nar1sos";
 const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
+const ADMIN_PASS = "29564329981";
 
 export default {
     components: { Spinner },
@@ -13,6 +14,27 @@ export default {
         </main>
         <div v-else class="gdl-wrapper">
             
+            <!-- ADMIN STATUS BAR -->
+            <div style="background:#181b20; border:1px solid #2a2e35; padding:12px 20px; border-radius:10px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span v-if="isAdmin" style="color:#2ecc71; font-weight:bold;">⚡ Режим редактора</span>
+                    <span v-else style="color:#aaa; font-size:14px;">Панель управления</span>
+                </div>
+                <div>
+                    <button v-if="!isAdmin" @click="loginAdmin" style="background: linear-gradient(135deg, #e74c3c, #c0392b); color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">
+                        🔒 Admin Login
+                    </button>
+                    <div v-else style="display:flex; gap:10px;">
+                        <button @click="openAddModal" style="background:#2ecc71; color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">
+                            ➕ Add Level
+                        </button>
+                        <button @click="logoutAdmin" style="background:#444; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer;">
+                            Выйти
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- SEARCH BAR -->
             <div class="gdl-search-bar">
                 <div class="search-input-wrapper">
@@ -55,15 +77,6 @@ export default {
 
                 <!-- CENTER COLUMN -->
                 <div class="gdl-cards-container">
-                    
-                    <!-- ADMIN EDIT CONTROLS (Показываются только когда вошел) -->
-                    <div v-if="isAdmin" style="background:#181b20; border: 1px solid #333; padding:10px 14px; border-radius:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="color:#2ecc71; font-weight:bold; font-size:14px;">⚡ Режим редактора активен</span>
-                        <button @click="openAddModal" style="background:#2ecc71; color:#000; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:13px;">
-                            ➕ Add Level
-                        </button>
-                    </div>
-
                     <div 
                         v-for="(level, index) in filteredList" 
                         :key="level.name"
@@ -166,22 +179,16 @@ export default {
             <div v-if="showLevelModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:9999;">
                 <div style="background:#181b20; border:1px solid #333; padding:24px; border-radius:12px; width:400px; color:#fff;">
                     <h2 style="margin-bottom:16px;">{{ isEditing ? 'Edit Level' : 'Add New Level' }}</h2>
-                    
                     <label style="font-size:12px; color:#aaa;">Level Name</label>
                     <input v-model="levelForm.name" placeholder="e.g. Tidal Wave" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
-                    
                     <label style="font-size:12px; color:#aaa;">Creator</label>
                     <input v-model="levelForm.author" placeholder="e.g. OniLink" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
-                    
                     <label style="font-size:12px; color:#aaa;">Verifier</label>
                     <input v-model="levelForm.verifier" placeholder="e.g. Zoink" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
-                    
                     <label style="font-size:12px; color:#aaa;">YouTube Video ID</label>
                     <input v-model="levelForm.ytid" placeholder="e.g. dQw4w9WgXcQ" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
-                    
                     <label style="font-size:12px; color:#aaa;">Custom Thumbnail URL</label>
                     <input v-model="levelForm.thumbnail" placeholder="https://i.imgur.com/example.png" class="gdl-input" style="width:100%; margin-bottom:16px; padding:8px;" />
-                    
                     <div style="display:flex; justify-content:flex-end; gap:8px;">
                         <button @click="showLevelModal = false" style="background:#444; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">Cancel</button>
                         <button @click="saveLevel" style="background:#2ecc71; color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">Save</button>
@@ -193,16 +200,12 @@ export default {
             <div v-if="showRecordModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:9999;">
                 <div style="background:#181b20; border:1px solid #333; padding:24px; border-radius:12px; width:360px; color:#fff;">
                     <h2 style="margin-bottom:16px;">Add Record</h2>
-                    
                     <label style="font-size:12px; color:#aaa;">Player Name</label>
                     <input v-model="recordForm.user" placeholder="e.g. Player1" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
-                    
                     <label style="font-size:12px; color:#aaa;">Percent (%)</label>
                     <input type="number" v-model.number="recordForm.percent" placeholder="100" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
-                    
                     <label style="font-size:12px; color:#aaa;">Video Link (YouTube)</label>
                     <input v-model="recordForm.link" placeholder="https://youtu.be/..." class="gdl-input" style="width:100%; margin-bottom:16px; padding:8px;" />
-                    
                     <div style="display:flex; justify-content:flex-end; gap:8px;">
                         <button @click="showRecordModal = false" style="background:#444; color:#fff; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">Cancel</button>
                         <button @click="saveRecord" style="background:#2ecc71; color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">Add</button>
@@ -242,18 +245,33 @@ export default {
     },
 
     async mounted() {
-        // Слушаем событие входа/выхода из админки в шапке
-        window.addEventListener('admin-state-changed', this.updateAdminState);
         await this.loadAllData();
     },
 
-    unmounted() {
-        window.removeEventListener('admin-state-changed', this.updateAdminState);
-    },
-
     methods: {
-        updateAdminState() {
-            this.isAdmin = sessionStorage.getItem('is_admin') === 'true';
+        loginAdmin() {
+            const pass = prompt("Введите пароль админа:");
+            if (pass === ADMIN_PASS) {
+                let token = localStorage.getItem("my_gh_token");
+                if (!token) {
+                    token = prompt("Введите ваш GitHub Token (сохранится в браузере):");
+                    if (token) {
+                        localStorage.setItem("my_gh_token", token.trim());
+                    } else {
+                        alert("Без токена нельзя сохранять данные!");
+                        return;
+                    }
+                }
+                this.isAdmin = true;
+                sessionStorage.setItem('is_admin', 'true');
+            } else if (pass !== null) {
+                alert("Неверный пароль!");
+            }
+        },
+
+        logoutAdmin() {
+            this.isAdmin = false;
+            sessionStorage.removeItem('is_admin');
         },
 
         async loadAllData() {
