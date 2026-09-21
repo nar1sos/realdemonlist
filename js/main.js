@@ -1,59 +1,47 @@
-import List from './pages/List.js';
-import Leaderboard from './pages/Leaderboard.js';
-import Roulette from './pages/Roulette.js';
+import routes from './routes.js';
+import { fetchList } from './content.js';
 
-// 🔑 ВСТАВЬ СЮДА СВОЙ ТОКЕН GITHUB
-const MY_GITHUB_TOKEN = "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";
+// ⚙️ НАСТРОЙКИ ГИТХАБА
+const GITHUB_USER = "nar1sos";
+const GITHUB_REPO = "realdemonlist";
+const GITHUB_BRANCH = "main";
 
-const routes = [
-    { path: '/', component: List },
-    { path: '/leaderboard', component: Leaderboard },
-    { path: '/roulette', component: Roulette },
-];
+// Пароль администратора
+const ADMIN_PASS = "29564329981";
 
-const router = VueRouter.createRouter({
-    history: VueRouter.createWebHashHistory(),
-    routes,
-});
-
-const store = Vue.reactive({
-    dark: true,
-    isAdmin: localStorage.getItem('gdl_is_admin') === 'true',
-    
-    toggleDark() {
-        this.dark = !this.dark;
-    },
-    
-    toggleAdmin() {
-        if (this.isAdmin) {
-            if (confirm("Выйти из режима админа?")) {
-                this.isAdmin = false;
-                localStorage.removeItem('gdl_is_admin');
-                location.reload();
-            }
-        } else {
-            const input = prompt("Введите GitHub Токен для входа:");
-            if (!input) return;
-
-            if (input.trim() === MY_GITHUB_TOKEN.trim()) {
-                this.isAdmin = true;
-                localStorage.setItem('gdl_is_admin', 'true');
-                alert("Успешный вход!");
-                location.reload();
-            } else {
-                alert("Неверный токен!");
-            }
-        }
-    }
-});
+// Получаем токен из локального хранилища браузера
+let GITHUB_TOKEN = localStorage.getItem("my_gh_token") || "";
 
 const app = Vue.createApp({
     data() {
         return {
-            store,
+            store: {
+                dark: localStorage.getItem('dark') === 'true',
+            },
+            route: window.location.hash,
         };
+    },
+    computed: {
+        ViewComponent() {
+            const matchingRoute = routes[this.route] || routes['#/'];
+            return matchingRoute;
+        },
+    },
+    methods: {
+        toggleDark() {
+            this.store.dark = !this.store.dark;
+            localStorage.setItem('dark', this.store.dark);
+        },
+        // Универсальный метод проверки входа
+        checkAdmin() {
+            return sessionStorage.getItem("is_admin") === "true";
+        }
+    },
+    mounted() {
+        window.addEventListener('hashchange', () => {
+            this.route = window.location.hash;
+        });
     },
 });
 
-app.use(router);
 app.mount('#app');
