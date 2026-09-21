@@ -1,81 +1,35 @@
-<!-- КРАСИВАЯ КНОПКА В ШАПКЕ -->
-<button 
-    id="admin-header-btn"
-    onclick="handleAdminLogin()"
-    style="
-        background: linear-gradient(135deg, #e74c3c, #c0392b);
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.25);
-        transition: all 0.2s ease;
-    "
-    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 16px rgba(231, 76, 60, 0.4)';"
-    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(231, 76, 60, 0.25)';"
->
-    <span id="admin-btn-icon">🔒</span>
-    <span id="admin-btn-text">Admin Login</span>
-</button>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demonlist</title>
+    
+    <!-- Подключение стилей -->
+    <link rel="stylesheet" href="./css/main.css">
 
-<script>
-// Логика кнопки прямо в index.html
-function updateHeaderBtnUI() {
-    const btn = document.getElementById('admin-header-btn');
-    const icon = document.getElementById('admin-btn-icon');
-    const text = document.getElementById('admin-btn-text');
-    const isAdmin = sessionStorage.getItem('is_admin') === 'true';
+    <!-- Подключение Vue 3 и Vue Router 4 (Глобальные сборки) -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Шапка сайта -->
+        <header class="gdl-header">
+            <div class="header-container">
+                <nav class="nav-links">
+                    <router-link to="/" class="nav-item">List</router-link>
+                    <router-link to="/leaderboard" class="nav-item">Leaderboard</router-link>
+                    <router-link to="/roulette" class="nav-item">Roulette</router-link>
+                </nav>
+            </div>
+        </header>
 
-    if (isAdmin) {
-        btn.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
-        btn.style.boxShadow = '0 4px 12px rgba(46, 204, 113, 0.25)';
-        icon.textContent = '⚡';
-        text.textContent = 'Админ (Выйти)';
-    } else {
-        btn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
-        btn.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.25)';
-        icon.textContent = '🔒';
-        text.textContent = 'Admin Login';
-    }
-}
+        <!-- Основной контент (сюда рендерятся страницы) -->
+        <router-view></router-view>
+    </div>
 
-function handleAdminLogin() {
-    const isAdmin = sessionStorage.getItem('is_admin') === 'true';
-    if (isAdmin) {
-        if (confirm("Выйти из админки?")) {
-            sessionStorage.removeItem('is_admin');
-            updateHeaderBtnUI();
-            window.dispatchEvent(new Event('admin-state-changed'));
-        }
-    } else {
-        const pass = prompt("Введите пароль админа:");
-        if (pass === "29564329981") {
-            let token = localStorage.getItem("my_gh_token");
-            if (!token) {
-                token = prompt("Введите ваш GitHub Token (сохранится в браузере):");
-                if (token) {
-                    localStorage.setItem("my_gh_token", token.trim());
-                } else {
-                    alert("Без токена нельзя будет сохранять!");
-                    return;
-                }
-            }
-            sessionStorage.setItem('is_admin', 'true');
-            updateHeaderBtnUI();
-            window.dispatchEvent(new Event('admin-state-changed'));
-            alert("Успешный вход!");
-        } else if (pass !== null) {
-            alert("Неверный пароль!");
-        }
-    }
-}
-
-// Инициализация кнопки при загрузке
-document.addEventListener("DOMContentLoaded", updateHeaderBtnUI);
-</script>
+    <!-- Запуск основного JS модуля -->
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>
