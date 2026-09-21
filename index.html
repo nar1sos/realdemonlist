@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=1024" />
-        <title>Real Demon list - RDL</title>
+        <title>Demon list for friends</title>
 
         <link rel="icon" href="./list_icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,7 +12,6 @@
             href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@500;700&display=swap"
             rel="stylesheet"
         />
-        <!-- Исправлены пути до CSS (убран ведущий слэш): -->
         <link rel="stylesheet" type="text/css" href="./css/reset.css" />
         <link rel="stylesheet" type="text/css" href="./css/typography.css" />
         <link rel="stylesheet" type="text/css" href="./css/main.css" />
@@ -51,6 +50,14 @@
                     <span class="type-label-lg">Roulette</span>
                 </router-link>
                 <div class="nav__actions">
+                    <button 
+                        class="nav__cta type-label-lg" 
+                        style="background: #e74c3c; cursor: pointer; margin-right: 8px;"
+                        @click="store.toggleAdmin()"
+                    >
+                        {{ store.isAdmin ? '🔓 Admin Mode' : '🔒 Admin Login' }}
+                    </button>
+
                     <button
                         class="nav__icon"
                         @click.prevent="store.toggleDark()"
