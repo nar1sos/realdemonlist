@@ -1,8 +1,3 @@
-import { fetchList, fetchAdmins } from '../content.js';
-import { getLocalList, setLocalList } from '../storage.js';
-import { embed, localize } from '../util.js';
-import { score } from '../score.js';
-
 // ⚙️ НАСТРОЙКИ ГИТХАБА
 const GITHUB_USER = "nar1sos";
 const GITHUB_REPO = "realdemonlist";
@@ -11,115 +6,150 @@ const GITHUB_BRANCH = "main";
 // 🔑 Твой пароль для входа в админку
 const ADMIN_PASS = "29564329981";
 
-// Токен берется из памяти браузера (GitHub его не увидит в коде и не забанит!)
+// Токен берется из памяти браузера (не светится в коде!)
 let GITHUB_TOKEN = localStorage.getItem("my_gh_token") || "";
 
 export default {
     template: `
-        <main v-if="loading">
-            <p>Загрузка...</p>
+        <main v-if="loading" style="color: #fff; padding: 20px;">
+            <h2>Загрузка демонов...</h2>
         </main>
-        <main v-else class="page-list">
-            <section class="list-container">
-                <table>
-                    <tr v-for="(err, i) in errors" :key="i">
-                        <td class="rank">#</td>
-                        <td class="level">
-                            <a class="type-label-lg">{{ err }}</a>
-                        </td>
-                    </tr>
-                    <tr v-for="([level, err], i) in list" :key="i">
-                        <td class="rank">
-                            <p class="type-label-lg">#{{ i + 1 }}</p>
-                        </td>
-                        <td class="level" :class="{ 'active': selected === i }">
-                            <button @click="selected = i">
-                                <span class="type-label-lg">{{ level.name }}</span>
-                                <span class="type-label-md">{{ level.author }}</span>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-            </section>
+        <div v-else class="gdl-wrapper" style="padding: 20px; color: #fff;">
             
-            <section class="level-container">
-                <div class="level" v-if="level">
-                    <h1>{{ level.name }}</h1>
-                    <p class="author">Создатель: <b>{{ level.author }}</b> | Вертификатор: <b>{{ level.verifier }}</b></p>
-                    
-                    <div class="video-container" v-if="level.verification">
-                        <iframe :src="embed(level.verification)" frameborder="0" allowfullscreen></iframe>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1>Demon List</h1>
+                
+                <div>
+                    <button v-if="!isAdmin" @click="login" style="padding: 8px 16px; background: #2ecc71; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                        🔒 Войти в Админку
+                    </button>
+                    <div v-else style="display: flex; gap: 10px; align-items: center;">
+                        <span style="color: #2ecc71; font-weight: bold;">✅ Админ</span>
+                        <button @click="openAddModal" style="padding: 8px 14px; background: #2ecc71; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">➕ Добавить уровень</button>
+                        <button @click="saveListToGitHub" style="padding: 8px 14px; background: #3498db; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">💾 Сохранить на GitHub</button>
+                        <button @click="logout" style="padding: 8px 14px; background: #e74c3c; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Выйти</button>
                     </div>
+                </div>
+            </div>
 
-                    <div class="records" v-if="level.records && level.records.length">
-                        <h2>Рекорды ({{ level.records.length }})</h2>
-                        <ul>
-                            <li v-for="(rec, index) in level.records" :key="index">
-                                <b>{{ rec.user }}</b> — {{ rec.percent }}% 
-                                <a :href="rec.link" target="_blank" v-if="rec.link">📹 Видео</a>
-                            </li>
-                        </ul>
+            <!-- СПИСОК УРОВНЕЙ -->
+            <div style="display: grid; grid-template-columns: 300px 1fr; gap: 20px;">
+                
+                <div style="background: #181b20; border: 1px solid #333; border-radius: 8px; padding: 10px;">
+                    <div 
+                        v-for="(lvl, idx) in list" 
+                        :key="idx" 
+                        @click="selectedLevel = lvl"
+                        :style="{
+                            padding: '10px',
+                            marginBottom: '6px',
+                            background: selectedLevel === lvl ? '#2ecc7122' : '#22252b',
+                            border: selectedLevel === lvl ? '1px solid #2ecc71' : '1px solid #333',
+                            borderRadius: '6px',
+                            cursor: 'pointer'
+                        }"
+                    >
+                        <strong>#{{ idx + 1 }} {{ lvl.name }}</strong>
+                        <div style="font-size: 12px; color: #aaa;">by {{ lvl.author || 'Unknown' }}</div>
                     </div>
                 </div>
 
-                <!-- 🔒 АДМИН ПАНЕЛЬ -->
-                <div class="admin-panel" style="margin-top: 30px; padding: 20px; border: 1px solid #444; background: #111; border-radius: 8px;">
-                    <h2>🔒 Панель Управления</h2>
-                    <div v-if="!isAdmin">
-                        <button @click="login" style="padding: 10px 20px; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 4px;">Войти в Админку</button>
+                <!-- ДЕТАЛИ УРОВНЯ -->
+                <div v-if="selectedLevel" style="background: #181b20; border: 1px solid #333; border-radius: 8px; padding: 20px;">
+                    <h2>#{{ getRank(selectedLevel) }} — {{ selectedLevel.name }}</h2>
+                    <p style="color: #aaa; margin-bottom: 15px;">
+                        Создатель: <b>{{ selectedLevel.author || 'Unknown' }}</b> | Верификатор: <b>{{ selectedLevel.verifier || 'Unknown' }}</b>
+                    </p>
+
+                    <div v-if="selectedLevel.ytid" style="margin-bottom: 20px;">
+                        <iframe 
+                            :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" 
+                            style="width: 100%; height: 350px; border: none; border-radius: 8px;"
+                            allowfullscreen
+                        ></iframe>
                     </div>
-                    <div v-else>
-                        <p style="color: #4CAF50;">✅ Авторизован как Администратор</p>
-                        <button @click="saveChanges" style="padding: 10px 20px; cursor: pointer; background: #2196F3; color: white; border: none; border-radius: 4px; margin-right: 10px;">💾 Сохранить изменения на GitHub</button>
-                        <button @click="logout" style="padding: 10px 20px; cursor: pointer; background: #f44336; color: white; border: none; border-radius: 4px;">Выйти</button>
+
+                    <h3>Рекорды</h3>
+                    <div v-if="selectedLevel.records && selectedLevel.records.length" style="margin-top: 10px;">
+                        <div v-for="(rec, rIdx) in selectedLevel.records" :key="rIdx" style="background: #22252b; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between;">
+                            <span><b>{{ rec.user }}</b> — {{ rec.percent }}%</span>
+                            <a v-if="rec.link" :href="rec.link" target="_blank" style="color: #3498db;">🎬 Видео</a>
+                        </div>
+                    </div>
+                    <p v-else style="color: #666; margin-top: 8px;">Рекордов пока нет.</p>
+                </div>
+
+            </div>
+
+            <!-- МОДАЛКА ДОБАВЛЕНИЯ -->
+            <div v-if="showModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:9999;">
+                <div style="background:#181b20; border:1px solid #333; padding:24px; border-radius:12px; width:350px; color:#fff;">
+                    <h3>Добавить новый уровень</h3>
+                    <input v-model="form.name" placeholder="Название уровня" style="width:100%; margin: 8px 0; padding:8px; background:#222; border:1px solid #444; color:#fff; border-radius:4px;" />
+                    <input v-model="form.author" placeholder="Создатель" style="width:100%; margin: 8px 0; padding:8px; background:#222; border:1px solid #444; color:#fff; border-radius:4px;" />
+                    <input v-model="form.verifier" placeholder="Верификатор" style="width:100%; margin: 8px 0; padding:8px; background:#222; border:1px solid #444; color:#fff; border-radius:4px;" />
+                    <input v-model="form.ytid" placeholder="YouTube Video ID (например: dQw4w9WgXcQ)" style="width:100%; margin: 8px 0; padding:8px; background:#222; border:1px solid #444; color:#fff; border-radius:4px;" />
+                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+                        <button @click="showModal = false" style="padding:6px 12px; background:#444; color:#fff; border:none; border-radius:4px; cursor:pointer;">Отмена</button>
+                        <button @click="addLevel" style="padding:6px 12px; background:#2ecc71; color:#000; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">Добавить</button>
                     </div>
                 </div>
-            </section>
-        </main>
+            </div>
+
+        </div>
     `,
+
     data() {
         return {
             list: [],
-            editors: [],
             loading: true,
-            selected: 0,
-            errors: [],
+            selectedLevel: null,
             isAdmin: false,
+            fileSha: '',
+            showModal: false,
+            form: { name: '', author: '', verifier: '', ytid: '' }
         };
     },
-    computed: {
-        level() {
-            return this.list[this.selected] ? this.list[this.selected][0] : null;
-        }
-    },
-    async mounted() {
-        // Загрузка списка
-        this.list = await fetchList();
-        this.editors = await fetchAdmins();
-        this.loading = false;
 
-        // Проверка сессии админа
+    async mounted() {
         if (sessionStorage.getItem("is_admin") === "true") {
             this.isAdmin = true;
         }
+        await this.loadList();
     },
-    methods: {
-        embed,
-        localize,
-        score,
 
-        // Функция входа по паролю
+    methods: {
+        getRank(lvl) {
+            return this.list.indexOf(lvl) + 1;
+        },
+
+        async loadList() {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    this.fileSha = data.sha;
+                    const decoded = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
+                    this.list = JSON.parse(decoded);
+                    if (this.list.length > 0) this.selectedLevel = this.list[0];
+                }
+            } catch (err) {
+                console.error("Ошибка загрузки данных:", err);
+            } finally {
+                this.loading = false;
+            }
+        },
+
         login() {
             const pass = prompt("Введите пароль админа:");
             if (pass === ADMIN_PASS) {
-                // Если пароль верный, проверяем/запрашиваем токен
                 if (!GITHUB_TOKEN) {
-                    const token = prompt("Введите ваш GitHub Personal Access Token (вводится 1 раз и сохраняется у вас в браузере):");
+                    const token = prompt("Введите ваш GitHub Personal Access Token (сохранится 1 раз у вас в браузере):");
                     if (token) {
                         GITHUB_TOKEN = token.trim();
                         localStorage.setItem("my_gh_token", GITHUB_TOKEN);
                     } else {
-                        alert("Без токена GitHub сохранение работать не будет!");
+                        alert("Без токена нельзя сохранять данные!");
                         return;
                     }
                 }
@@ -131,74 +161,73 @@ export default {
             }
         },
 
-        // Функция выхода
         logout() {
             this.isAdmin = false;
             sessionStorage.removeItem("is_admin");
-            alert("Вы вышли из админки.");
         },
 
-        // Функция сохранения данных на GitHub
-        async saveChanges() {
+        openAddModal() {
+            this.form = { name: '', author: '', verifier: '', ytid: '' };
+            this.showModal = true;
+        },
+
+        addLevel() {
+            if (!this.form.name) return alert("Введите название уровня!");
+            const newLvl = {
+                name: this.form.name,
+                author: this.form.author || 'Unknown',
+                verifier: this.form.verifier || '',
+                ytid: this.form.ytid || '',
+                records: []
+            };
+            this.list.push(newLvl);
+            this.selectedLevel = newLvl;
+            this.showModal = false;
+        },
+
+        async saveListToGitHub() {
             if (!GITHUB_TOKEN) {
-                const token = prompt("GitHub Token не найден. Введите ваш токен:");
-                if (token) {
-                    GITHUB_TOKEN = token.trim();
-                    localStorage.setItem("my_gh_token", GITHUB_TOKEN);
-                } else {
-                    alert("Ошибка: отсутствует токен.");
-                    return;
-                }
+                alert("Ошибка: нет токена GitHub!");
+                return;
             }
 
             try {
-                // Преобразуем текущий список в JSON
-                const rawList = this.list.map(item => item[0]);
-                const content = JSON.stringify(rawList, null, 4);
-
-                // 1. Получаем текущий SHA файла data/_list.json из GitHub
-                const getFileUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`;
-                const fileRes = await fetch(getFileUrl, {
-                    headers: {
-                        "Authorization": `token ${GITHUB_TOKEN}`,
-                        "Accept": "application/vnd.github.v3+json"
-                    }
+                // Получаем актуальный SHA перед отправкой
+                const getRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`, {
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
                 });
-
-                if (!fileRes.ok) {
-                    const errData = await fileRes.json();
-                    throw new Error(`GitHub (${fileRes.status}): ${errData.message}`);
+                if (getRes.ok) {
+                    const fileData = await getRes.json();
+                    this.fileSha = fileData.sha;
                 }
 
-                const fileData = await fileRes.json();
-                const sha = fileData.sha;
+                const jsonString = JSON.stringify(this.list, null, 4);
+                const contentEncoded = btoa(encodeURIComponent(jsonString).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+                    return String.fromCharCode('0x' + p1);
+                }));
 
-                // 2. Отправляем обновленный файл на GitHub
-                const updateUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json`;
-                const putRes = await fetch(updateUrl, {
-                    method: "PUT",
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json`, {
+                    method: 'PUT',
                     headers: {
-                        "Authorization": `token ${GITHUB_TOKEN}`,
-                        "Content-Type": "application/json",
-                        "Accept": "application/vnd.github.v3+json"
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: "Update demonlist via Admin Panel",
-                        content: btoa(unescape(encodeURIComponent(content))), // Base64 кодирование
-                        sha: sha,
+                        message: 'Update demonlist via Admin Panel',
+                        content: contentEncoded,
+                        sha: this.fileSha,
                         branch: GITHUB_BRANCH
                     })
                 });
 
-                if (putRes.ok) {
+                if (response.ok) {
                     alert("Успешно сохранено на GitHub!");
                 } else {
-                    const errData = await putRes.json();
-                    throw new Error(`GitHub (${putRes.status}): ${errData.message}`);
+                    const err = await response.json();
+                    alert(`Ошибка сохранения (${response.status}): ${err.message}`);
                 }
             } catch (err) {
-                alert("Ошибка сохранения: " + err.message);
-                console.error(err);
+                alert("Ошибка: " + err.message);
             }
         }
     }
