@@ -37,7 +37,6 @@ export default {
             localStorage.setItem("my_gh_token", cleanToken);
             sessionStorage.setItem("is_admin", isAdmin ? "true" : "false");
 
-            // Оповещаем другие компоненты об изменении статуса
             window.dispatchEvent(new Event('admin-state-changed'));
 
             if (isAdmin) {
