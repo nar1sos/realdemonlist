@@ -23,174 +23,183 @@ function base64ToUtf8(str) {
 export default {
     components: { Spinner },
     template: `
-        <div class="gdl-wrapper">
+        <div class="gdl-wrapper" style="max-width: 1200px; margin: 0 auto; padding: 20px; color: #fff;">
             <Spinner v-if="loading" />
 
             <template v-else>
-                <!-- 1. ПОИСКОВКА -->
-                <div class="gdl-search-bar">
-                    <div class="search-input-wrapper">
-                        <input 
-                            type="text" 
-                            v-model="searchQuery" 
-                            placeholder="Поиск игрока..." 
-                            class="gdl-input"
-                        />
-                        <button v-if="searchQuery" class="clear-btn" @click="searchQuery = ''">✕</button>
-                    </div>
+                <!-- Панель управления админа -->
+                <div v-if="isAdmin" style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+                    <button @click="openAddPlayerModal" style="padding: 10px 16px; background: #22c55e; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                        + Добавить игрока
+                    </button>
+                    <input 
+                        type="text" 
+                        v-model="searchQuery" 
+                        placeholder="Поиск игрока..." 
+                        class="gdl-input"
+                        style="max-width: 300px;"
+                    />
                 </div>
 
-                <!-- 2. СЕТКА ЛИДЕРБОРДА -->
-                <div class="gdl-content-grid">
+                <!-- Главная сетка: Детали слева, Список игроков справа -->
+                <div style="display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start;">
                     
-                    <!-- ЛЕВАЯ КОЛОНКА (Инфо) -->
-                    <div class="gdl-left-column">
-                        <div class="gdl-meta-box">
-                            <h3>Зал Славы</h3>
-                            <p style="font-size: 13px; color: #94a3b8; line-height: 1.5;">
-                                Список сильнейших игроков и их подтвержденные прохождения с верификациями.
-                            </p>
+                    <!-- ЛЕВАЯ КОЛОНКА: Профиль выбранного игрока -->
+                    <div v-if="selectedPlayer" style="background: #0f172a; border: 1px solid #1e293b; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+                        
+                        <!-- Шапка профиля (Аватар, Имя, Флаг) -->
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+                            <img 
+                                :src="selectedPlayer.avatar || 'https://i.imgur.com/6VBx3io.png'" 
+                                style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid #3b82f6; margin-bottom: 12px;"
+                                @error="onAvatarError"
+                            />
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <img 
+                                    v-if="selectedPlayer.country" 
+                                    :src="'https://flagcdn.com/32x24/' + selectedPlayer.country.toLowerCase() + '.png'" 
+                                    style="width: 28px; height: 20px; border-radius: 3px;"
+                                />
+                                <h1 style="margin: 0; font-size: 28px; font-weight: 800;">{{ selectedPlayer.name }}</h1>
+                            </div>
+
+                            <!-- Кнопки админа для игрока -->
+                            <div v-if="isAdmin" style="margin-top: 12px; display: flex; gap: 8px;">
+                                <button @click="openEditPlayerModal(selectedPlayer)" style="background: #3b82f6; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                                    ✏️ Редактировать
+                                </button>
+                                <button @click="deletePlayer(selectedPlayer)" style="background: #ef4444; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                                    🗑️ Удалить
+                                </button>
+                            </div>
                         </div>
+
+                        <!-- Ранг игрока -->
+                        <div style="background: #1e293b; border-radius: 12px; padding: 12px; text-align: center;">
+                            <div style="font-size: 20px;">🏆</div>
+                            <div style="font-size: 22px; font-weight: 800;">#{{ selectedPlayer.rank }}</div>
+                            <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">RANK</div>
+                        </div>
+
+                        <!-- Hardest level (Если есть хотя бы одно прохождение) -->
+                        <div v-if="selectedPlayer.records && selectedPlayer.records.length > 0" style="background: #1e293b; border-radius: 12px; padding: 16px;">
+                            <div style="color: #f59e0b; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                🔥 Hardest level
+                            </div>
+                            <div style="font-size: 18px; font-weight: 800;">{{ selectedPlayer.records[0].level }}</div>
+                        </div>
+
+                        <!-- Main levels (Прохождения - теги) -->
+                        <div style="background: #1e293b; border-radius: 12px; padding: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <span style="color: #ef4444; font-size: 14px; font-weight: 700;">★ Main levels</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="background: #0f172a; padding: 2px 8px; border-radius: 12px; font-size: 12px; color: #94a3b8;">
+                                        {{ selectedPlayer.records ? selectedPlayer.records.length : 0 }}
+                                    </span>
+                                    <button v-if="isAdmin" @click="openAddRecordModal" style="background: #22c55e; color: #fff; border: none; padding: 4px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 11px;">
+                                        + Добавить
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <div 
+                                    v-for="(rec, rIdx) in selectedPlayer.records" 
+                                    :key="rIdx"
+                                    style="background: #0f172a; border: 1px solid #334155; padding: 6px 12px; border-radius: 8px; font-size: 13px; display: flex; align-items: center; gap: 6px;"
+                                >
+                                    <a v-if="rec.link" :href="rec.link" target="_blank" style="color: #fff; text-decoration: none;">
+                                        {{ rec.level }} <span v-if="rec.percent < 100" style="color: #3b82f6;">({{ rec.percent }}%)</span>
+                                    </a>
+                                    <span v-else>{{ rec.level }} <span v-if="rec.percent < 100" style="color: #3b82f6;">({{ rec.percent }}%)</span></span>
+                                    
+                                    <button v-if="isAdmin" @click="deleteRecord(rIdx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0 0 0 4px;">×</button>
+                                </div>
+                                <div v-if="!selectedPlayer.records || selectedPlayer.records.length === 0" style="color: #64748b; font-size: 13px;">
+                                    Нет прохождений
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Which are verified (Верификации - зеленые теги) -->
+                        <div style="background: #064e3b22; border: 1px solid #05966944; border-radius: 12px; padding: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <span style="color: #10b981; font-size: 14px; font-weight: 700;">✓ Which are verified</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="background: #064e3b; padding: 2px 8px; border-radius: 12px; font-size: 12px; color: #a7f3d0;">
+                                        {{ selectedPlayer.verifies ? selectedPlayer.verifies.length : 0 }}
+                                    </span>
+                                    <button v-if="isAdmin" @click="openAddVerifyModal" style="background: #10b981; color: #fff; border: none; padding: 4px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 11px;">
+                                        + Добавить
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <div 
+                                    v-for="(v, vIdx) in selectedPlayer.verifies" 
+                                    :key="vIdx"
+                                    style="background: #022c22; border: 1px solid #059669; color: #a7f3d0; padding: 6px 12px; border-radius: 8px; font-size: 13px; display: flex; align-items: center; gap: 6px;"
+                                >
+                                    <a v-if="v.link" :href="v.link" target="_blank" style="color: #a7f3d0; text-decoration: none;">
+                                        {{ v.level }}
+                                    </a>
+                                    <span v-else>{{ v.level }}</span>
+                                    
+                                    <button v-if="isAdmin" @click="deleteVerify(vIdx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0 0 0 4px;">×</button>
+                                </div>
+                                <div v-if="!selectedPlayer.verifies || selectedPlayer.verifies.length === 0" style="color: #047857; font-size: 13px;">
+                                    Нет верифицированных уровней
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА (Список игроков) -->
-                    <div class="gdl-cards-container">
-                        <div v-if="isAdmin" style="margin-bottom: 10px;">
-                            <button @click="openAddPlayerModal" style="width: 100%; padding: 10px; background: #22c55e; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">
-                                + Добавить игрока
-                            </button>
-                        </div>
-
+                    <!-- ПРАВАЯ КОЛОНКА: Правый сайдбар со списком игроков -->
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
                         <div 
                             v-for="(player, index) in filteredPlayers" 
                             :key="player.name + index"
-                            class="gdl-level-card"
-                            :class="{ active: selectedPlayer && selectedPlayer.name === player.name }"
                             @click="selectedPlayer = player"
                             :draggable="isAdmin && !searchQuery"
                             @dragstart="onDragStart($event, index)"
                             @dragover.prevent
                             @drop="onDrop($event, index)"
+                            :style="{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '10px 14px',
+                                background: selectedPlayer && selectedPlayer.name === player.name ? '#1e293b' : '#0f172a',
+                                border: selectedPlayer && selectedPlayer.name === player.name ? '2px solid #3b82f6' : '1px solid #1e293b',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                            }"
                         >
-                            <!-- Аватарка по URL -->
-                            <div class="gdl-card-thumb" style="width: 50px; height: 50px; border-radius: 50%; overflow: hidden; min-width: 50px;">
-                                <img 
-                                    :src="player.avatar || 'https://i.imgur.com/6VBx3io.png'" 
-                                    alt="avatar"
-                                    style="width: 100%; height: 100%; object-fit: cover;"
-                                    @error="onAvatarError"
-                                />
-                            </div>
+                            <!-- Номер места -->
+                            <span style="font-weight: 800; font-size: 14px; color: #3b82f6; width: 24px;">#{{ player.rank }}</span>
 
-                            <div class="gdl-card-info" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                <div>
-                                    <div class="card-header" style="display: flex; align-items: center; gap: 8px;">
-                                        <span class="rank-number">#{{ player.rank }}</span>
-                                        
-                                        <!-- Флаг страны -->
-                                        <img 
-                                            v-if="player.country" 
-                                            :src="'https://flagcdn.com/24x18/' + player.country.toLowerCase() + '.png'" 
-                                            :alt="player.country"
-                                            style="width: 20px; height: 15px; border-radius: 2px;"
-                                            :title="player.country.toUpperCase()"
-                                        />
+                            <!-- Аватарка -->
+                            <img 
+                                :src="player.avatar || 'https://i.imgur.com/6VBx3io.png'" 
+                                style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;"
+                                @error="onAvatarError"
+                            />
 
-                                        <h4 class="level-title" style="margin: 0;">{{ player.name }}</h4>
-                                    </div>
-                                    <div class="card-authors" style="font-size: 12px; color: #64748b; margin-top: 4px;">
-                                        Прохождений: {{ player.records ? player.records.length : 0 }} | Верификаций: {{ player.verifies ? player.verifies.length : 0 }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                            <!-- Флаг -->
+                            <img 
+                                v-if="player.country" 
+                                :src="'https://flagcdn.com/24x18/' + player.country.toLowerCase() + '.png'" 
+                                style="width: 20px; height: 14px; border-radius: 2px;"
+                            />
 
-                    <!-- ПРАВАЯ КОЛОНКА (Профиль и достижения игрока) -->
-                    <div class="gdl-details-container" v-if="selectedPlayer">
-                        <div class="gdl-level-detail-box">
-                            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-                                <img 
-                                    :src="selectedPlayer.avatar || 'https://i.imgur.com/6VBx3io.png'" 
-                                    style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid #3b82f6;"
-                                    @error="onAvatarError"
-                                />
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <h2 class="detail-title" style="margin: 0;">#{{ selectedPlayer.rank }} - {{ selectedPlayer.name }}</h2>
-                                        <img 
-                                            v-if="selectedPlayer.country" 
-                                            :src="'https://flagcdn.com/32x24/' + selectedPlayer.country.toLowerCase() + '.png'" 
-                                            style="width: 24px; height: 18px; border-radius: 2px;"
-                                        />
-                                    </div>
-                                    <span style="font-size: 13px; color: #94a3b8;">Cтрана: {{ selectedPlayer.country ? selectedPlayer.country.toUpperCase() : 'Не указана' }}</span>
-                                </div>
-                            </div>
-
-                            <!-- Кнопки админа -->
-                            <div v-if="isAdmin" style="margin-bottom: 15px; display: flex; gap: 8px;">
-                                <button @click="openEditPlayerModal(selectedPlayer)" style="flex: 2; background: #3b82f6; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 800; cursor: pointer;">
-                                    ✏️ Редактировать игрока
-                                </button>
-                                <button @click="deletePlayer(selectedPlayer)" style="flex: 1; background: #ef4444; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 800; cursor: pointer;">
-                                    🗑️ Удалить
-                                </button>
-                            </div>
-
-                            <!-- ВЕРИФИКАЦИИ -->
-                            <div class="records-section" style="margin-bottom: 20px;">
-                                <div class="records-header" style="justify-content: space-between;">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span class="records-trophy">👑</span>
-                                        <h3 class="section-subtitle">Верификации ({{ selectedPlayer.verifies ? selectedPlayer.verifies.length : 0 }})</h3>
-                                    </div>
-                                    <button v-if="isAdmin" @click="openAddVerifyModal" style="background: #22c55e; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 12px;">
-                                        + Верификацию
-                                    </button>
-                                </div>
-
-                                <div class="records-list" v-if="selectedPlayer.verifies && selectedPlayer.verifies.length > 0">
-                                    <div v-for="(v, vIdx) in selectedPlayer.verifies" :key="vIdx" class="record-card">
-                                        <div class="record-user-info">
-                                            <span class="user-name">{{ v.level }}</span>
-                                        </div>
-                                        <div class="record-meta-info">
-                                            <a v-if="v.link" :href="v.link" target="_blank" class="record-video-btn">▶</a>
-                                            <button v-if="isAdmin" @click="deleteVerify(vIdx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; margin-left: 6px;">×</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div v-else class="no-records">Нет верифицированных уровней.</div>
-                            </div>
-
-                            <!-- ПРОХОЖДЕНИЯ (РЕКОРДЫ) -->
-                            <div class="records-section">
-                                <div class="records-header" style="justify-content: space-between;">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span class="records-trophy">🏆</span>
-                                        <h3 class="section-subtitle">Прохождения ({{ selectedPlayer.records ? selectedPlayer.records.length : 0 }})</h3>
-                                    </div>
-                                    <button v-if="isAdmin" @click="openAddRecordModal" style="background: #22c55e; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 12px;">
-                                        + Прохождение
-                                    </button>
-                                </div>
-
-                                <div class="records-list" v-if="selectedPlayer.records && selectedPlayer.records.length > 0">
-                                    <div v-for="(rec, rIdx) in selectedPlayer.records" :key="rIdx" class="record-card">
-                                        <div class="record-user-info">
-                                            <span class="user-name">{{ rec.level }}</span>
-                                        </div>
-                                        <div class="record-meta-info">
-                                            <span class="percent-tag">{{ rec.percent }}%</span>
-                                            <a v-if="rec.link" :href="rec.link" target="_blank" class="record-video-btn">▶</a>
-                                            <button v-if="isAdmin" @click="deleteRecord(rIdx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; margin-left: 6px;">×</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div v-else class="no-records">Нет подтвержденных прохождений.</div>
-                            </div>
-
+                            <!-- Никнейм -->
+                            <span style="font-weight: 700; font-size: 14px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                                {{ player.name }}
+                            </span>
                         </div>
                     </div>
 
@@ -392,7 +401,7 @@ export default {
             }
         },
 
-        // --- ДРАГ И ДРОП ИГРОКОВ ---
+        // --- ДРАГ И ДРОП ИГРОКОВ (В ПРАВОМ СПИСКЕ) ---
         onDragStart(event, filteredIndex) {
             if (!this.isAdmin || this.searchQuery) return;
             this.draggedIndex = filteredIndex;
