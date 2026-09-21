@@ -5,8 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Demonlist</title>
     
-    <!-- Путь с слэшем в начале, чтобы Vercel гарантированно находил файл -->
-    <link rel="stylesheet" href="/css/main.css">
+    <!-- Заглушка для favicon, чтобы убрать ошибку 404 в консоли -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+    <!-- Подключение файлов стилей -->
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/list.css">
+
+    <!-- Резервные стили на случай проблем с загрузкой внешних CSS -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0b0e14; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; }
+        
+        .gdl-header { background: #111317; border-bottom: 1px solid #222; }
+        .header-container { max-width: 1520px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-item { color: #8a94a6; text-decoration: none; font-weight: 600; font-size: 15px; }
+        .nav-item:hover, .nav-item.router-link-active { color: #3b82f6; }
+    </style>
 
     <!-- Vue 3 и Vue Router 4 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -16,14 +32,14 @@
     <div id="app">
         <!-- Шапка сайта -->
         <header class="gdl-header">
-            <div class="header-container" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: #111317; border-bottom: 1px solid #222;">
-                <nav class="nav-links" style="display: flex; gap: 20px;">
+            <div class="header-container">
+                <nav class="nav-links">
                     <router-link to="/" class="nav-item">List</router-link>
                     <router-link to="/leaderboard" class="nav-item">Leaderboard</router-link>
                     <router-link to="/roulette" class="nav-item">Roulette</router-link>
                 </nav>
 
-                <!-- Кнопка админки в едином стиле -->
+                <!-- Кнопка админки -->
                 <button 
                     id="admin-header-btn"
                     onclick="handleAdminLogin()"
@@ -49,7 +65,7 @@
             </div>
         </header>
 
-        <!-- Основной контент -->
+        <!-- Основной контент страницы -->
         <router-view></router-view>
     </div>
 
@@ -108,6 +124,6 @@
     document.addEventListener("DOMContentLoaded", updateHeaderBtnUI);
     </script>
 
-    <script type="module" src="/js/main.js"></script>
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>
