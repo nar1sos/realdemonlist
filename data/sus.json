@@ -1,0 +1,33 @@
+{
+    "name": "Sys Maksim Challenge",
+    "author": "IlyasIshak",
+    "creators": ["IlyasIshak"],
+    "verifier": "IlyasIshak",
+    "country": "mn",
+    "verification": "https://youtu.be/rRJdkGJqArw?si=AUlp42_1azIf2gRn",
+    "percentToQualify": 100,
+    "password": "Free Copy",
+    "records": [
+        {
+            "user": "Kostyan26super",
+            "link": "",
+            "percent": 100,
+            "country": "ru",
+            "avatar": "https://i.postimg.cc/2SkQd7HZ/E8646F9E-42CC-426A-9450-978B2EA4115A.png",
+            "hz": 120
+        },
+        {
+            "user": "nar1",
+            "link": "",
+            "percent": 100,
+            "country": "ua",
+            "hz": 60
+        },
+        {
+            "user": "L1steN",
+            "link": "",
+            "percent": 100,
+            "hz": 240
+        }
+    ]
+}

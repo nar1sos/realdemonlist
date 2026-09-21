@@ -1,0 +1,28 @@
+{
+    "name": "Bad apple",
+    "author": "nar1",
+    "creators": ["nar1"],
+    "verifier": "nar1",
+    "country": "ua",
+    "verification": "https://youtu.be/TaFpNLy8ZBU",
+    "percentToQualify": 40,
+    "password": "Free Copy",
+    "records": [
+        {
+            "user": "neru",
+            "link": "",
+            "percent": 100,
+            "country": "kz",
+            "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3zxAa1vROZIrBbUfzHC2rb61Nl5j2AXLBuG9jD3RW6w&s",
+            "hz": 60            
+        },
+        {
+            "user": "IlyasIshak",
+            "link": "",
+            "percent": 100,
+            "country": "mn",
+            "avatar": "https://i1.sndcdn.com/avatars-l2LYw4r2WfGY4j8t-UVyaUg-t500x500.jpg",
+            "hz": 120            
+        }
+    ]
+}

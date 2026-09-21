@@ -1,0 +1,19 @@
+{
+    "name": "Kawai Unleashed",
+    "author": "nar1",
+    "creators": ["nar1"],
+    "verifier": "nar1",
+    "country": "ua",
+    "verification": "https://youtu.be/LccMHbo8Dyk",
+    "percentToQualify": 40,
+    "password": "Free Copy",
+    "records": [
+        {
+            "user": "L1steN",
+            "link": "",
+            "percent": 100,
+            "country": "ru",
+            "hz": 240
+        }
+    ]
+}

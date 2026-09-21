@@ -1,0 +1,25 @@
+{
+    "name": "Kawai",
+    "author": "nar1",
+    "creators": ["nar1"],
+    "verifier": "nar1",
+    "verification": "https://youtu.be/6HR_Coo2IRo",
+    "percentToQualify": 40,
+    "password": "Free Copy",
+    "records": [
+        {
+            "user": "neru",
+            "link": "",
+            "percent": 100,
+            "country": "kz",
+            "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3zxAa1vROZIrBbUfzHC2rb61Nl5j2AXLBuG9jD3RW6w&s",
+            "hz": 60
+        },
+        {
+            "user": "L1steN",
+            "link": "",
+            "percent": 100,
+            "hz": 240
+        }
+    ]
+}

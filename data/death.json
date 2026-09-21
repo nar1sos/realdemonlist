@@ -1,0 +1,17 @@
+{
+    "name": "Death of Mind",
+    "author": "nar1",
+    "creators": ["nar1"],
+    "verifier": "nar1",
+    "verification": "https://www.youtube.com/watch?v=XupwhGsYGzo",
+    "percentToQualify": 40,
+    "password": "Free Copy",
+    "records": [
+        {
+            "user": "L1steN",
+            "link": "",
+            "percent": 100,
+            "hz": 240
+        }
+    ]
+}

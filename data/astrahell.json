@@ -1,0 +1,27 @@
+{
+    "name": "Astrahell",
+    "author": "neru",
+    "creators": ["neru"],
+    "verifier": "neru",
+    "country": "kz",
+    "verification": "https://youtu.be/lIVhyxCvnVo",
+    "percentToQualify": 40,
+    "password": "Free Copy",
+    "records": [
+        {
+            "user": "nar1",
+            "link": "https://youtu.be/pU_j-__Whts",
+            "percent": 100,
+            "country": "ua",
+            "avatar": "https://i.pinimg.com/originals/b9/78/a2/b978a2def64d881e6fa1e54690691333.jpg",
+            "hz": 60
+        },
+        {
+            "user": "IlyasIshak",
+            "link": "",
+            "percent": 41,
+            "country": "mn",
+            "hz": 120            
+        }
+    ]
+}
