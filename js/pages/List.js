@@ -1,9 +1,11 @@
 import * as ContentModule from "../content.js";
 import Spinner from "../components/Spinner.js";
 
+// ⚙️ НАСТРОЙКИ ГИТХАБА И АДМИНКИ
 const GITHUB_USER = "nar1sos";
 const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
+const GITHUB_TOKEN = "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"; // 👈 Вставь сюда свой ghp_... токен
 
 export default {
     components: { Spinner },
@@ -418,9 +420,10 @@ export default {
 
         // --- SAVE TO GITHUB ---
         async saveListToGitHub() {
-            const token = localStorage.getItem('gdl_gh_token');
-            if (!token) {
-                alert("Ошибка: отсутствует GitHub токен!");
+            const token = GITHUB_TOKEN;
+
+            if (!token || token.includes("ВСТАВЬ_СЮДА")) {
+                alert("Ошибка: Не указан токен GitHub в начале файла List.js!");
                 return;
             }
 
@@ -456,7 +459,7 @@ export default {
                     this.fileSha = resData.content.sha;
                     console.log("Успешно сохранено на GitHub!");
                 } else {
-                    alert("Ошибка при сохранении на GitHub! Проверьте права токена.");
+                    alert("Ошибка при сохранении на GitHub! Код ответа: " + response.status);
                 }
             } catch (err) {
                 console.error("Save error:", err);
