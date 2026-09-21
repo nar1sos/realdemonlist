@@ -2,7 +2,7 @@ import * as ContentModule from "../content.js";
 import Spinner from "../components/Spinner.js";
 
 const GITHUB_USER = "nar1sos";
-const GITHUB_REPO = "НАЗВАНИЕ_РЕПОЗИТОРИЯ";
+const GITHUB_REPO = "realdemonlist"; // 👈 ЗАМЕНИ НА ИМЯ РЕПОЗИТОРИЯ
 const GITHUB_BRANCH = "main";
 
 export default {
@@ -14,9 +14,9 @@ export default {
             </main>
 
             <div v-else class="page-list">
-                <!-- КНОПКА АДМИНКИ ДЛЯ nar1sos -->
-                <div v-if="currentUser && currentUser.isAdmin" class="admin-bar">
-                    <button @click="saveAllToGithub" :disabled="saving">
+                <!-- ПАНЕЛЬ АДМИНА -->
+                <div v-if="currentUser && currentUser.isAdmin" class="admin-bar" style="margin-bottom: 15px;">
+                    <button @click="saveAllToGithub" :disabled="saving" class="gdl-btn" style="background: #28a745; color: white;">
                         {{ saving ? 'Сохранение...' : '🚀 Опубликовать изменения на GitHub' }}
                     </button>
                 </div>
@@ -24,7 +24,7 @@ export default {
                 <div class="list-container">
                     <!-- СПИСОК УРОВНЕЙ -->
                     <div class="list">
-                        <template v-for="(level, index) in list">
+                        <template v-for="(level, index) in list" :key="index">
                             <div 
                                 class="level" 
                                 :class="{ selected: selectedLevel && selectedLevel.name === level.name }"
@@ -46,15 +46,15 @@ export default {
                             </div>
                         </template>
 
-                        <!-- Форма добавления уровня внизу списка -->
-                        <div v-if="currentUser && currentUser.isAdmin" class="admin-add-box">
-                            <h3>Добавить уровень</h3>
-                            <form @submit.prevent="addNewLevel">
+                        <!-- Форма добавления уровня -->
+                        <div v-if="currentUser && currentUser.isAdmin" class="admin-add-box" style="margin-top: 20px; border-top: 1px solid #444; padding-top: 10px;">
+                            <h3>➕ Добавить уровень</h3>
+                            <form @submit.prevent="addNewLevel" style="display: flex; flex-direction: column; gap: 8px;">
                                 <input v-model="newLevel.name" placeholder="Название" required />
                                 <input v-model="newLevel.author" placeholder="Автор" required />
                                 <input v-model="newLevel.verifier" placeholder="Верификатор" />
                                 <input v-model="newLevel.ytid" placeholder="YouTube Video ID" />
-                                <button type="submit">Добавить</button>
+                                <button type="submit">Добавить в список</button>
                             </form>
                         </div>
                     </div>
@@ -71,9 +71,9 @@ export default {
                             </div>
 
                             <!-- Добавление рекорда -->
-                            <div v-if="currentUser && currentUser.isAdmin" class="admin-add-box">
-                                <h3>Добавить рекорд</h3>
-                                <form @submit.prevent="addRecord">
+                            <div v-if="currentUser && currentUser.isAdmin" class="admin-add-box" style="margin-bottom: 15px;">
+                                <h3>➕ Добавить рекорд игроку</h3>
+                                <form @submit.prevent="addRecord" style="display: flex; flex-direction: column; gap: 6px;">
                                     <input v-model="newRecord.user" placeholder="Имя игрока" required />
                                     <input v-model.number="newRecord.percent" type="number" min="1" max="100" placeholder="Процент (%)" required />
                                     <input v-model="newRecord.link" placeholder="Ссылка на видео" />
@@ -89,7 +89,7 @@ export default {
                                     </div>
                                     <div class="link">
                                         <a v-if="rec.link" :href="rec.link" target="_blank">Video</a>
-                                        <button v-if="currentUser && currentUser.isAdmin" @click="deleteRecord(idx)">✕</button>
+                                        <button v-if="currentUser && currentUser.isAdmin" @click="deleteRecord(idx)" style="color: red; background: none; border: none; cursor: pointer; margin-left: 8px;">✕</button>
                                     </div>
                                 </div>
                             </div>
@@ -122,20 +122,34 @@ export default {
     methods: {
         async loadAllData() {
             try {
-                // Загрузка _list.json
-                const resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
+                // 1. Загрузка списка уровней (_list.json)
+                let resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
+                if (resList.status === 404) {
+                    resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_list.json?ref=${GITHUB_BRANCH}`);
+                }
+
                 if (resList.ok) {
                     const data = await resList.json();
                     this.fileShaList = data.sha;
                     this.list = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                } else {
+                    const fetchListFn = ContentModule.fetchList || (async () => []);
+                    this.list = await fetchListFn();
                 }
 
-                // Загрузка _players.json
-                const resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_players.json?ref=${GITHUB_BRANCH}`);
+                // 2. Загрузка игроков (_players.json)
+                let resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_players.json?ref=${GITHUB_BRANCH}`);
+                if (resPlayers.status === 404) {
+                    resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_players.json?ref=${GITHUB_BRANCH}`);
+                }
+
                 if (resPlayers.ok) {
                     const data = await resPlayers.json();
                     this.fileShaPlayers = data.sha;
                     this.players = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                } else {
+                    const fetchLeaderboardFn = ContentModule.fetchLeaderboard || (async () => []);
+                    this.players = await fetchLeaderboardFn();
                 }
 
                 this.updateRanksAndScores();
@@ -148,13 +162,13 @@ export default {
         },
 
         updateRanksAndScores() {
-            // Пересчет рангов уровней
+            // Пересчитываем ранги уровней
             this.list.forEach((lvl, idx) => {
                 lvl.rank = idx + 1;
             });
 
-            // Автоматическая синхронизация рекордов в Лидеборд
-            if (this.players.length > 0) {
+            // Автоматически обновляем и пересчитываем очки игроков в Лидеборде
+            if (this.players && this.players.length > 0) {
                 this.players.forEach(player => {
                     player.records = [];
                     player.score = 0;
@@ -180,7 +194,7 @@ export default {
             }
         },
 
-        /* Drag and Drop */
+        /* Drag & Drop */
         onDragStart(e, index) {
             if (!this.currentUser || !this.currentUser.isAdmin) return;
             this.draggedIndex = index;
@@ -214,7 +228,7 @@ export default {
             
             this.selectedLevel.records.push({ ...this.newRecord });
 
-            // Проверяем, есть ли игрок в лидеборде. Если нет — создаем его!
+            // Если игрока еще нет в лидеборде — автоматически добавляем его туда
             let player = this.players.find(p => p.name.toLowerCase() === this.newRecord.user.toLowerCase());
             if (!player) {
                 player = { name: this.newRecord.user, score: 0, records: [] };
@@ -231,28 +245,24 @@ export default {
         },
 
         async saveAllToGithub() {
-            const token = this.currentUser.token;
-            if (!token) {
-                alert("Ошибка авторизации! Перевойдите в аккаунт.");
+            if (!this.currentUser || !this.currentUser.token) {
+                alert("Ошибка! Вы не ввели токен при входе.");
                 return;
             }
 
             this.saving = true;
             try {
-                // Сохраняем _list.json
-                await this.uploadFileToGithub("_list.json", this.list, this.fileShaList, token);
-                // Сохраняем _players.json
-                await this.uploadFileToGithub("_players.json", this.players, this.fileShaPlayers, token);
-
-                alert("Все данные упешно сохранены и обновлены в Лидеборде!");
+                await this.uploadFileToGithub("data/_list.json", this.list, this.fileShaList, this.currentUser.token);
+                await this.uploadFileToGithub("data/_players.json", this.players, this.fileShaPlayers, this.currentUser.token);
+                alert("Успешно! Изменения для Списка и Лидеборда сохранены на GitHub.");
             } catch (e) {
-                alert("Ошибка сохранения: " + e.message);
+                alert("Ошибка при сохранении на GitHub: " + e.message);
             } finally {
                 this.saving = false;
             }
         },
 
-        async uploadFileToGithub(filename, contentObj, sha, token) {
+        async uploadFileToGithub(filepath, contentObj, sha, token) {
             const jsonString = JSON.stringify(contentObj, null, 2);
             const utf8Bytes = new TextEncoder().encode(jsonString);
             let binary = '';
@@ -260,13 +270,13 @@ export default {
             const contentBase64 = btoa(binary);
 
             const body = {
-                message: `Update ${filename}`,
+                message: `Update ${filepath} via Site Admin Panel`,
                 content: contentBase64,
-                branch: GITHUB_BRANCH,
-                sha: sha
+                branch: GITHUB_BRANCH
             };
+            if (sha) body.sha = sha;
 
-            const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/${filename}`, {
+            const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filepath}`, {
                 method: "PUT",
                 headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
                 body: JSON.stringify(body)
