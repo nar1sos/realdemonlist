@@ -1,5 +1,13 @@
 [
     {
+        "user": "wPopoff",
+        "name": "wPopoff",
+        "country": "us",
+        "avatar": "https://static.wikia.nocookie.net/geometry-dash/images/7/7f/Wpopoff.jpg/revision/latest?cb=20250525103812&path-prefix=ru",
+        "records": [],
+        "verified": []
+    },
+    {
         "user": "Zoink",
         "name": "Zoink",
         "country": "us",
@@ -21,13 +29,5 @@
             "ORBIT",
             "Nullscapes"
         ]
-    },
-    {
-        "user": "wPopoff",
-        "name": "wPopoff",
-        "country": "us",
-        "avatar": "https://static.wikia.nocookie.net/geometry-dash/images/7/7f/Wpopoff.jpg/revision/latest?cb=20250525103812&path-prefix=ru",
-        "records": [],
-        "verified": []
     }
 ]
