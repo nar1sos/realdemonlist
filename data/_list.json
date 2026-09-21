@@ -7,5 +7,14 @@
         "thumbnail": "1",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": "Tidal wave",
+        "author": "2",
+        "verifier": "2",
+        "ytid": "https://www.youtube.com/watch?v=MiWCNB2I7aE",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
