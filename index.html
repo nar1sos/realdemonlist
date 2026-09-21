@@ -5,26 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real Demon List</title>
 
-    <!-- Основные стили (Main.css с большой M, reset.css и typography.css) -->
+    <!-- Подключаем CSS с маленькой буквы 'm' -->
     <link rel="stylesheet" href="./css/reset.css">
     <link rel="stylesheet" href="./css/typography.css">
-    <link rel="stylesheet" href="./css/Main.css">
+    <link rel="stylesheet" href="./css/main.css">
 
     <!-- Стили страниц -->
     <link rel="stylesheet" href="./css/pages/list.css">
     <link rel="stylesheet" href="./css/pages/leaderboard.css">
     <link rel="stylesheet" href="./css/pages/roulette.css">
 
-    <!-- Vue 3 с компилятором шаблонов и Vue Router -->
+    <!-- Vue 3 и Vue Router -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/vue-router@4/dist/vue-router.global.js"></script>
 </head>
 <body>
     <div id="app">
+        <!-- Основной роутер Vue -->
         <router-view></router-view>
     </div>
 
-    <!-- Точка входа приложения -->
+    <!-- Абсолютный и относительный фоллбек для скрипта -->
     <script type="module" src="./main.js"></script>
 </body>
 </html>
