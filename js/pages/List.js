@@ -1,16 +1,9 @@
 import * as ContentModule from "../content.js";
 import Spinner from "../components/Spinner.js";
 
-// ⚙️ НАСТРОЙКИ ГИТХАБА
 const GITHUB_USER = "nar1sos";
 const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
-
-// 🔑 Пароль админа
-const ADMIN_PASS = "29564329981";
-
-// Токен берется из памяти браузера (не светится в файлах = GitHub не банит)
-let GITHUB_TOKEN = localStorage.getItem("my_gh_token") || "";
 
 export default {
     components: { Spinner },
@@ -63,22 +56,12 @@ export default {
                 <!-- CENTER COLUMN -->
                 <div class="gdl-cards-container">
                     
-                    <!-- ADMIN CONTROL BAR -->
-                    <div class="admin-notice" style="background:#181b20; border: 1px solid #333; color:#fff; padding:12px; border-radius:8px; margin-bottom:12px; text-align:center;">
-                        <div v-if="!isAdmin">
-                            <button @click="loginAdmin" style="background:#2ecc71; color:#000; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer;">
-                                🔒 Войти в Админку
-                            </button>
-                        </div>
-                        <div v-else>
-                            <span style="color:#2ecc71; font-weight:bold; margin-right:10px;">⚡ Режим Редактора</span>
-                            <button @click="openAddModal" style="background:#2ecc71; color:#000; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer; margin-right:8px;">
-                                ➕ Add Level
-                            </button>
-                            <button @click="logoutAdmin" style="background:#e74c3c; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer;">
-                                Выйти
-                            </button>
-                        </div>
+                    <!-- ADMIN EDIT CONTROLS (Показываются только когда вошел) -->
+                    <div v-if="isAdmin" style="background:#181b20; border: 1px solid #333; padding:10px 14px; border-radius:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:#2ecc71; font-weight:bold; font-size:14px;">⚡ Режим редактора активен</span>
+                        <button @click="openAddModal" style="background:#2ecc71; color:#000; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:13px;">
+                            ➕ Add Level
+                        </button>
                     </div>
 
                     <div 
@@ -196,7 +179,7 @@ export default {
                     <label style="font-size:12px; color:#aaa;">YouTube Video ID</label>
                     <input v-model="levelForm.ytid" placeholder="e.g. dQw4w9WgXcQ" class="gdl-input" style="width:100%; margin-bottom:10px; padding:8px;" />
                     
-                    <label style="font-size:12px; color:#aaa;">Custom Thumbnail URL (Optional)</label>
+                    <label style="font-size:12px; color:#aaa;">Custom Thumbnail URL</label>
                     <input v-model="levelForm.thumbnail" placeholder="https://i.imgur.com/example.png" class="gdl-input" style="width:100%; margin-bottom:16px; padding:8px;" />
                     
                     <div style="display:flex; justify-content:flex-end; gap:8px;">
@@ -239,23 +222,12 @@ export default {
         fileSha: '',
         isAdmin: sessionStorage.getItem('is_admin') === 'true',
         
-        // Modals
         showLevelModal: false,
         isEditing: false,
-        levelForm: {
-            name: '',
-            author: '',
-            verifier: '',
-            ytid: '',
-            thumbnail: ''
-        },
+        levelForm: { name: '', author: '', verifier: '', ytid: '', thumbnail: '' },
 
         showRecordModal: false,
-        recordForm: {
-            user: '',
-            percent: 100,
-            link: ''
-        }
+        recordForm: { user: '', percent: 100, link: '' }
     }),
 
     computed: {
@@ -270,40 +242,23 @@ export default {
     },
 
     async mounted() {
+        // Слушаем событие входа/выхода из админки в шапке
+        window.addEventListener('admin-state-changed', this.updateAdminState);
         await this.loadAllData();
     },
 
-    methods: {
-        loginAdmin() {
-            const pass = prompt("Введите пароль админа:");
-            if (pass === ADMIN_PASS) {
-                if (!GITHUB_TOKEN) {
-                    const token = prompt("Введите ваш GitHub Personal Access Token (сохранится у вас в браузере):");
-                    if (token) {
-                        GITHUB_TOKEN = token.trim();
-                        localStorage.setItem("my_gh_token", GITHUB_TOKEN);
-                    } else {
-                        alert("Без токена нельзя сохранять рекорды и уровни!");
-                        return;
-                    }
-                }
-                this.isAdmin = true;
-                sessionStorage.setItem('is_admin', 'true');
-                alert("Успешный вход!");
-            } else {
-                alert("Неверный пароль!");
-            }
-        },
+    unmounted() {
+        window.removeEventListener('admin-state-changed', this.updateAdminState);
+    },
 
-        logoutAdmin() {
-            this.isAdmin = false;
-            sessionStorage.removeItem('is_admin');
+    methods: {
+        updateAdminState() {
+            this.isAdmin = sessionStorage.getItem('is_admin') === 'true';
         },
 
         async loadAllData() {
             try {
                 let loadedList = [];
-
                 try {
                     let resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
                     if (resList.status === 404) {
@@ -355,7 +310,6 @@ export default {
             return level.ytid ? `https://i.ytimg.com/vi/${level.ytid}/hqdefault.jpg` : 'https://i.imgur.com/6VBx3io.png';
         },
 
-        // --- LEVEL MANAGEMENT ---
         openAddModal() {
             this.isEditing = false;
             this.levelForm = { name: '', author: '', verifier: '', ytid: '', thumbnail: '' };
@@ -375,10 +329,7 @@ export default {
         },
 
         async saveLevel() {
-            if (!this.levelForm.name) {
-                alert("Введите название уровня!");
-                return;
-            }
+            if (!this.levelForm.name) return alert("Введите название уровня!");
 
             if (this.isEditing) {
                 this.selectedLevel.name = this.levelForm.name;
@@ -404,17 +355,13 @@ export default {
             await this.saveListToGitHub();
         },
 
-        // --- RECORD MANAGEMENT ---
         openAddRecordModal() {
             this.recordForm = { user: '', percent: 100, link: '' };
             this.showRecordModal = true;
         },
 
         async saveRecord() {
-            if (!this.recordForm.user) {
-                alert("Введите имя игрока!");
-                return;
-            }
+            if (!this.recordForm.user) return alert("Введите имя игрока!");
 
             if (!this.selectedLevel.records) {
                 this.selectedLevel.records = [];
@@ -437,7 +384,6 @@ export default {
             }
         },
 
-        // --- DRAG & DROP ---
         onDragStart(event, index) {
             if (!this.isAdmin) return;
             this.draggedIndex = index;
@@ -458,34 +404,27 @@ export default {
             await this.saveListToGitHub();
         },
 
-        // --- SAVE TO GITHUB ---
         async saveListToGitHub() {
-            if (!GITHUB_TOKEN) {
-                const token = prompt("Введите ваш GitHub Token:");
+            let token = localStorage.getItem("my_gh_token") || "";
+            if (!token) {
+                token = prompt("Введите ваш GitHub Token:");
                 if (token) {
-                    GITHUB_TOKEN = token.trim();
-                    localStorage.setItem("my_gh_token", GITHUB_TOKEN);
+                    token = token.trim();
+                    localStorage.setItem("my_gh_token", token);
                 } else {
-                    alert("Нельзя сохранить без токена!");
-                    return;
+                    return alert("Без токена нельзя сохранить изменения!");
                 }
             }
 
             try {
-                // 1. Свежий SHA перед отправкой
                 const getFileRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`, {
-                    headers: { 
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
+                    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
                 });
-                
                 if (getFileRes.ok) {
                     const fileData = await getFileRes.json();
                     this.fileSha = fileData.sha;
                 }
 
-                // 2. Структурирование данных
                 const cleanData = this.list.map(item => ({
                     name: item.name,
                     author: item.author,
@@ -496,17 +435,13 @@ export default {
                     records: item.records || []
                 }));
 
-                // 3. Безопасная кодировка UTF-8 для кириллицы
                 const jsonString = JSON.stringify(cleanData, null, 4);
-                const contentEncoded = btoa(encodeURIComponent(jsonString).replace(/%([0-9A-F]{2})/g, (match, p1) => {
-                    return String.fromCharCode('0x' + p1);
-                }));
+                const contentEncoded = btoa(encodeURIComponent(jsonString).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
 
-                // 4. PUT-запрос
                 const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Authorization': `token ${token}`,
                         'Content-Type': 'application/json',
                         'Accept': 'application/vnd.github.v3+json'
                     },
@@ -524,11 +459,10 @@ export default {
                     alert("Успешно сохранено на GitHub!");
                 } else {
                     const errData = await response.json();
-                    alert(`Ошибка GitHub (${response.status}):\n${errData.message || 'Проверьте токен'}`);
+                    alert(`Ошибка GitHub (${response.status}): ${errData.message || 'Проверьте токен'}`);
                 }
             } catch (err) {
-                console.error("Save error:", err);
-                alert("Ошибка скрипта: " + err.message);
+                alert("Ошибка сохранения: " + err.message);
             }
         }
     }
