@@ -12,20 +12,21 @@
     <link rel="stylesheet" href="./css/reset.css">
     <link rel="stylesheet" href="./css/typography.css">
     <link rel="stylesheet" href="./css/main.css">
+    <!-- Убедись, что название файла сопадает с реальным в папке css/pages/ -->
     <link rel="stylesheet" href="./css/pages/list.css">
     <link rel="stylesheet" href="./css/pages/leaderboard.css">
     <link rel="stylesheet" href="./css/pages/roulette.css">
 
-    <!-- Стили шапки и кнопок навигации -->
+    <!-- Исправление разметки и стили кнопок -->
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background-color: #0b0e14; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; }
         
+        /* Шапка */
         .gdl-header { background: #111317; border-bottom: 1px solid #222; }
         .header-container { max-width: 1520px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; }
         .nav-links { display: flex; gap: 12px; }
 
-        /* Оформление ссылок в виде кнопок */
         .nav-item { 
             color: #8a94a6; 
             text-decoration: none; 
@@ -45,12 +46,32 @@
             border-color: #3b82f6;
         }
 
-        /* Стиль для активной кнопки */
         .nav-item.router-link-active { 
             color: #ffffff; 
             background: #2563eb; 
             border-color: #3b82f6;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* Основной контейнер страницы */
+        main, #app > div:not(.gdl-header) {
+            max-width: 1520px;
+            margin: 20px auto;
+            padding: 0 24px;
+        }
+
+        /* Картинки не должны вылезать за границы */
+        img { max-width: 100%; height: auto; }
+
+        /* Поле поиска */
+        input[type="text"] {
+            background: #191c24;
+            border: 1px solid #2e3545;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            width: 100%;
         }
     </style>
 
