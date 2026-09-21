@@ -21,6 +21,23 @@ function base64ToUtf8(str) {
     return new TextDecoder().decode(bytes);
 }
 
+// Универсальная функция парсинга YouTube ID из любых типов ссылок
+function extractYouTubeId(urlOrId) {
+    if (!urlOrId) return '';
+    const str = urlOrId.trim();
+    // Обработка shorts, watch?v=, youtu.be/, embed/ и т.д.
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = str.match(regExp);
+    if (match && match[1]) {
+        return match[1];
+    }
+    // Если передан чистый 11-значный ID
+    if (str.length === 11 && !str.includes('/') && !str.includes('.')) {
+        return str;
+    }
+    return str;
+}
+
 export default {
     components: { Spinner },
     template: `
@@ -117,17 +134,20 @@ export default {
                                 </div>
                             </div>
 
-                            <!-- Кнопки управления админа -->
-                            <div v-if="isAdmin" style="margin-bottom: 15px;">
-                                <button @click="openEditModal(selectedLevel)" style="background: #3b82f6; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 800; cursor: pointer; width: 100%;">
-                                    ✏️ Редактировать уровень
+                            <!-- Кнопки управления админа (Редактировать / Удалить) -->
+                            <div v-if="isAdmin" style="margin-bottom: 15px; display: flex; gap: 8px;">
+                                <button @click="openEditModal(selectedLevel)" style="flex: 2; background: #3b82f6; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 800; cursor: pointer;">
+                                    ✏️ Редактировать
+                                </button>
+                                <button @click="deleteLevel(selectedLevel)" style="flex: 1; background: #ef4444; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 800; cursor: pointer;">
+                                    🗑️ Удалить
                                 </button>
                             </div>
 
                             <!-- Видео плеер -->
                             <div class="video-wrapper" v-if="selectedLevel.ytid">
                                 <iframe 
-                                    :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" 
+                                    :src="'https://www.youtube.com/embed/' + parseYtId(selectedLevel.ytid)" 
                                     frameborder="0" 
                                     allowfullscreen>
                                 </iframe>
@@ -183,10 +203,10 @@ export default {
                     <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Верификатор:</label>
                     <input type="text" v-model="levelForm.verifier" class="gdl-input" placeholder="Zoink" style="margin-top:4px;" />
 
-                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">YouTube Video ID:</label>
-                    <input type="text" v-model="levelForm.ytid" class="gdl-input" placeholder="dQw4w9WgXcQ" style="margin-top:4px;" />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">YouTube Video (ID или Полная ссылка):</label>
+                    <input type="text" v-model="levelForm.ytid" class="gdl-input" placeholder="https://youtu.be/... или dQw4w9WgXcQ" style="margin-top:4px;" />
 
-                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Превью (Прямая ссылка):</label>
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Кастомная превью (необязательно):</label>
                     <input type="text" v-model="levelForm.thumbnail" class="gdl-input" placeholder="https://..." style="margin-top:4px;" />
 
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -258,6 +278,10 @@ export default {
     },
 
     methods: {
+        parseYtId(input) {
+            return extractYouTubeId(input);
+        },
+
         updateAdminState() {
             this.isAdmin = sessionStorage.getItem('is_admin') === 'true';
         },
@@ -310,7 +334,8 @@ export default {
             if (level.thumbnail && level.thumbnail.trim() !== '') {
                 return level.thumbnail;
             }
-            return level.ytid ? `https://i.ytimg.com/vi/${level.ytid}/hqdefault.jpg` : 'https://i.imgur.com/6VBx3io.png';
+            const cleanId = extractYouTubeId(level.ytid);
+            return cleanId ? `https://i.ytimg.com/vi/${cleanId}/hqdefault.jpg` : 'https://i.imgur.com/6VBx3io.png';
         },
 
         openAddModal() {
@@ -334,18 +359,20 @@ export default {
         async saveLevel() {
             if (!this.levelForm.name) return alert("Введите название уровня!");
 
+            const cleanedYtid = extractYouTubeId(this.levelForm.ytid);
+
             if (this.isEditing) {
                 this.selectedLevel.name = this.levelForm.name;
                 this.selectedLevel.author = this.levelForm.author;
                 this.selectedLevel.verifier = this.levelForm.verifier;
-                this.selectedLevel.ytid = this.levelForm.ytid;
+                this.selectedLevel.ytid = cleanedYtid;
                 this.selectedLevel.thumbnail = this.levelForm.thumbnail;
             } else {
                 const newLvl = {
                     name: this.levelForm.name,
                     author: this.levelForm.author || 'Unknown',
                     verifier: this.levelForm.verifier || '',
-                    ytid: this.levelForm.ytid || '',
+                    ytid: cleanedYtid,
                     thumbnail: this.levelForm.thumbnail || '',
                     rank: this.list.length + 1,
                     records: []
@@ -356,6 +383,21 @@ export default {
 
             this.showLevelModal = false;
             await this.saveListToGitHub();
+        },
+
+        async deleteLevel(level) {
+            if (confirm(`Вы уверены, что хотите удалить уровень "${level.name}"?`)) {
+                const idx = this.list.findIndex(item => item.name === level.name);
+                if (idx !== -1) {
+                    this.list.splice(idx, 1);
+                    // Пересчитываем ранги
+                    this.list.forEach((item, i) => {
+                        item.rank = i + 1;
+                    });
+                    this.selectedLevel = this.list.length > 0 ? this.list[0] : null;
+                    await this.saveListToGitHub();
+                }
+            }
         },
 
         openAddRecordModal() {
@@ -432,7 +474,7 @@ export default {
                     name: item.name,
                     author: item.author,
                     verifier: item.verifier,
-                    ytid: item.ytid,
+                    ytid: extractYouTubeId(item.ytid),
                     thumbnail: item.thumbnail || '',
                     percentToQualify: item.percentToQualify || 100,
                     records: item.records || []
