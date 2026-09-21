@@ -1,181 +1,216 @@
+import * as ContentModule from "../content.js";
 import Spinner from "../components/Spinner.js";
 
 const GITHUB_USER = "nar1sos";
-const GITHUB_REPO = "realdemonlist"; // 👈 ЗАМЕНИ НА ИМЯ РЕПОЗИТОРИЯ
+const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
 
 export default {
     components: { Spinner },
     template: `
-        <div class="gdl-root">
-            <main v-if="loading">
-                <Spinner />
-            </main>
-
-            <div v-else class="page-leaderboard">
-                <!-- ПАНЕЛЬ АДМИНА -->
-                <div v-if="currentUser && currentUser.isAdmin" class="admin-bar" style="margin-bottom: 15px;">
-                    <button @click="savePlayersToGithub" :disabled="saving" style="background: #28a745; color: white; padding: 8px 15px; cursor: pointer;">
-                        {{ saving ? 'Сохранение...' : '🚀 Сохранить Лидеборд на GitHub' }}
-                    </button>
+        <main v-if="loading">
+            <Spinner />
+        </main>
+        <div v-else class="gdl-wrapper">
+            
+            <!-- 1. ПОИСК -->
+            <div class="gdl-search-bar">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        v-model="searchQuery" 
+                        class="gdl-input" 
+                        placeholder="Search levels or authors..."
+                    />
+                    <button v-if="searchQuery" @click="searchQuery = ''" class="clear-btn">✕</button>
                 </div>
+            </div>
 
-                <div class="board-container">
-                    <div class="board">
-                        <!-- Форма добавления нового игрока вручную -->
-                        <div v-if="currentUser && currentUser.isAdmin" class="admin-add-box" style="margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 10px;">
-                            <h3>➕ Добавить игрока в Лидеборд</h3>
-                            <form @submit.prevent="addPlayer" style="display: flex; gap: 8px;">
-                                <input v-model="newPlayerName" placeholder="Никнейм игрока" required style="flex: 1;" />
-                                <button type="submit">Добавить</button>
-                            </form>
-                        </div>
+            <!-- 2. ТРЁХКОЛОНОЧНАЯ СЕТКА -->
+            <div class="gdl-content-grid">
+                
+                <!-- 3. ЛЕВАЯ КОЛОНКА (ПРАВИЛА И РЕДАКТОРЫ) -->
+                <div class="gdl-left-column">
+                    <div class="gdl-meta-box">
+                        <h3>List Editors</h3>
+                        <ul class="editors-list">
+                            <li>
+                                <span class="role-icon">👑</span>
+                                <span>nar1sos</span>
+                            </li>
+                        </ul>
 
-                        <!-- СПИСОК ИГРОКОВ -->
-                        <div 
-                            v-for="(player, index) in sortedPlayers" 
-                            :key="index" 
-                            class="player"
-                            :class="{ selected: selectedPlayer && selectedPlayer.name === player.name }"
-                            @click="selectedPlayer = player"
-                            style="cursor: pointer;"
-                        >
-                            <div class="rank">#{{ index + 1 }}</div>
-                            <div class="name">{{ player.name }}</div>
-                            <div class="score">{{ player.score }} pts</div>
-                            <button v-if="currentUser && currentUser.isAdmin" class="delete-btn" @click.stop="deletePlayer(player.name)" style="color: red; background: none; border: none; font-size: 16px; cursor: pointer;">✕</button>
+                        <div class="rules-section">
+                            <h3>Rules & Guidelines</h3>
+                            <ol class="rules-list">
+                                <li>Все рекорды должны иметь видеозапись с кликами/тапами или сырым звуком.</li>
+                                <li>Недопустимо использование читов, физических модов или нелегитимных хитбоксов.</li>
+                                <li>Рекорд считается принятым только при достижении минимального требуемого процента.</li>
+                                <li>Прогресс на уровнях из топ-10 принимается строго от 0%.</li>
+                            </ol>
                         </div>
                     </div>
+                </div>
 
-                    <!-- ПРОФИЛЬ ИГРОКА И ЕГО ПРОЙДЕННЫЕ УРОВНИ -->
-                    <div class="meta-container" v-if="selectedPlayer">
-                        <div class="inner">
-                            <h1>{{ selectedPlayer.name }}</h1>
-                            <p>Total Points: <strong>{{ selectedPlayer.score }}</strong></p>
-
-                            <h2>Completed Levels & Records ({{ (selectedPlayer.records || []).length }})</h2>
-                            <div class="records">
-                                <div v-for="(rec, idx) in (selectedPlayer.records || [])" :key="idx" class="record">
-                                    <div class="user">
-                                        <strong>#{{ rec.rank }} {{ rec.level }}</strong> — {{ rec.percent }}%
-                                    </div>
-                                    <div class="link">
-                                        <a v-if="rec.link" :href="rec.link" target="_blank">Video</a>
-                                    </div>
-                                </div>
+                <!-- 4. ЦЕНТРАЛЬНАЯ КОЛОНКА (СПИСОК УРОВНЕЙ) -->
+                <div class="gdl-cards-container">
+                    <div 
+                        v-for="(level, index) in filteredList" 
+                        :key="index"
+                        class="gdl-level-card"
+                        :class="{ active: selectedLevel && selectedLevel.name === level.name }"
+                        @click="selectedLevel = level"
+                    >
+                        <div class="gdl-card-thumb">
+                            <span class="rank-badge">#{{ level.rank }}</span>
+                            <img :src="getThumbnail(level.ytid)" alt="">
+                        </div>
+                        <div class="gdl-card-info">
+                            <div class="card-header">
+                                <span class="rank-number">#{{ level.rank }}</span>
+                                <h2 class="level-title">{{ level.name }}</h2>
+                            </div>
+                            <div class="card-authors">
+                                by <strong>{{ level.author || 'Unknown' }}</strong>
+                                <span v-if="level.verifier"> (Verified by <span class="verifier-name">{{ level.verifier }}</span>)</span>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- 5. ПРАВАЯ КОЛОНКА (ИНФОРМАЦИЯ И РЕКОРДЫ) -->
+                <div class="gdl-details-container" v-if="selectedLevel">
+                    <div class="gdl-level-detail-box">
+                        <h1 class="detail-title">#{{ selectedLevel.rank }} — {{ selectedLevel.name }}</h1>
+                        
+                        <div class="authors-clean-block">
+                            <div class="author-item">
+                                <span class="author-label">CREATOR</span>
+                                <span class="author-val">{{ selectedLevel.author || 'Unknown' }}</span>
+                            </div>
+                            <div class="author-item" v-if="selectedLevel.verifier">
+                                <span class="author-label">VERIFIER</span>
+                                <span class="author-val verifier-name">{{ selectedLevel.verifier }}</span>
+                            </div>
+                        </div>
+
+                        <div class="video-wrapper" v-if="selectedLevel.ytid">
+                            <iframe 
+                                :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" 
+                                frameborder="0" 
+                                allowfullscreen
+                            ></iframe>
+                        </div>
+
+                        <!-- 6. РЕКОРДЫ -->
+                        <div class="records-section">
+                            <div class="records-header">
+                                <span class="records-trophy">🏆</span>
+                                <div class="records-header-text">
+                                    <h3 class="section-subtitle">Records</h3>
+                                    <p class="records-count-info">
+                                        Total: <strong>{{ (selectedLevel.records || []).length }}</strong>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="records-list" v-if="selectedLevel.records && selectedLevel.records.length > 0">
+                                <div v-for="(rec, idx) in selectedLevel.records" :key="idx" class="record-card">
+                                    <div class="record-user-info">
+                                        <span class="user-name">{{ rec.user }}</span>
+                                    </div>
+                                    <div class="record-meta-info">
+                                        <span class="percent-tag">{{ rec.percent }}%</span>
+                                        <a v-if="rec.link" :href="rec.link" target="_blank" class="record-video-btn" title="Watch Video">
+                                            🎬
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="no-records">
+                                No records yet. Be the first!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     `,
 
     data: () => ({
+        list: [],
         players: [],
         loading: true,
-        saving: false,
-        selectedPlayer: null,
-        fileShaPlayers: "",
-        newPlayerName: "",
-        currentUser: null
+        selectedLevel: null,
+        searchQuery: ''
     }),
 
     computed: {
-        sortedPlayers() {
-            return [...this.players].sort((a, b) => b.score - a.score);
+        filteredList() {
+            if (!this.searchQuery) return this.list;
+            const q = this.searchQuery.toLowerCase();
+            return this.list.filter(item => 
+                (item.name && item.name.toLowerCase().includes(q)) ||
+                (item.author && item.author.toLowerCase().includes(q))
+            );
         }
     },
 
     async mounted() {
-        this.currentUser = JSON.parse(localStorage.getItem("gdl_user") || "null");
-        await this.loadPlayers();
+        await this.loadAllData();
     },
 
     methods: {
-        async loadPlayers() {
+        async loadAllData() {
             try {
-                let res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_players.json?ref=${GITHUB_BRANCH}`);
-                if (res.status === 404) {
-                    res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_players.json?ref=${GITHUB_BRANCH}`);
+                let loadedList = [];
+
+                try {
+                    let resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
+                    if (resList.status === 404) {
+                        resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_list.json?ref=${GITHUB_BRANCH}`);
+                    }
+
+                    if (resList.ok) {
+                        const data = await resList.json();
+                        loadedList = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                    }
+                } catch (err) {
+                    console.warn("GitHub fetch failed, using local content module", err);
                 }
 
-                if (res.ok) {
-                    const data = await res.json();
-                    this.fileShaPlayers = data.sha;
-                    this.players = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+                if (!loadedList || loadedList.length === 0) {
+                    const fetchListFn = ContentModule.fetchList || (async () => []);
+                    loadedList = await fetchListFn();
                 }
-                
-                if (this.sortedPlayers.length > 0) {
-                    this.selectedPlayer = this.sortedPlayers[0];
+
+                if (Array.isArray(loadedList)) {
+                    this.list = loadedList.map((item, index) => {
+                        if (typeof item === 'string') {
+                            return { name: item, author: 'Unknown', rank: index + 1, records: [] };
+                        } else if (typeof item === 'object' && item !== null) {
+                            return { ...item, rank: index + 1, records: item.records || [] };
+                        }
+                        return { name: "Unknown", rank: index + 1, records: [] };
+                    });
+                } else {
+                    this.list = [];
+                }
+
+                if (this.list.length > 0) {
+                    this.selectedLevel = this.list[0];
                 }
             } catch (e) {
-                console.error("Ошибка загрузки лидеборда:", e);
+                console.error("Error loading data:", e);
             } finally {
                 this.loading = false;
             }
         },
 
-        addPlayer() {
-            if (!this.newPlayerName) return;
-            const exists = this.players.find(p => p.name.toLowerCase() === this.newPlayerName.toLowerCase());
-            if (exists) {
-                alert("Игрок с таким ником уже существует!");
-                return;
-            }
-            const p = { name: this.newPlayerName, score: 0, records: [] };
-            this.players.push(p);
-            this.selectedPlayer = p;
-            this.newPlayerName = "";
-        },
-
-        deletePlayer(playerName) {
-            this.players = this.players.filter(p => p.name !== playerName);
-            if (this.selectedPlayer && this.selectedPlayer.name === playerName) {
-                this.selectedPlayer = this.sortedPlayers[0] || null;
-            }
-        },
-
-        async savePlayersToGithub() {
-            if (!this.currentUser || !this.currentUser.token) {
-                alert("Ошибка авторизации!");
-                return;
-            }
-
-            this.saving = true;
-            try {
-                const jsonString = JSON.stringify(this.players, null, 2);
-                const utf8Bytes = new TextEncoder().encode(jsonString);
-                let binary = '';
-                utf8Bytes.forEach(b => binary += String.fromCharCode(b));
-                const contentBase64 = btoa(binary);
-
-                const body = {
-                    message: "Update _players.json via Leaderboard Admin Panel",
-                    content: contentBase64,
-                    branch: GITHUB_BRANCH
-                };
-                if (this.fileShaPlayers) body.sha = this.fileShaPlayers;
-
-                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_players.json`, {
-                    method: "PUT",
-                    headers: { "Authorization": `token ${this.currentUser.token}`, "Content-Type": "application/json" },
-                    body: JSON.stringify(body)
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    this.fileShaPlayers = data.content.sha;
-                    alert("Лидеборд успешно обновлен на GitHub!");
-                } else {
-                    const err = await res.json();
-                    alert("Ошибка: " + err.message);
-                }
-            } catch (e) {
-                alert("Ошибка сохранения: " + e.message);
-            } finally {
-                this.saving = false;
-            }
+        getThumbnail(ytid) {
+            return ytid ? `https://i.ytimg.com/vi/${ytid}/hqdefault.jpg` : 'https://i.imgur.com/6VBx3io.png';
         }
     }
 };
