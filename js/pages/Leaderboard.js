@@ -1,4 +1,3 @@
-import * as ContentModule from "../content.js";
 import Spinner from "../components/Spinner.js";
 
 const GITHUB_USER = "nar1sos";
@@ -13,83 +12,55 @@ export default {
                 <Spinner />
             </main>
 
-            <div v-else class="page-list">
+            <div v-else class="page-leaderboard">
                 <!-- ПАНЕЛЬ АДМИНА -->
                 <div v-if="currentUser && currentUser.isAdmin" class="admin-bar" style="margin-bottom: 15px;">
-                    <button @click="saveAllToGithub" :disabled="saving" class="gdl-btn" style="background: #28a745; color: white;">
-                        {{ saving ? 'Сохранение...' : '🚀 Опубликовать изменения на GitHub' }}
+                    <button @click="savePlayersToGithub" :disabled="saving" style="background: #28a745; color: white; padding: 8px 15px; cursor: pointer;">
+                        {{ saving ? 'Сохранение...' : '🚀 Сохранить Лидеборд на GitHub' }}
                     </button>
                 </div>
 
-                <div class="list-container">
-                    <!-- СПИСОК УРОВНЕЙ -->
-                    <div class="list">
-                        <template v-for="(level, index) in list" :key="index">
-                            <div 
-                                class="level" 
-                                :class="{ selected: selectedLevel && selectedLevel.name === level.name }"
-                                :draggable="currentUser && currentUser.isAdmin"
-                                @dragstart="onDragStart($event, index)"
-                                @dragover.prevent
-                                @drop="onDrop($event, index)"
-                                @click="selectedLevel = level"
-                            >
-                                <a :href="level.video" target="_blank" class="video" @click.stop>
-                                    <img :src="getThumbnail(level.ytid)" alt="">
-                                </a>
-                                <div class="meta">
-                                    <p>#{{ level.rank }}</p>
-                                    <h2>{{ level.name }}</h2>
-                                    <p>By {{ level.author }} <span v-if="level.verifier">| Verified by {{ level.verifier }}</span></p>
-                                </div>
-                                <button v-if="currentUser && currentUser.isAdmin" class="delete-btn" @click.stop="deleteLevel(index)">✕</button>
-                            </div>
-                        </template>
-
-                        <!-- Форма добавления уровня -->
-                        <div v-if="currentUser && currentUser.isAdmin" class="admin-add-box" style="margin-top: 20px; border-top: 1px solid #444; padding-top: 10px;">
-                            <h3>➕ Добавить уровень</h3>
-                            <form @submit.prevent="addNewLevel" style="display: flex; flex-direction: column; gap: 8px;">
-                                <input v-model="newLevel.name" placeholder="Название" required />
-                                <input v-model="newLevel.author" placeholder="Автор" required />
-                                <input v-model="newLevel.verifier" placeholder="Верификатор" />
-                                <input v-model="newLevel.ytid" placeholder="YouTube Video ID" />
-                                <button type="submit">Добавить в список</button>
+                <div class="board-container">
+                    <div class="board">
+                        <!-- Форма добавления нового игрока вручную -->
+                        <div v-if="currentUser && currentUser.isAdmin" class="admin-add-box" style="margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 10px;">
+                            <h3>➕ Добавить игрока в Лидеборд</h3>
+                            <form @submit.prevent="addPlayer" style="display: flex; gap: 8px;">
+                                <input v-model="newPlayerName" placeholder="Никнейм игрока" required style="flex: 1;" />
+                                <button type="submit">Добавить</button>
                             </form>
+                        </div>
+
+                        <!-- СПИСОК ИГРОКОВ -->
+                        <div 
+                            v-for="(player, index) in sortedPlayers" 
+                            :key="index" 
+                            class="player"
+                            :class="{ selected: selectedPlayer && selectedPlayer.name === player.name }"
+                            @click="selectedPlayer = player"
+                            style="cursor: pointer;"
+                        >
+                            <div class="rank">#{{ index + 1 }}</div>
+                            <div class="name">{{ player.name }}</div>
+                            <div class="score">{{ player.score }} pts</div>
+                            <button v-if="currentUser && currentUser.isAdmin" class="delete-btn" @click.stop="deletePlayer(player.name)" style="color: red; background: none; border: none; font-size: 16px; cursor: pointer;">✕</button>
                         </div>
                     </div>
 
-                    <!-- ДЕТАЛИ УРОВНЯ И РЕКОРДЫ -->
-                    <div class="meta-container" v-if="selectedLevel">
+                    <!-- ПРОФИЛЬ ИГРОКА И ЕГО ПРОЙДЕННЫЕ УРОВНИ -->
+                    <div class="meta-container" v-if="selectedPlayer">
                         <div class="inner">
-                            <h1>#{{ selectedLevel.rank }} — {{ selectedLevel.name }}</h1>
-                            <p>Created by <strong>{{ selectedLevel.author }}</strong></p>
-                            <p v-if="selectedLevel.verifier">Verified by <strong>{{ selectedLevel.verifier }}</strong></p>
+                            <h1>{{ selectedPlayer.name }}</h1>
+                            <p>Total Points: <strong>{{ selectedPlayer.score }}</strong></p>
 
-                            <div class="video-container" v-if="selectedLevel.ytid">
-                                <iframe :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" frameborder="0" allowfullscreen></iframe>
-                            </div>
-
-                            <!-- Добавление рекорда -->
-                            <div v-if="currentUser && currentUser.isAdmin" class="admin-add-box" style="margin-bottom: 15px;">
-                                <h3>➕ Добавить рекорд игроку</h3>
-                                <form @submit.prevent="addRecord" style="display: flex; flex-direction: column; gap: 6px;">
-                                    <input v-model="newRecord.user" placeholder="Имя игрока" required />
-                                    <input v-model.number="newRecord.percent" type="number" min="1" max="100" placeholder="Процент (%)" required />
-                                    <input v-model="newRecord.link" placeholder="Ссылка на видео" />
-                                    <button type="submit">Засчитать рекорд</button>
-                                </form>
-                            </div>
-
-                            <h2>Records ({{ (selectedLevel.records || []).length }})</h2>
+                            <h2>Completed Levels & Records ({{ (selectedPlayer.records || []).length }})</h2>
                             <div class="records">
-                                <div v-for="(rec, idx) in (selectedLevel.records || [])" :key="idx" class="record">
+                                <div v-for="(rec, idx) in (selectedPlayer.records || [])" :key="idx" class="record">
                                     <div class="user">
-                                        <strong>{{ rec.user }}</strong> — {{ rec.percent }}%
+                                        <strong>#{{ rec.rank }} {{ rec.level }}</strong> — {{ rec.percent }}%
                                     </div>
                                     <div class="link">
                                         <a v-if="rec.link" :href="rec.link" target="_blank">Video</a>
-                                        <button v-if="currentUser && currentUser.isAdmin" @click="deleteRecord(idx)" style="color: red; background: none; border: none; cursor: pointer; margin-left: 8px;">✕</button>
                                     </div>
                                 </div>
                             </div>
@@ -101,195 +72,110 @@ export default {
     `,
 
     data: () => ({
-        list: [],
         players: [],
         loading: true,
         saving: false,
-        selectedLevel: null,
-        draggedIndex: null,
-        fileShaList: "",
+        selectedPlayer: null,
         fileShaPlayers: "",
-        currentUser: null,
-        newLevel: { name: "", author: "", verifier: "", ytid: "" },
-        newRecord: { user: "", percent: 100, link: "" }
+        newPlayerName: "",
+        currentUser: null
     }),
+
+    computed: {
+        sortedPlayers() {
+            return [...this.players].sort((a, b) => b.score - a.score);
+        }
+    },
 
     async mounted() {
         this.currentUser = JSON.parse(localStorage.getItem("gdl_user") || "null");
-        await this.loadAllData();
+        await this.loadPlayers();
     },
 
     methods: {
-        async loadAllData() {
+        async loadPlayers() {
             try {
-                // 1. Загрузка списка уровней (_list.json)
-                let resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_list.json?ref=${GITHUB_BRANCH}`);
-                if (resList.status === 404) {
-                    resList = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_list.json?ref=${GITHUB_BRANCH}`);
+                let res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_players.json?ref=${GITHUB_BRANCH}`);
+                if (res.status === 404) {
+                    res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_players.json?ref=${GITHUB_BRANCH}`);
                 }
 
-                if (resList.ok) {
-                    const data = await resList.json();
-                    this.fileShaList = data.sha;
-                    this.list = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-                } else {
-                    const fetchListFn = ContentModule.fetchList || (async () => []);
-                    this.list = await fetchListFn();
-                }
-
-                // 2. Загрузка игроков (_players.json)
-                let resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_players.json?ref=${GITHUB_BRANCH}`);
-                if (resPlayers.status === 404) {
-                    resPlayers = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/_players.json?ref=${GITHUB_BRANCH}`);
-                }
-
-                if (resPlayers.ok) {
-                    const data = await resPlayers.json();
+                if (res.ok) {
+                    const data = await res.json();
                     this.fileShaPlayers = data.sha;
                     this.players = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-                } else {
-                    const fetchLeaderboardFn = ContentModule.fetchLeaderboard || (async () => []);
-                    this.players = await fetchLeaderboardFn();
                 }
-
-                this.updateRanksAndScores();
-                if (this.list.length > 0) this.selectedLevel = this.list[0];
+                
+                if (this.sortedPlayers.length > 0) {
+                    this.selectedPlayer = this.sortedPlayers[0];
+                }
             } catch (e) {
-                console.error("Ошибка загрузки:", e);
+                console.error("Ошибка загрузки лидеборда:", e);
             } finally {
                 this.loading = false;
             }
         },
 
-        updateRanksAndScores() {
-            // Пересчитываем ранги уровней
-            this.list.forEach((lvl, idx) => {
-                lvl.rank = idx + 1;
-            });
+        addPlayer() {
+            if (!this.newPlayerName) return;
+            const exists = this.players.find(p => p.name.toLowerCase() === this.newPlayerName.toLowerCase());
+            if (exists) {
+                alert("Игрок с таким ником уже существует!");
+                return;
+            }
+            const p = { name: this.newPlayerName, score: 0, records: [] };
+            this.players.push(p);
+            this.selectedPlayer = p;
+            this.newPlayerName = "";
+        },
 
-            // Автоматически обновляем и пересчитываем очки игроков в Лидеборде
-            if (this.players && this.players.length > 0) {
-                this.players.forEach(player => {
-                    player.records = [];
-                    player.score = 0;
-
-                    this.list.forEach(lvl => {
-                        if (lvl.records) {
-                            const rec = lvl.records.find(r => r.user.toLowerCase() === player.name.toLowerCase());
-                            if (rec) {
-                                const pts = Math.max(Math.round(100 - (lvl.rank - 1) * 2), 5);
-                                player.records.push({
-                                    level: lvl.name,
-                                    rank: lvl.rank,
-                                    percent: rec.percent,
-                                    link: rec.link
-                                });
-                                if (rec.percent === 100) {
-                                    player.score += pts;
-                                }
-                            }
-                        }
-                    });
-                });
+        deletePlayer(playerName) {
+            this.players = this.players.filter(p => p.name !== playerName);
+            if (this.selectedPlayer && this.selectedPlayer.name === playerName) {
+                this.selectedPlayer = this.sortedPlayers[0] || null;
             }
         },
 
-        /* Drag & Drop */
-        onDragStart(e, index) {
-            if (!this.currentUser || !this.currentUser.isAdmin) return;
-            this.draggedIndex = index;
-        },
-
-        onDrop(e, targetIndex) {
-            if (!this.currentUser || !this.currentUser.isAdmin || this.draggedIndex === null) return;
-            const moved = this.list.splice(this.draggedIndex, 1)[0];
-            this.list.splice(targetIndex, 0, moved);
-            this.draggedIndex = null;
-            this.updateRanksAndScores();
-        },
-
-        addNewLevel() {
-            if (!this.newLevel.name) return;
-            const lvl = { ...this.newLevel, records: [], rank: this.list.length + 1 };
-            this.list.push(lvl);
-            this.updateRanksAndScores();
-            this.selectedLevel = lvl;
-            this.newLevel = { name: "", author: "", verifier: "", ytid: "" };
-        },
-
-        deleteLevel(idx) {
-            this.list.splice(idx, 1);
-            this.updateRanksAndScores();
-        },
-
-        addRecord() {
-            if (!this.selectedLevel || !this.newRecord.user) return;
-            if (!this.selectedLevel.records) this.selectedLevel.records = [];
-            
-            this.selectedLevel.records.push({ ...this.newRecord });
-
-            // Если игрока еще нет в лидеборде — автоматически добавляем его туда
-            let player = this.players.find(p => p.name.toLowerCase() === this.newRecord.user.toLowerCase());
-            if (!player) {
-                player = { name: this.newRecord.user, score: 0, records: [] };
-                this.players.push(player);
-            }
-
-            this.updateRanksAndScores();
-            this.newRecord = { user: "", percent: 100, link: "" };
-        },
-
-        deleteRecord(idx) {
-            this.selectedLevel.records.splice(idx, 1);
-            this.updateRanksAndScores();
-        },
-
-        async saveAllToGithub() {
+        async savePlayersToGithub() {
             if (!this.currentUser || !this.currentUser.token) {
-                alert("Ошибка! Вы не ввели токен при входе.");
+                alert("Ошибка авторизации!");
                 return;
             }
 
             this.saving = true;
             try {
-                await this.uploadFileToGithub("data/_list.json", this.list, this.fileShaList, this.currentUser.token);
-                await this.uploadFileToGithub("data/_players.json", this.players, this.fileShaPlayers, this.currentUser.token);
-                alert("Успешно! Изменения для Списка и Лидеборда сохранены на GitHub.");
+                const jsonString = JSON.stringify(this.players, null, 2);
+                const utf8Bytes = new TextEncoder().encode(jsonString);
+                let binary = '';
+                utf8Bytes.forEach(b => binary += String.fromCharCode(b));
+                const contentBase64 = btoa(binary);
+
+                const body = {
+                    message: "Update _players.json via Leaderboard Admin Panel",
+                    content: contentBase64,
+                    branch: GITHUB_BRANCH
+                };
+                if (this.fileShaPlayers) body.sha = this.fileShaPlayers;
+
+                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/data/_players.json`, {
+                    method: "PUT",
+                    headers: { "Authorization": `token ${this.currentUser.token}`, "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    this.fileShaPlayers = data.content.sha;
+                    alert("Лидеборд успешно обновлен на GitHub!");
+                } else {
+                    const err = await res.json();
+                    alert("Ошибка: " + err.message);
+                }
             } catch (e) {
-                alert("Ошибка при сохранении на GitHub: " + e.message);
+                alert("Ошибка сохранения: " + e.message);
             } finally {
                 this.saving = false;
             }
-        },
-
-        async uploadFileToGithub(filepath, contentObj, sha, token) {
-            const jsonString = JSON.stringify(contentObj, null, 2);
-            const utf8Bytes = new TextEncoder().encode(jsonString);
-            let binary = '';
-            utf8Bytes.forEach(b => binary += String.fromCharCode(b));
-            const contentBase64 = btoa(binary);
-
-            const body = {
-                message: `Update ${filepath} via Site Admin Panel`,
-                content: contentBase64,
-                branch: GITHUB_BRANCH
-            };
-            if (sha) body.sha = sha;
-
-            const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${filepath}`, {
-                method: "PUT",
-                headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-                body: JSON.stringify(body)
-            });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.message);
-            }
-        },
-
-        getThumbnail(ytid) {
-            return ytid ? `https://i.ytimg.com/vi/${ytid}/hqdefault.jpg` : 'https://i.imgur.com/6VBx3io.png';
         }
     }
 };
