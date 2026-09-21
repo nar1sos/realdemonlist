@@ -6,7 +6,7 @@ const GITHUB_USER = "nar1sos";
 const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
 // 🔑 ВСТАВЬ СЮДА СВОЙ ТОКЕН GITHUB
-const GITHUB_TOKEN = "ghp_ВСТАВЬ_СВОЙ_ТОКЕН_СЮДА"; 
+const GITHUB_TOKEN = "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"; 
 
 export default {
     components: { Spinner },
