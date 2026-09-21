@@ -24,132 +24,195 @@ function base64ToUtf8(str) {
 export default {
     components: { Spinner },
     template: `
-        <div class="demonlist-container">
+        <div class="gdl-wrapper">
             <Spinner v-if="loading" />
 
             <template v-else>
-                <!-- Левая колонка: Список уровней -->
-                <div class="level-list">
-                    <div class="list-header">
+                <!-- 1. ПОИСКОВКА -->
+                <div class="gdl-search-bar">
+                    <div class="search-input-wrapper">
                         <input 
                             type="text" 
                             v-model="searchQuery" 
                             placeholder="Поиск уровня..." 
-                            class="search-input"
+                            class="gdl-input"
                         />
-                        <button v-if="isAdmin" @click="openAddModal" class="add-btn" title="Добавить уровень">+</button>
-                    </div>
-
-                    <div 
-                        v-for="(level, index) in filteredList" 
-                        :key="level.name + index"
-                        class="level-card"
-                        :class="{ active: selectedLevel && selectedLevel.name === level.name }"
-                        @click="selectedLevel = level"
-                        :draggable="isAdmin && !searchQuery"
-                        @dragstart="onDragStart($event, index)"
-                        @dragover.prevent
-                        @drop="onDrop($event, index)"
-                    >
-                        <div class="level-rank">#{{ level.rank }}</div>
-                        <div class="level-thumb-mini">
-                            <img :src="getThumbnail(level)" alt="thumb" />
-                        </div>
-                        <div class="level-info-mini">
-                            <div class="level-title">{{ level.name }}</div>
-                            <div class="level-author">by {{ level.author }}</div>
-                        </div>
+                        <button v-if="searchQuery" class="clear-btn" @click="searchQuery = ''">✕</button>
                     </div>
                 </div>
 
-                <!-- Правая колонка: Детали уровня -->
-                <div class="level-details" v-if="selectedLevel">
-                    <div class="details-banner">
-                        <img :src="getThumbnail(selectedLevel)" alt="banner" />
-                        <div class="banner-overlay">
-                            <h1>#{{ selectedLevel.rank }} - {{ selectedLevel.name }}</h1>
-                            <p>Создатель: <strong>{{ selectedLevel.author }}</strong></p>
-                            <p v-if="selectedLevel.verifier">Верификатор: <strong>{{ selectedLevel.verifier }}</strong></p>
+                <!-- 2. СЕТКА КОНТЕНТА -->
+                <div class="gdl-content-grid">
+                    
+                    <!-- ЛЕВАЯ КОЛОНКА (Инфо и правила) -->
+                    <div class="gdl-left-column">
+                        <div class="gdl-meta-box">
+                            <h3>Редакторы списка</h3>
+                            <ul class="editors-list">
+                                <li><span>👑</span> {{ GITHUB_USER }}</li>
+                            </ul>
                             
-                            <div v-if="isAdmin" class="admin-actions">
-                                <button @click="openEditModal(selectedLevel)" class="edit-btn">Редактировать</button>
+                            <div class="rules-section">
+                                <h3>Правила</h3>
+                                <ul class="rules-list">
+                                    <li><strong>1.</strong> Запись видео с кликами обязательна.</li>
+                                    <li><strong>2.</strong> Читы и хаки строго запрещены.</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Видео верификации -->
-                    <div class="video-container" v-if="selectedLevel.ytid">
-                        <iframe 
-                            :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" 
-                            frameborder="0" 
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-
-                    <!-- Рекорды -->
-                    <div class="records-section">
-                        <div class="records-header">
-                            <h3>Рекорды ({{ selectedLevel.records ? selectedLevel.records.length : 0 }})</h3>
-                            <button v-if="isAdmin" @click="openAddRecordModal" class="add-record-btn">+ Добавить рекорд</button>
+                    <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА (Список уровней) -->
+                    <div class="gdl-cards-container">
+                        <div v-if="isAdmin" style="margin-bottom: 10px;">
+                            <button @click="openAddModal" style="width: 100%; padding: 10px; background: #22c55e; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">
+                                + Добавить новый уровень
+                            </button>
                         </div>
 
-                        <div class="records-list" v-if="selectedLevel.records && selectedLevel.records.length > 0">
-                            <div v-for="(rec, rIdx) in selectedLevel.records" :key="rIdx" class="record-item">
-                                <span class="rec-user">{{ rec.user }}</span>
-                                <span class="rec-percent">{{ rec.percent }}%</span>
-                                <a v-if="rec.link" :href="rec.link" target="_blank" class="rec-link">Видео</a>
-                                <button v-if="isAdmin" @click="deleteRecord(rIdx)" class="del-rec-btn">×</button>
+                        <div 
+                            v-for="(level, index) in filteredList" 
+                            :key="level.name + index"
+                            class="gdl-level-card"
+                            :class="{ active: selectedLevel && selectedLevel.name === level.name }"
+                            @click="selectedLevel = level"
+                            :draggable="isAdmin && !searchQuery"
+                            @dragstart="onDragStart($event, index)"
+                            @dragover.prevent
+                            @drop="onDrop($event, index)"
+                        >
+                            <div class="gdl-card-thumb">
+                                <span class="rank-badge">#{{ level.rank }}</span>
+                                <img :src="getThumbnail(level)" alt="thumb" />
+                            </div>
+
+                            <div class="gdl-card-info">
+                                <div class="card-header">
+                                    <span class="rank-number">#{{ level.rank }}</span>
+                                    <h4 class="level-title">{{ level.name }}</h4>
+                                </div>
+                                <div class="card-authors">
+                                    от <span>{{ level.author }}</span>
+                                </div>
+                                <div class="verifier-name" v-if="level.verifier">
+                                    Верификатор: {{ level.verifier }}
+                                </div>
                             </div>
                         </div>
-                        <p v-else class="no-records">Пока нет подтвержденных рекордов.</p>
                     </div>
+
+                    <!-- ПРАВАЯ КОЛОНКА (Детали выбранного уровня) -->
+                    <div class="gdl-details-container" v-if="selectedLevel">
+                        <div class="gdl-level-detail-box">
+                            <h2 class="detail-title">#{{ selectedLevel.rank }} - {{ selectedLevel.name }}</h2>
+
+                            <div class="authors-clean-block">
+                                <div class="author-item">
+                                    <span class="author-label">Создатель</span>
+                                    <span class="author-val">{{ selectedLevel.author }}</span>
+                                </div>
+                                <div class="author-item" v-if="selectedLevel.verifier">
+                                    <span class="author-label">Верификатор</span>
+                                    <span class="author-val">{{ selectedLevel.verifier }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Кнопки управления админа -->
+                            <div v-if="isAdmin" style="margin-bottom: 15px;">
+                                <button @click="openEditModal(selectedLevel)" style="background: #3b82f6; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 800; cursor: pointer; width: 100%;">
+                                    ✏️ Редактировать уровень
+                                </button>
+                            </div>
+
+                            <!-- Видео плеер -->
+                            <div class="video-wrapper" v-if="selectedLevel.ytid">
+                                <iframe 
+                                    :src="'https://www.youtube.com/embed/' + selectedLevel.ytid" 
+                                    frameborder="0" 
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+
+                            <!-- Раздел с рекордами -->
+                            <div class="records-section">
+                                <div class="records-header" style="justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="records-trophy">🏆</span>
+                                        <div class="records-header-text">
+                                            <h3 class="section-subtitle">Рекорды ({{ selectedLevel.records ? selectedLevel.records.length : 0 }})</h3>
+                                        </div>
+                                    </div>
+                                    <button v-if="isAdmin" @click="openAddRecordModal" style="background: #22c55e; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 12px;">
+                                        + Рекорд
+                                    </button>
+                                </div>
+
+                                <div class="records-list" v-if="selectedLevel.records && selectedLevel.records.length > 0">
+                                    <div v-for="(rec, rIdx) in selectedLevel.records" :key="rIdx" class="record-card">
+                                        <div class="record-user-info">
+                                            <span class="user-name">{{ rec.user }}</span>
+                                        </div>
+                                        <div class="record-meta-info">
+                                            <span class="percent-tag">{{ rec.percent }}%</span>
+                                            <a v-if="rec.link" :href="rec.link" target="_blank" class="record-video-btn">▶</a>
+                                            <button v-if="isAdmin" @click="deleteRecord(rIdx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; margin-left: 6px;">×</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else class="no-records">
+                                    Пока нет подтвержденных рекордов.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </template>
 
             <!-- МОДАЛЬНОЕ ОКНО: Добавление/Редактирование Уровня -->
-            <div v-if="showLevelModal" class="modal-backdrop" @click.self="showLevelModal = false">
-                <div class="modal-content">
-                    <h3>{{ isEditing ? 'Редактировать уровень' : 'Добавить новый уровень' }}</h3>
+            <div v-if="showLevelModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showLevelModal = false">
+                <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 450px; color: #fff;">
+                    <h3 style="margin-bottom: 15px;">{{ isEditing ? 'Редактировать уровень' : 'Добавить новый уровень' }}</h3>
                     
-                    <label>Название уровня:*</label>
-                    <input type="text" v-model="levelForm.name" placeholder="Например: Tidal Wave" />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Название уровня:*</label>
+                    <input type="text" v-model="levelForm.name" class="gdl-input" placeholder="Tidal Wave" style="margin-top:4px;" />
 
-                    <label>Автор:*</label>
-                    <input type="text" v-model="levelForm.author" placeholder="Например: OniLink" />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Автор:*</label>
+                    <input type="text" v-model="levelForm.author" class="gdl-input" placeholder="OniLink" style="margin-top:4px;" />
 
-                    <label>Верификатор:</label>
-                    <input type="text" v-model="levelForm.verifier" placeholder="Например: Zoink" />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Верификатор:</label>
+                    <input type="text" v-model="levelForm.verifier" class="gdl-input" placeholder="Zoink" style="margin-top:4px;" />
 
-                    <label>YouTube Video ID (для видео):</label>
-                    <input type="text" v-model="levelForm.ytid" placeholder="Например: dQw4w9WgXcQ" />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">YouTube Video ID:</label>
+                    <input type="text" v-model="levelForm.ytid" class="gdl-input" placeholder="dQw4w9WgXcQ" style="margin-top:4px;" />
 
-                    <label>Превью (Прямая ссылка на фото):</label>
-                    <input type="text" v-model="levelForm.thumbnail" placeholder="https://..." />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Превью (Прямая ссылка):</label>
+                    <input type="text" v-model="levelForm.thumbnail" class="gdl-input" placeholder="https://..." style="margin-top:4px;" />
 
-                    <div class="modal-buttons">
-                        <button @click="saveLevel" class="save-btn">Сохранить</button>
-                        <button @click="showLevelModal = false" class="cancel-btn">Отмена</button>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button @click="saveLevel" style="flex:1; padding:10px; background:#22c55e; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Сохранить</button>
+                        <button @click="showLevelModal = false" style="flex:1; padding:10px; background:#475569; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Отмена</button>
                     </div>
                 </div>
             </div>
 
             <!-- МОДАЛЬНОЕ ОКНО: Добавление Рекорда -->
-            <div v-if="showRecordModal" class="modal-backdrop" @click.self="showRecordModal = false">
-                <div class="modal-content">
-                    <h3>Добавить рекорд</h3>
+            <div v-if="showRecordModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showRecordModal = false">
+                <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; color: #fff;">
+                    <h3 style="margin-bottom: 15px;">Добавить рекорд</h3>
 
-                    <label>Имя игрока:*</label>
-                    <input type="text" v-model="recordForm.user" placeholder="Например: Trick" />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Имя игрока:*</label>
+                    <input type="text" v-model="recordForm.user" class="gdl-input" placeholder="Trick" style="margin-top:4px;" />
 
-                    <label>Процент:*</label>
-                    <input type="number" v-model.number="recordForm.percent" min="1" max="100" />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Процент:*</label>
+                    <input type="number" v-model.number="recordForm.percent" min="1" max="100" class="gdl-input" style="margin-top:4px;" />
 
-                    <label>Ссылка на видео доказательство:</label>
-                    <input type="text" v-model="recordForm.link" placeholder="https://youtube.com/..." />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Ссылка на видео доказательство:</label>
+                    <input type="text" v-model="recordForm.link" class="gdl-input" placeholder="https://youtube.com/..." style="margin-top:4px;" />
 
-                    <div class="modal-buttons">
-                        <button @click="saveRecord" class="save-btn">Сохранить</button>
-                        <button @click="showRecordModal = false" class="cancel-btn">Отмена</button>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button @click="saveRecord" style="flex:1; padding:10px; background:#22c55e; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Сохранить</button>
+                        <button @click="showRecordModal = false" style="flex:1; padding:10px; background:#475569; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Отмена</button>
                     </div>
                 </div>
             </div>
@@ -157,6 +220,7 @@ export default {
     `,
 
     data: () => ({
+        GITHUB_USER,
         list: [],
         loading: true,
         selectedLevel: null,
