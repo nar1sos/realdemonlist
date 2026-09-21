@@ -97,13 +97,13 @@ export default {
                 </div>
 
                 <!-- Main levels -->
-                <div class="section-box" v-if="mainLevels.length || isAdmin">
+                <div class="section-box" v-if="mainLevelsList.length || isAdmin">
                     <div class="box-header">
                         <div class="box-title red-title">
                             ★ Main levels
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="badge-count">{{ mainLevels.length }}</span>
+                            <span class="badge-count">{{ mainLevelsList.length }}</span>
                             <button v-if="isAdmin" @click="openAddRecordModal" style="background: #22c55e; color: #fff; border: none; padding: 2px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px;">
                                 + Добавить
                             </button>
@@ -111,44 +111,53 @@ export default {
                     </div>
                     <div class="pills-flex">
                         <div 
-                            v-for="(lvl, idx) in mainLevels" 
+                            v-for="(item, idx) in mainLevelsList" 
                             :key="idx" 
                             class="pill-btn"
-                            style="display: inline-flex; align-items: center; gap: 6px;"
+                            :draggable="isAdmin"
+                            @dragstart="onRecordDragStart($event, item.originalIndex)"
+                            @dragover.prevent
+                            @drop="onRecordDrop($event, item.originalIndex)"
+                            style="display: inline-flex; align-items: center; gap: 6px; cursor: grab;"
                         >
-                            <span>{{ lvl }}</span>
-                            <button v-if="isAdmin" @click="deleteRecord(idx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
+                            <span>{{ item.title }}</span>
+                            <button v-if="isAdmin" @click.stop="deleteRecord(item.originalIndex)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Progresses -->
-                <div class="section-box" v-if="progresses.length">
+                <div class="section-box" v-if="progressesList.length">
                     <div class="box-header">
                         <div class="box-title blue-title">
                             📊 Progresses
                         </div>
-                        <span class="badge-count">{{ progresses.length }}</span>
+                        <span class="badge-count">{{ progressesList.length }}</span>
                     </div>
                     <div class="pills-flex">
                         <div 
-                            v-for="(prog, idx) in progresses" 
+                            v-for="(prog, idx) in progressesList" 
                             :key="idx" 
                             class="pill-btn progress-pill"
+                            :draggable="isAdmin"
+                            @dragstart="onRecordDragStart($event, prog.originalIndex)"
+                            @dragover.prevent
+                            @drop="onRecordDrop($event, prog.originalIndex)"
+                            style="cursor: grab;"
                         >
-                            {{ prog.levelName || prog.level || prog }} <span v-if="prog.percent" class="blue-text">({{ prog.percent }}%)</span>
+                            {{ prog.item.levelName || prog.item.level || prog.item }} <span v-if="prog.item.percent" class="blue-text">({{ prog.item.percent }}%)</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Which are verified -->
-                <div class="section-box verified-box" v-if="verifiedLevels.length || isAdmin">
+                <div class="section-box verified-box" v-if="verifiedLevelsList.length || isAdmin">
                     <div class="box-header">
                         <div class="box-title green-title">
                             <span class="check-circle">✓</span> Which are verified
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="badge-count green-badge">{{ verifiedLevels.length }}</span>
+                            <span class="badge-count green-badge">{{ verifiedLevelsList.length }}</span>
                             <button v-if="isAdmin" @click="openAddVerifyModal" style="background: #10b981; color: #fff; border: none; padding: 2px 8px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 12px;">
                                 + Добавить
                             </button>
@@ -156,13 +165,17 @@ export default {
                     </div>
                     <div class="pills-flex">
                         <div 
-                            v-for="(ver, idx) in verifiedLevels" 
+                            v-for="(ver, idx) in verifiedLevelsList" 
                             :key="idx" 
                             class="pill-btn verified-pill"
-                            style="display: inline-flex; align-items: center; gap: 6px;"
+                            :draggable="isAdmin"
+                            @dragstart="onVerifyDragStart($event, idx)"
+                            @dragover.prevent
+                            @drop="onVerifyDrop($event, idx)"
+                            style="display: inline-flex; align-items: center; gap: 6px; cursor: grab;"
                         >
-                            <span>{{ ver.levelName || ver.level || ver }}</span>
-                            <button v-if="isAdmin" @click="deleteVerify(idx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
+                            <span>{{ ver.title }}</span>
+                            <button v-if="isAdmin" @click.stop="deleteVerify(idx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
                         </div>
                     </div>
                 </div>
@@ -177,9 +190,9 @@ export default {
                     :class="{ 'active': (selectedPlayer?.user || selectedPlayer?.name) === (player.user || player.name) }"
                     @click="selectedPlayer = player"
                     :draggable="isAdmin && !searchQuery"
-                    @dragstart="onDragStart($event, index)"
+                    @dragstart="onPlayerDragStart($event, index)"
                     @dragover.prevent
-                    @drop="onDrop($event, index)"
+                    @drop="onPlayerDrop($event, index)"
                 >
                     <span class="rank-num">#{{ index + 1 }}</span>
                     
@@ -221,7 +234,7 @@ export default {
                 </div>
             </div>
 
-            <!-- МОДАЛКА: Добавить уровень в Main Levels / Record -->
+            <!-- МОДАЛКА: Добавить уровень -->
             <div v-if="showRecordModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showRecordModal = false">
                 <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; color: #fff;">
                     <h3 style="margin-bottom: 15px;">Добавить уровень</h3>
@@ -261,7 +274,9 @@ export default {
         loading: true,
         selectedPlayer: null,
         searchQuery: '',
-        draggedIndex: null,
+        draggedPlayerIndex: null,
+        draggedRecordIndex: null,
+        draggedVerifyIndex: null,
         fileSha: '',
         defaultAvatar: 'https://i.imgur.com/6VBx3io.png',
         isAdmin: sessionStorage.getItem('is_admin') === 'true',
@@ -292,25 +307,29 @@ export default {
             const index = this.leaderboard.findIndex(p => (p.user || p.name) === selName);
             return index !== -1 ? index + 1 : '-';
         },
-        mainLevels() {
-            if (!this.selectedPlayer) return [];
-            
-            const records = (this.selectedPlayer.records || [])
-                .filter(r => typeof r === 'string' || !r.percent || r.percent === 100)
-                .map(r => typeof r === 'string' ? r : (r.levelName || r.level));
-                
-            const verified = (this.selectedPlayer.verified || this.selectedPlayer.verifies || [])
-                .map(v => typeof v === 'string' ? v : (v.levelName || v.level));
-
-            return [...new Set([...records, ...verified])];
+        mainLevelsList() {
+            if (!this.selectedPlayer || !this.selectedPlayer.records) return [];
+            return this.selectedPlayer.records
+                .map((r, idx) => ({ item: r, originalIndex: idx }))
+                .filter(entry => typeof entry.item === 'string' || !entry.item.percent || entry.item.percent === 100)
+                .map(entry => ({
+                    title: typeof entry.item === 'string' ? entry.item : (entry.item.levelName || entry.item.level),
+                    originalIndex: entry.originalIndex
+                }));
         },
-        progresses() {
-            if (!this.selectedPlayer?.records) return [];
-            return this.selectedPlayer.records.filter(r => typeof r === 'object' && r.percent && r.percent < 100);
+        progressesList() {
+            if (!this.selectedPlayer || !this.selectedPlayer.records) return [];
+            return this.selectedPlayer.records
+                .map((r, idx) => ({ item: r, originalIndex: idx }))
+                .filter(entry => typeof entry.item === 'object' && entry.item.percent && entry.item.percent < 100);
         },
-        verifiedLevels() {
+        verifiedLevelsList() {
             if (!this.selectedPlayer) return [];
-            return this.selectedPlayer.verified || this.selectedPlayer.verifies || [];
+            const list = this.selectedPlayer.verified || this.selectedPlayer.verifies || [];
+            return list.map((v, idx) => ({
+                title: typeof v === 'string' ? v : (v.levelName || v.level),
+                originalIndex: idx
+            }));
         }
     },
 
@@ -398,7 +417,60 @@ export default {
             e.target.style.display = 'none';
         },
 
-        // --- УПРАВЛЕНИЕ ИГРОКАМИ (АДМИН) ---
+        // --- DRAG & DROP УРОВНЕЙ В ПРОФИЛЕ ---
+        onRecordDragStart(event, originalIndex) {
+            if (!this.isAdmin) return;
+            this.draggedRecordIndex = originalIndex;
+            event.dataTransfer.effectAllowed = 'move';
+        },
+
+        async onRecordDrop(event, targetIndex) {
+            if (!this.isAdmin || this.draggedRecordIndex === null || this.draggedRecordIndex === targetIndex) return;
+
+            const records = this.selectedPlayer.records;
+            const movedItem = records.splice(this.draggedRecordIndex, 1)[0];
+            records.splice(targetIndex, 0, movedItem);
+
+            this.draggedRecordIndex = null;
+            await this.saveToGitHub();
+        },
+
+        onVerifyDragStart(event, index) {
+            if (!this.isAdmin) return;
+            this.draggedVerifyIndex = index;
+            event.dataTransfer.effectAllowed = 'move';
+        },
+
+        async onVerifyDrop(event, targetIndex) {
+            if (!this.isAdmin || this.draggedVerifyIndex === null || this.draggedVerifyIndex === targetIndex) return;
+
+            const list = this.selectedPlayer.verified || this.selectedPlayer.verifies;
+            if (list) {
+                const movedItem = list.splice(this.draggedVerifyIndex, 1)[0];
+                list.splice(targetIndex, 0, movedItem);
+                this.draggedVerifyIndex = null;
+                await this.saveToGitHub();
+            }
+        },
+
+        // --- DRAG & DROP ИГРОКОВ В СПИСКЕ ---
+        onPlayerDragStart(event, filteredIndex) {
+            if (!this.isAdmin || this.searchQuery) return;
+            this.draggedPlayerIndex = filteredIndex;
+            event.dataTransfer.effectAllowed = 'move';
+        },
+
+        async onPlayerDrop(event, targetIndex) {
+            if (!this.isAdmin || this.searchQuery || this.draggedPlayerIndex === null || this.draggedPlayerIndex === targetIndex) return;
+
+            const movedItem = this.leaderboard.splice(this.draggedPlayerIndex, 1)[0];
+            this.leaderboard.splice(targetIndex, 0, movedItem);
+
+            this.draggedPlayerIndex = null;
+            await this.saveToGitHub();
+        },
+
+        // --- УПРАВЛЕНИЕ ИГРОКАМИ ---
         openAddPlayerModal() {
             this.isEditing = false;
             this.playerForm = { name: '', country: '', avatar: '' };
@@ -452,24 +524,7 @@ export default {
             }
         },
 
-        // --- DRAG & DROP ---
-        onDragStart(event, filteredIndex) {
-            if (!this.isAdmin || this.searchQuery) return;
-            this.draggedIndex = filteredIndex;
-            event.dataTransfer.effectAllowed = 'move';
-        },
-
-        async onDrop(event, targetIndex) {
-            if (!this.isAdmin || this.searchQuery || this.draggedIndex === null || this.draggedIndex === targetIndex) return;
-
-            const movedItem = this.leaderboard.splice(this.draggedIndex, 1)[0];
-            this.leaderboard.splice(targetIndex, 0, movedItem);
-
-            this.draggedIndex = null;
-            await this.saveToGitHub();
-        },
-
-        // --- ЗАПИСИ И ВЕРИФИКАЦИИ ---
+        // --- ДОБАВЛЕНИЕ И УДАЛЕНИЕ ---
         openAddRecordModal() {
             this.recordForm = { level: '', percent: 100 };
             this.showRecordModal = true;
@@ -565,7 +620,6 @@ export default {
                 if (response.ok) {
                     const resData = await response.json();
                     this.fileSha = resData.content.sha;
-                    alert("Лидерборд успешно сохранен на GitHub!");
                 } else {
                     const errData = await response.json();
                     alert(`Ошибка GitHub (${response.status}): ${errData.message || 'Проверьте токен'}`);
