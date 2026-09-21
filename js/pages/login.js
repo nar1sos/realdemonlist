@@ -23,20 +23,34 @@ export default {
     }),
     methods: {
         login() {
-            const isAdmin = (this.username.trim().toLowerCase() === "nar1sos");
+            const cleanUser = this.username.trim();
+            const cleanToken = this.token.trim();
+            const isAdmin = (cleanUser.toLowerCase() === "nar1sos");
+
             const userData = {
-                username: this.username.trim(),
+                username: cleanUser,
                 isAdmin: isAdmin,
-                token: this.token.trim()
+                token: cleanToken
             };
+
             localStorage.setItem("gdl_user", JSON.stringify(userData));
+            localStorage.setItem("my_gh_token", cleanToken);
+            sessionStorage.setItem("is_admin", isAdmin ? "true" : "false");
+
+            // Оповещаем другие компоненты об изменении статуса
+            window.dispatchEvent(new Event('admin-state-changed'));
+
             if (isAdmin) {
                 alert("Добро пожаловать, nar1sos! Режим админа включен.");
             } else {
                 alert("Вы вошли как обычный пользователь.");
             }
-            window.location.href = "#/";
-            window.location.reload();
+
+            if (this.$router) {
+                this.$router.push('/');
+            } else {
+                window.location.hash = '#/';
+            }
         }
     }
 };
