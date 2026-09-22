@@ -151,5 +151,14 @@
         "thumbnail": "",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": "Ashley Wave Trials",
+        "author": "OddMod",
+        "verifier": "Zoink",
+        "ytid": "aTxt76U3e2Q",
+        "thumbnail": "https://i.ytimg.com/vi/D9Zic4JItqU/hqdefault.jpg",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
