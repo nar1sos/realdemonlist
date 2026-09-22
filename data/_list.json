@@ -36,6 +36,15 @@
         "records": []
     },
     {
+        "name": "Artemis 13",
+        "author": "mvngo",
+        "verifier": "Zoink",
+        "ytid": "FgjOM0ef1N8",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
         "name": "Tidal Wave",
         "author": "OniLink",
         "verifier": "Zoink",
@@ -77,15 +86,6 @@
         "verifier": "Zoink",
         "ytid": "QKcv8DkNPd0",
         "thumbnail": "https://i.ytimg.com/vi/0QYibxUS3rA/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBZSQBlLRFfpWyo8aL5rBOa16c9yg",
-        "percentToQualify": 100,
-        "records": []
-    },
-    {
-        "name": "Artemis 13",
-        "author": "mvngo",
-        "verifier": "Zoink",
-        "ytid": "FgjOM0ef1N8",
-        "thumbnail": "",
         "percentToQualify": 100,
         "records": []
     },
