@@ -15,7 +15,13 @@
         "ytid": "3CoEaH1CM7o",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "Zoink",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Thinking Space II",
