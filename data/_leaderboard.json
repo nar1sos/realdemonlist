@@ -145,6 +145,30 @@
         "verified": []
     },
     {
+        "user": "Trick",
+        "name": "Trick",
+        "country": "us",
+        "avatar": "https://static.wikia.nocookie.net/geometry-dash/images/3/32/Trick.jpg/revision/latest?cb=20250813142647&path-prefix=ru",
+        "records": [
+            "Thinking Space II",
+            "Tidal Wave",
+            "Silent clubstep",
+            "Anathema",
+            "Avernus",
+            "spectre",
+            "Abyss Of Darkness",
+            "Acheron",
+            "Tunnel of Despair",
+            "Kyouki",
+            "Subterminal Point",
+            "Slaughterhouse",
+            "Deimos",
+            "KOCMOC",
+            "The Lightning Rod"
+        ],
+        "verified": []
+    },
+    {
         "user": "zLevii",
         "name": "zLevii",
         "country": "nz",
@@ -184,29 +208,5 @@
         "verified": [
             "Lesopowal"
         ]
-    },
-    {
-        "user": "Trick",
-        "name": "Trick",
-        "country": "us",
-        "avatar": "https://static.wikia.nocookie.net/geometry-dash/images/3/32/Trick.jpg/revision/latest?cb=20250813142647&path-prefix=ru",
-        "records": [
-            "Thinking Space II",
-            "Tidal Wave",
-            "Silent clubstep",
-            "Anathema",
-            "Avernus",
-            "spectre",
-            "Abyss Of Darkness",
-            "Acheron",
-            "Tunnel of Despair",
-            "Kyouki",
-            "Subterminal Point",
-            "Slaughterhouse",
-            "Deimos",
-            "KOCMOC",
-            "The Lightning Rod"
-        ],
-        "verified": []
     }
 ]
