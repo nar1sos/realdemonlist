@@ -1,5 +1,14 @@
 [
     {
+        "name": "Society",
+        "author": "Neomarbilan",
+        "verifier": "wPopoff",
+        "ytid": "3CoEaH1CM7o",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
         "name": "Artemis 13",
         "author": "mvngo",
         "verifier": "Zoink",
@@ -40,15 +49,6 @@
         "author": "OniLink",
         "verifier": "Zoink",
         "ytid": "9fsZ014qB3s",
-        "thumbnail": "",
-        "percentToQualify": 100,
-        "records": []
-    },
-    {
-        "name": "Society",
-        "author": "Neomarbilan",
-        "verifier": "wPopoff",
-        "ytid": "3CoEaH1CM7o",
         "thumbnail": "",
         "percentToQualify": 100,
         "records": []
