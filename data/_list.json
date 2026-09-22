@@ -18,6 +18,7 @@
         "records": [
             {
                 "user": "Zoink",
+                "country": "us",
                 "percent": 100,
                 "link": ""
             }
@@ -33,16 +34,19 @@
         "records": [
             {
                 "user": "wPopoff",
+                "country": "us",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "Trick",
+                "country": "us",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "Netermind",
+                "country": "us",
                 "percent": 88,
                 "link": ""
             }
@@ -58,6 +62,7 @@
         "records": [
             {
                 "user": "Zoink",
+                "country": "us",
                 "percent": 100,
                 "link": ""
             }
@@ -73,16 +78,19 @@
         "records": [
             {
                 "user": "Zoink",
+                "country": "us",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "zLevii",
+                "country": "nz",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "w3rty",
+                "country": "ru",
                 "percent": 100,
                 "link": ""
             }
@@ -98,46 +106,55 @@
         "records": [
             {
                 "user": "Trick",
+                "country": "us",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "wPopoff",
+                "country": "us",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "Taiago",
+                "country": "pt",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "SerVax",
+                "country": "am",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "Netermind",
+                "country": "us",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "a6",
+                "country": "ru",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "yunhr",
+                "country": "kr",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "JesseGamingGD",
+                "country": "nl",
                 "percent": 100,
                 "link": ""
             },
             {
                 "user": "Bacon",
+                "country": "kz",
                 "percent": 100,
                 "link": ""
             }
@@ -159,7 +176,14 @@
         "ytid": "Uue4ZRhVf-I",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "weyolll3",
+                "country": "es",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "BOOBAWAMBA",
@@ -168,7 +192,50 @@
         "ytid": "20fYiqLAo_E",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "agonom",
+                "country": "kr",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Vorten",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "wPopoff",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Zoink",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "cbrem",
+                "country": "gb",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Bacon",
+                "country": "kz",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Taiago",
+                "country": "pt",
+                "percent": 61,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "ORBIT",
@@ -177,7 +244,20 @@
         "ytid": "QKcv8DkNPd0",
         "thumbnail": "https://i.ytimg.com/vi/0QYibxUS3rA/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBZSQBlLRFfpWyo8aL5rBOa16c9yg",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "dovvin",
+                "country": "pl",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Thelifinof",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Nullscapes",
@@ -186,7 +266,56 @@
         "ytid": "EztneTPp5CU",
         "thumbnail": "https://i.ytimg.com/vi/FmeeyDzivzI/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDBEKB-PHVOhebdHM2ljSl1m7wHNQ",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "whfyre",
+                "country": "ua",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "w3rty",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "hover",
+                "country": "at",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Theitha",
+                "country": "pa",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Cryostazz",
+                "country": "fr",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "SpaceRS",
+                "country": "rs",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "houndslit",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Vorten",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Quanteuse processing",
@@ -195,7 +324,32 @@
         "ytid": "j5NC0u1Q91Q",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "dovvin",
+                "country": "pl",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "wPopoff",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "karkito",
+                "country": "kr",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Bacon",
+                "country": "kz",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Unnerfed Sakupen Circles",
