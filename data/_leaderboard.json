@@ -113,7 +113,11 @@
             "Slaughterhouse",
             "Deimos",
             "KOCMOC",
-            "The Lightning Rod"
+            "The Lightning Rod",
+            {
+                "levelName": "Thinking Space II",
+                "percent": 88
+            }
         ],
         "verified": []
     },
