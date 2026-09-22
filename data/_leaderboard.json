@@ -167,6 +167,29 @@
         "verified": []
     },
     {
+        "user": "Vorten",
+        "name": "Vorten",
+        "country": "ru",
+        "avatar": "https://geometrydash.wiki.gg/images/Vorten.jpg?983402",
+        "records": [
+            "BOOBAWAMBA",
+            "Nullscapes",
+            "Penumbral",
+            "Anathema",
+            "Avernus",
+            "spectre",
+            "Abyss Of Darkness",
+            "Defeated Circles",
+            "Acheron",
+            "Tunnel of Despair",
+            "Kyouki",
+            "Subterminal Point",
+            "Slaughterhouse",
+            "Deimos"
+        ],
+        "verified": []
+    },
+    {
         "user": "SerVax",
         "name": "SerVax",
         "country": "am",
@@ -208,29 +231,6 @@
             "Acheron",
             "Tunnel of Despair",
             "Kyouki",
-            "Slaughterhouse",
-            "Deimos"
-        ],
-        "verified": []
-    },
-    {
-        "user": "Vorten",
-        "name": "Vorten",
-        "country": "ru",
-        "avatar": "https://geometrydash.wiki.gg/images/Vorten.jpg?983402",
-        "records": [
-            "BOOBAWAMBA",
-            "Nullscapes",
-            "Penumbral",
-            "Anathema",
-            "Avernus",
-            "spectre",
-            "Abyss Of Darkness",
-            "Defeated Circles",
-            "Acheron",
-            "Tunnel of Despair",
-            "Kyouki",
-            "Subterminal Point",
             "Slaughterhouse",
             "Deimos"
         ],
