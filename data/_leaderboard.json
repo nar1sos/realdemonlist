@@ -192,6 +192,28 @@
         "verified": []
     },
     {
+        "user": "w3rty",
+        "name": "w3rty",
+        "country": "ru",
+        "avatar": "https://static.wikia.nocookie.net/geometry-dash/images/3/31/W3rty_profile.jpg/revision/latest?cb=20250729115605&path-prefix=ru",
+        "records": [
+            "Flamewall",
+            "Nullscapes",
+            "Every End",
+            "Penumbral",
+            "andromeda",
+            "Anathema",
+            "Avernus",
+            "spectre",
+            "Acheron",
+            "Tunnel of Despair",
+            "Kyouki",
+            "Slaughterhouse",
+            "Deimos"
+        ],
+        "verified": []
+    },
+    {
         "user": "Vorten",
         "name": "Vorten",
         "country": "ru",
@@ -209,28 +231,6 @@
             "Tunnel of Despair",
             "Kyouki",
             "Subterminal Point",
-            "Slaughterhouse",
-            "Deimos"
-        ],
-        "verified": []
-    },
-    {
-        "user": "w3rty",
-        "name": "w3rty",
-        "country": "ru",
-        "avatar": "https://static.wikia.nocookie.net/geometry-dash/images/3/31/W3rty_profile.jpg/revision/latest?cb=20250729115605&path-prefix=ru",
-        "records": [
-            "Flamewall",
-            "Nullscapes",
-            "Every End",
-            "Penumbral",
-            "andromeda",
-            "Anathema",
-            "Avernus",
-            "spectre",
-            "Acheron",
-            "Tunnel of Despair",
-            "Kyouki",
             "Slaughterhouse",
             "Deimos"
         ],
