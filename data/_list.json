@@ -664,7 +664,26 @@
         "ytid": "4V24spYQWuE",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "Axinity",
+                "country": "dk",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Zoink",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "clubflocked",
+                "country": "ua",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Silent clubstep",
