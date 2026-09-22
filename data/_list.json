@@ -106,5 +106,14 @@
         "thumbnail": "",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": "Unnerfed Sakupen Circles",
+        "author": "Nick24",
+        "verifier": "ad3usgmd",
+        "ytid": "AdrmZsy52EY",
+        "thumbnail": "https://i.ytimg.com/vi/_ea8mbSfZvA/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLAU0U4_AddzknFUdq9bvnavR4wUGA",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
