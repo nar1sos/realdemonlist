@@ -30,7 +30,13 @@
         "ytid": "CELNmHwln_c",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "wPopoff",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Amethyst",
