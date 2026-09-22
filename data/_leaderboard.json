@@ -51,5 +51,13 @@
             "Society",
             "Amethyst"
         ]
+    },
+    {
+        "user": "Bacon",
+        "name": "Bacon",
+        "country": "kz",
+        "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwDcSypjLxR83EzXw--W429YFk_CIxOivbmtVOzlJWnw&s",
+        "records": [],
+        "verified": []
     }
 ]
