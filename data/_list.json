@@ -358,7 +358,26 @@
         "ytid": "AdrmZsy52EY",
         "thumbnail": "https://i.ytimg.com/vi/_ea8mbSfZvA/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLAU0U4_AddzknFUdq9bvnavR4wUGA",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "roze",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "cc478",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Bacon",
+                "country": "kz",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Lesopowal",
@@ -367,7 +386,14 @@
         "ytid": "RTXnFHkGO_g",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "lanx",
+                "country": "pl",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "The Bloop",
@@ -376,7 +402,14 @@
         "ytid": "ROuXHSKEhHA",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "nickname",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Herr Machine",
@@ -403,7 +436,110 @@
         "ytid": "AO--mVVFtKI",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "Zoink",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Garbagee",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Stefan Boss",
+                "country": "ro",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "TFIBB",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "lanx",
+                "country": "pl",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "bims",
+                "country": "de",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "samot",
+                "country": "ar",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "wPopoff",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "w3rty",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "dovvin",
+                "country": "pl",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "NailedGD",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "forewad",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Seturan",
+                "country": "kr",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Brumik",
+                "country": "cz",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "hstorm",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Thnnder",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Ozone",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Penumbral",
@@ -412,7 +548,50 @@
         "ytid": "nVHPFf13M-I",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "dovvin",
+                "country": "pl",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "SerVax",
+                "country": "am",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Zoink",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Bacon",
+                "country": "kz",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Vorten",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Sharkified",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Netermind",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Subsuming Vortex",
@@ -421,6 +600,55 @@
         "ytid": "0eYG1ogJpIQ",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "Zoink",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "wPopoff",
+                "country": "us",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "GreenZz",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "LAMINGTON",
+                "country": "au",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "weyolll3",
+                "country": "es",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "a6",
+                "country": "ru",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "betomagniv",
+                "country": "il",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "wity26",
+                "country": "es",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     }
 ]
