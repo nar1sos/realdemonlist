@@ -122,27 +122,6 @@
         "verified": []
     },
     {
-        "user": "zLevii",
-        "name": "zLevii",
-        "country": "nz",
-        "avatar": "https://yt3.googleusercontent.com/RuEi_-fhoVaktj2B6x547aohNaRYKvRdfSAAT8L3XlnWh9X605t4ZZqNdTpjMQ9EkMwCI3Z-VQ=s900-c-k-c0x00ffffff-no-rj",
-        "records": [
-            "Flamewall",
-            "KILLSTEALER",
-            "Anathema",
-            "spectre",
-            "Acheron",
-            "Tunnel of Despair",
-            "Kyouki",
-            "Subterminal Point",
-            "Slaughterhouse",
-            "BEING HOME",
-            "Deimos",
-            "KOCMOC"
-        ],
-        "verified": []
-    },
-    {
         "user": "Trick",
         "name": "Trick",
         "country": "us",
@@ -163,6 +142,27 @@
             "Deimos",
             "KOCMOC",
             "The Lightning Rod"
+        ],
+        "verified": []
+    },
+    {
+        "user": "zLevii",
+        "name": "zLevii",
+        "country": "nz",
+        "avatar": "https://yt3.googleusercontent.com/RuEi_-fhoVaktj2B6x547aohNaRYKvRdfSAAT8L3XlnWh9X605t4ZZqNdTpjMQ9EkMwCI3Z-VQ=s900-c-k-c0x00ffffff-no-rj",
+        "records": [
+            "Flamewall",
+            "KILLSTEALER",
+            "Anathema",
+            "spectre",
+            "Acheron",
+            "Tunnel of Despair",
+            "Kyouki",
+            "Subterminal Point",
+            "Slaughterhouse",
+            "BEING HOME",
+            "Deimos",
+            "KOCMOC"
         ],
         "verified": []
     },
