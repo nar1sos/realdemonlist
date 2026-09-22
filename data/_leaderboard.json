@@ -215,26 +215,6 @@
         "verified": []
     },
     {
-        "user": "Bacon",
-        "name": "Bacon",
-        "country": "kz",
-        "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwDcSypjLxR83EzXw--W429YFk_CIxOivbmtVOzlJWnw&s",
-        "records": [
-            "Tidal Wave",
-            "BOOBAWAMBA",
-            "Unnerfed Sakupen Circles",
-            "Lesopowal",
-            "Quanteuse processing",
-            "Penumbral",
-            "Aquamarine",
-            "Avernus",
-            "Slaughterhouse"
-        ],
-        "verified": [
-            "Lesopowal"
-        ]
-    },
-    {
         "user": "w3rty",
         "name": "w3rty",
         "country": "ru",
@@ -255,5 +235,25 @@
             "Deimos"
         ],
         "verified": []
+    },
+    {
+        "user": "Bacon",
+        "name": "Bacon",
+        "country": "kz",
+        "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwDcSypjLxR83EzXw--W429YFk_CIxOivbmtVOzlJWnw&s",
+        "records": [
+            "Tidal Wave",
+            "BOOBAWAMBA",
+            "Unnerfed Sakupen Circles",
+            "Lesopowal",
+            "Quanteuse processing",
+            "Penumbral",
+            "Aquamarine",
+            "Avernus",
+            "Slaughterhouse"
+        ],
+        "verified": [
+            "Lesopowal"
+        ]
     }
 ]
