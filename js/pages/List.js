@@ -169,50 +169,6 @@ export default {
                                     allowfullscreen>
                                 </iframe>
                             </div>
-
-                            <!-- Раздел с рекордами -->
-                            <div class="records-section">
-                                <div class="records-header" style="justify-content: space-between; display: flex; align-items: center;">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span class="records-trophy">🏆</span>
-                                        <div class="records-header-text">
-                                            <h3 class="section-subtitle">Рекорды ({{ selectedLevel.records ? selectedLevel.records.length : 0 }})</h3>
-                                        </div>
-                                    </div>
-                                    <button v-if="isAdmin" @click="openAddRecordModal" style="background: #22c55e; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-weight: 800; cursor: pointer; font-size: 12px;">
-                                        + Рекорд
-                                    </button>
-                                </div>
-
-                                <div class="records-list" v-if="selectedLevel.records && selectedLevel.records.length > 0">
-                                    <div v-for="(rec, rIdx) in selectedLevel.records" :key="rIdx" class="record-card" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.03); border-radius: 6px; margin-top: 6px;">
-                                        <div class="record-user-info" style="display: flex; align-items: center; gap: 8px;">
-                                            <!-- ИКОНКА ФЛАГА ИЗ FLAGCDN -->
-                                            <img 
-                                                v-if="rec.country" 
-                                                :src="'https://flagcdn.com/w40/' + rec.country.toLowerCase() + '.png'" 
-                                                style="width: 20px; height: 14px; object-fit: cover; border-radius: 2px;" 
-                                                :alt="rec.country"
-                                                :title="rec.country.toUpperCase()"
-                                            />
-                                            <span class="user-name" style="font-weight: 600;">{{ rec.user }}</span>
-                                        </div>
-                                        <div class="record-meta-info" style="display: flex; align-items: center; gap: 8px;">
-                                            <span class="percent-tag" style="background: rgba(34,197,94,0.2); color: #22c55e; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 12px;">{{ rec.percent }}%</span>
-                                            <a v-if="rec.link" :href="rec.link" target="_blank" class="record-video-btn" style="color: #3b82f6; text-decoration: none;">▶</a>
-                                            
-                                            <!-- УПРАВЛЕНИЕ РЕКОРДОМ (Редактировать / Удалить) -->
-                                            <template v-if="isAdmin">
-                                                <button @click="openEditRecordModal(rec, rIdx)" style="background: none; border: none; color: #3b82f6; font-size: 14px; cursor: pointer;" title="Редактировать">✏️</button>
-                                                <button @click="deleteRecord(rIdx)" style="background: none; border: none; color: #ef4444; font-size: 16px; font-weight: 900; cursor: pointer;" title="Удалить">×</button>
-                                            </template>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div v-else class="no-records" style="margin-top: 10px; opacity: 0.6; font-size: 13px;">
-                                    Пока нет подтвержденных рекордов.
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -245,37 +201,6 @@ export default {
                     </div>
                 </div>
             </div>
-
-            <!-- МОДАЛЬНОЕ ОКНО: Добавление / Редактирование Рекорда -->
-            <div v-if="showRecordModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;" @click.self="showRecordModal = false">
-                <div style="background: #161b26; border: 1px solid #283044; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; color: #fff;">
-                    <h3 style="margin-bottom: 15px;">{{ isEditingRecord ? 'Редактировать рекорд' : 'Добавить рекорд' }}</h3>
-
-                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Имя игрока:*</label>
-                    <input type="text" v-model="recordForm.user" class="gdl-input" placeholder="Trick" style="margin-top:4px;" />
-
-                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Код страны (Флаг):</label>
-                    <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
-                        <input type="text" v-model="recordForm.country" class="gdl-input" placeholder="ua, us, ru, kz, de..." maxlength="2" style="text-transform: lowercase; flex: 1;" />
-                        <img 
-                            v-if="recordForm.country" 
-                            :src="'https://flagcdn.com/w40/' + recordForm.country.toLowerCase() + '.png'" 
-                            style="width: 28px; height: 18px; object-fit: cover; border-radius: 3px;" 
-                        />
-                    </div>
-
-                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Процент:*</label>
-                    <input type="number" v-model.number="recordForm.percent" min="1" max="100" class="gdl-input" style="margin-top:4px;" />
-
-                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Ссылка на видео доказательство:</label>
-                    <input type="text" v-model="recordForm.link" class="gdl-input" placeholder="https://youtube.com/..." style="margin-top:4px;" />
-
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button @click="saveRecord" style="flex:1; padding:10px; background:#22c55e; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Применить</button>
-                        <button @click="showRecordModal = false" style="flex:1; padding:10px; background:#475569; color:#fff; border:none; border-radius:8px; font-weight:800; cursor:pointer;">Отмена</button>
-                    </div>
-                </div>
-            </div>
         </div>
     `,
 
@@ -288,16 +213,11 @@ export default {
         draggedIndex: null,
         fileSha: '',
         isAdmin: sessionStorage.getItem('is_admin') === 'true',
-        hasUnsavedChanges: false, // Флаг наличия несохраненных изменений
+        hasUnsavedChanges: false,
         
         showLevelModal: false,
         isEditing: false,
-        levelForm: { name: '', author: '', verifier: '', ytid: '', thumbnail: '' },
-
-        showRecordModal: false,
-        isEditingRecord: false,
-        editingRecordIndex: null,
-        recordForm: { user: '', country: '', percent: 100, link: '' }
+        levelForm: { name: '', author: '', verifier: '', ytid: '', thumbnail: '' }
     }),
 
     computed: {
@@ -353,7 +273,7 @@ export default {
                 if (Array.isArray(loadedList)) {
                     this.list = loadedList.map((item, index) => {
                         if (typeof item === 'string') {
-                            return { name: item, author: 'Unknown', rank: index + 1, records: [] };
+                            return { name: item, author: 'Unknown', rank: index + 1, records: item.records || [] };
                         } else if (typeof item === 'object' && item !== null) {
                             return { ...item, rank: index + 1, records: item.records || [] };
                         }
@@ -443,56 +363,6 @@ export default {
             }
         },
 
-        openAddRecordModal() {
-            this.isEditingRecord = false;
-            this.editingRecordIndex = null;
-            this.recordForm = { user: '', country: '', percent: 100, link: '' };
-            this.showRecordModal = true;
-        },
-
-        openEditRecordModal(rec, index) {
-            this.isEditingRecord = true;
-            this.editingRecordIndex = index;
-            this.recordForm = {
-                user: rec.user || '',
-                country: rec.country || '',
-                percent: rec.percent || 100,
-                link: rec.link || ''
-            };
-            this.showRecordModal = true;
-        },
-
-        saveRecord() {
-            if (!this.recordForm.user) return alert("Введите имя игрока!");
-
-            if (!this.selectedLevel.records) {
-                this.selectedLevel.records = [];
-            }
-
-            const recordData = {
-                user: this.recordForm.user,
-                country: (this.recordForm.country || '').trim().toLowerCase(),
-                percent: this.recordForm.percent || 100,
-                link: this.recordForm.link || ''
-            };
-
-            if (this.isEditingRecord && this.editingRecordIndex !== null) {
-                this.selectedLevel.records.splice(this.editingRecordIndex, 1, recordData);
-            } else {
-                this.selectedLevel.records.push(recordData);
-            }
-
-            this.showRecordModal = false;
-            this.hasUnsavedChanges = true;
-        },
-
-        deleteRecord(index) {
-            if (confirm("Удалить этот рекорд?")) {
-                this.selectedLevel.records.splice(index, 1);
-                this.hasUnsavedChanges = true;
-            }
-        },
-
         onDragStart(event, filteredIndex) {
             if (!this.isAdmin || this.searchQuery) return;
             this.draggedIndex = filteredIndex;
@@ -541,12 +411,7 @@ export default {
                     ytid: extractYouTubeId(item.ytid),
                     thumbnail: item.thumbnail || '',
                     percentToQualify: item.percentToQualify || 100,
-                    records: (item.records || []).map(r => ({
-                        user: r.user,
-                        country: (r.country || '').toLowerCase(),
-                        percent: r.percent,
-                        link: r.link || ''
-                    }))
+                    records: item.records || []
                 }));
 
                 const jsonString = JSON.stringify(cleanData, null, 4);
