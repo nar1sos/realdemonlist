@@ -95,7 +95,13 @@
         "ytid": "9fsZ014qB3s",
         "thumbnail": "",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "Trick",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Green Bullet",
