@@ -27,20 +27,20 @@
         "records": []
     },
     {
-        "name": "Flamewall",
-        "author": "UNarwall",
-        "verifier": "Cuatrocientos",
-        "ytid": "x4Io4zkWVRw",
-        "thumbnail": "https://i.ytimg.com/vi/ReVWAw9o7-A/hq720.jpg?sqp=-oaymwEnCOgCEMoBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBN5tBO8S2QF6UC4sfYtgnQeHEbpQ",
-        "percentToQualify": 100,
-        "records": []
-    },
-    {
         "name": "Artemis 13",
         "author": "mvngo",
         "verifier": "Zoink",
         "ytid": "FgjOM0ef1N8",
         "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Flamewall",
+        "author": "UNarwall",
+        "verifier": "Cuatrocientos",
+        "ytid": "x4Io4zkWVRw",
+        "thumbnail": "https://i.ytimg.com/vi/ReVWAw9o7-A/hq720.jpg?sqp=-oaymwEnCOgCEMoBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBN5tBO8S2QF6UC4sfYtgnQeHEbpQ",
         "percentToQualify": 100,
         "records": []
     },
