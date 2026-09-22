@@ -264,7 +264,7 @@
         "author": "ItzKiba",
         "verifier": "Zoink",
         "ytid": "EztneTPp5CU",
-        "thumbnail": "https://i.ytimg.com/vi/FmeeyDzivzI/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDBEKB-PHVOhebdHM2ljSl1m7wHNQ",
+        "thumbnail": "",
         "percentToQualify": 100,
         "records": [
             {
@@ -374,6 +374,12 @@
             {
                 "user": "Bacon",
                 "country": "kz",
+                "percent": 100,
+                "link": ""
+            },
+            {
+                "user": "Ellie",
+                "country": "us",
                 "percent": 100,
                 "link": ""
             }
@@ -650,5 +656,230 @@
                 "link": ""
             }
         ]
+    },
+    {
+        "name": "Ultra Paracosm",
+        "author": "declanic",
+        "verifier": "wity26",
+        "ytid": "4V24spYQWuE",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Silent clubstep",
+        "author": "Sailent",
+        "verifier": "paqoe",
+        "ytid": "GR4OMkS3SN8",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "andromeda",
+        "author": "Insxne",
+        "verifier": "Taiago",
+        "ytid": "mk3TDemdkC0",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "KILLSTEALER",
+        "author": "Rynoxiouss",
+        "verifier": "kloone",
+        "ytid": "uhH4oqWrsfo",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Anathema",
+        "author": "nikroplays",
+        "verifier": "Whizkid05",
+        "ytid": "_uKwmjHmySI",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Aquamarine",
+        "author": "sincos",
+        "verifier": "seels",
+        "ytid": "Q__EnRojGt4",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Avernus",
+        "author": "Bo",
+        "verifier": "Zoink",
+        "ytid": "16Zh8jssanc",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "spectre",
+        "author": "xander",
+        "verifier": "PersonHuman42",
+        "ytid": "MzsSLKJrLSI",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Menace",
+        "author": "Arraegen",
+        "verifier": "Whizkid05",
+        "ytid": "nnkgghxxsEE",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Abyss Of Darkness",
+        "author": "Exen",
+        "verifier": "Cursed",
+        "ytid": "ejJkpqcMMCY",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Defeated Circles",
+        "author": "Galaxium",
+        "verifier": "Zoink",
+        "ytid": "nU5AQPzd2YA",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Acheron",
+        "author": "Riot",
+        "verifier": "Zoink",
+        "ytid": "sBKR6aUorzA",
+        "thumbnail": "https://img.youtube.com/vi/F5miPcJpCvY/hqdefault.jpg",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Tunnel of Despair",
+        "author": "Exen",
+        "verifier": "Zoink",
+        "ytid": "LpS4JREhW98",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Kyouki",
+        "author": "Demishio",
+        "verifier": "Demishio",
+        "ytid": "KDa5c0CJTHs",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Sacrifice",
+        "author": "Laniakea",
+        "verifier": "Laniakea",
+        "ytid": "Sth67PA8XBU",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Based After Based",
+        "author": "Akunakunn",
+        "verifier": "DiamondSplash",
+        "ytid": "yQBFyUvB3lY",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Legacy Thinking Space II",
+        "author": "CoCymain",
+        "verifier": "Zeronium",
+        "ytid": "RJedeB2wHCA",
+        "thumbnail": "https://i.ytimg.com/vi/aBhjftGEao0/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDmAnUb7rrLuy55YmxoYvrUYSC03w",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Subterminal Point",
+        "author": "SyQual",
+        "verifier": "PoCle",
+        "ytid": "h2wmRMgACH4",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Maniacal Chains",
+        "author": "LordDivinity",
+        "verifier": "spcreat",
+        "ytid": "TzeMJeIu6bY",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Slaughterhouse",
+        "author": "icedcave",
+        "verifier": "Doggie",
+        "ytid": "kpcF1-QAHQc",
+        "thumbnail": "https://img.youtube.com/vi/1FtdyYNB7OY/hqdefault.jpg",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "BEING HOME",
+        "author": "Turti123",
+        "verifier": "goobs47",
+        "ytid": "kt7FnUzK8CY",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Deimos",
+        "author": "ItzHybrid",
+        "verifier": "Doggie",
+        "ytid": "b2yHaIk5zio",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "KOCMOC",
+        "author": "cherryteam",
+        "verifier": "Zoink",
+        "ytid": "2CxE-UWCIG4",
+        "thumbnail": "https://img.youtube.com/vi/aEpAn4mvA6o/hqdefault.jpg",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Centipede",
+        "author": "zander12",
+        "verifier": "LordVadercraft",
+        "ytid": "UFpfgXBQzhY",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "The Lightning Rod",
+        "author": "Lavatrex",
+        "verifier": "Lavatrex",
+        "ytid": "nQDTi077O6M",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
