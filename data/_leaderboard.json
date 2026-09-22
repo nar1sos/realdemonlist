@@ -122,29 +122,6 @@
         "verified": []
     },
     {
-        "user": "Vorten",
-        "name": "Vorten",
-        "country": "ru",
-        "avatar": "https://geometrydash.wiki.gg/images/Vorten.jpg?983402",
-        "records": [
-            "BOOBAWAMBA",
-            "Nullscapes",
-            "Penumbral",
-            "Anathema",
-            "Avernus",
-            "spectre",
-            "Abyss Of Darkness",
-            "Defeated Circles",
-            "Acheron",
-            "Tunnel of Despair",
-            "Kyouki",
-            "Subterminal Point",
-            "Slaughterhouse",
-            "Deimos"
-        ],
-        "verified": []
-    },
-    {
         "user": "Trick",
         "name": "Trick",
         "country": "us",
@@ -165,6 +142,29 @@
             "Deimos",
             "KOCMOC",
             "The Lightning Rod"
+        ],
+        "verified": []
+    },
+    {
+        "user": "Vorten",
+        "name": "Vorten",
+        "country": "ru",
+        "avatar": "https://geometrydash.wiki.gg/images/Vorten.jpg?983402",
+        "records": [
+            "BOOBAWAMBA",
+            "Nullscapes",
+            "Penumbral",
+            "Anathema",
+            "Avernus",
+            "spectre",
+            "Abyss Of Darkness",
+            "Defeated Circles",
+            "Acheron",
+            "Tunnel of Despair",
+            "Kyouki",
+            "Subterminal Point",
+            "Slaughterhouse",
+            "Deimos"
         ],
         "verified": []
     },
