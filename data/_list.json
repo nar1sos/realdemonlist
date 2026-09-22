@@ -153,15 +153,6 @@
         "records": []
     },
     {
-        "name": "Penumbral",
-        "author": "cherryteam",
-        "verifier": "w3rty",
-        "ytid": "nVHPFf13M-I",
-        "thumbnail": "",
-        "percentToQualify": 100,
-        "records": []
-    },
-    {
         "name": "Every End",
         "author": "MindCap",
         "verifier": "Hqmy",
@@ -175,6 +166,15 @@
         "author": "CursedZ",
         "verifier": "Cursed",
         "ytid": "0eYG1ogJpIQ",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Penumbral",
+        "author": "cherryteam",
+        "verifier": "w3rty",
+        "ytid": "nVHPFf13M-I",
         "thumbnail": "",
         "percentToQualify": 100,
         "records": []
