@@ -70,7 +70,13 @@
         "ytid": "x4Io4zkWVRw",
         "thumbnail": "https://i.ytimg.com/vi/ReVWAw9o7-A/hq720.jpg?sqp=-oaymwEnCOgCEMoBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBN5tBO8S2QF6UC4sfYtgnQeHEbpQ",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "Zoink",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Tidal Wave",
