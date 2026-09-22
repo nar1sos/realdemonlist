@@ -55,7 +55,13 @@
         "ytid": "4lfkzz1VCbA",
         "thumbnail": "https://i.ytimg.com/vi/zTEERDj1i5Y/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBO-Se4cIvvshQkI40Xx7VXCxyY9Q",
         "percentToQualify": 100,
-        "records": []
+        "records": [
+            {
+                "user": "Zoink",
+                "percent": 100,
+                "link": ""
+            }
+        ]
     },
     {
         "name": "Flamewall",
