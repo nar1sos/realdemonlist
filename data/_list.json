@@ -133,5 +133,14 @@
         "thumbnail": "",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": "Herr Machine",
+        "author": "herrteam",
+        "verifier": "BONN GD",
+        "ytid": "CBcQqmqWFo4",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
