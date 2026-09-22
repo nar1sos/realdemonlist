@@ -169,5 +169,14 @@
         "thumbnail": "",
         "percentToQualify": 100,
         "records": []
+    },
+    {
+        "name": "Subsuming Vortex",
+        "author": "CursedZ",
+        "verifier": "Cursed",
+        "ytid": "0eYG1ogJpIQ",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
     }
 ]
