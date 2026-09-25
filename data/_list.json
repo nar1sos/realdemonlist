@@ -1,2 +1,92 @@
 [
+    {
+        "name": "Firework",
+        "author": "TrickGMD",
+        "verifier": "Trick",
+        "ytid": "QBe5x2o9v2w",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Saul Goodman",
+        "author": "Renn241",
+        "verifier": "Jori",
+        "ytid": "hjs5PjUaw9k",
+        "thumbnail": "https://i.ytimg.com/vi/Gr0XgDJ32Iw/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLC5k93WRjZXD0yHLQtg7PpuZPpdkg",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "SARYYX NEVER CLEAR",
+        "author": "aartos",
+        "verifier": "skzyl",
+        "ytid": "rRlyvmjcz_4",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "THE JET ENGINE",
+        "author": "Billzer",
+        "verifier": "eviljoe",
+        "ytid": "8Q20XU__LoQ",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Tartarus",
+        "author": "Riot",
+        "verifier": "Dolphy",
+        "ytid": "9YYQBbrsV5Y",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "The Golden",
+        "author": "Bo",
+        "verifier": "nSwish",
+        "ytid": "wpS5PSHmji0",
+        "thumbnail": "https://i.ytimg.com/vi/SJ7SIDO5sj4/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLBMsaiMntyYqW5UYkJV8Q2hfKheWw",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Oblivion",
+        "author": "Benji",
+        "verifier": "Dice88",
+        "ytid": "ZcmDAm50BB0",
+        "thumbnail": "https://i.ytimg.com/vi/ZcmDAm50BB0/hq720.jpg?sqp=-oaymwEnCNAFEJQDSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLDSkoHHOfK4FHaMtmvzRtd1Ighr-A",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Trueffet",
+        "author": "SyQual",
+        "verifier": "Baeru",
+        "ytid": "yHESkazVD4Q",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Hard Machine",
+        "author": "komp",
+        "verifier": "Varium",
+        "ytid": "6i0pdTDAo1c",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    },
+    {
+        "name": "Zodiac",
+        "author": "BIANOX",
+        "verifier": "Technical",
+        "ytid": "HCQK_y8JutU",
+        "thumbnail": "",
+        "percentToQualify": 100,
+        "records": []
+    }
 ]
