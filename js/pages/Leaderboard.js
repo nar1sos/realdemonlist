@@ -214,8 +214,8 @@ export default {
                     <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Никнейм игрока:*</label>
                     <input type="text" v-model="playerForm.name" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" placeholder="NaR1" />
 
-                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Код страны (например: ua, ru, us):</label>
-                    <input type="text" v-model="playerForm.country" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" placeholder="ua" maxlength="2" />
+                    <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">Код страны (ua, ru) или URL картинки/флага:</label>
+                    <input type="text" v-model="playerForm.country" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" placeholder="ua или https://..." />
 
                     <label style="display:block; margin-top:10px; font-size:12px; color:#94a3b8;">URL Аватарки:</label>
                     <input type="text" v-model="playerForm.avatar" style="width:100%; padding:8px; margin-top:4px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px;" placeholder="https://..." />
@@ -478,12 +478,13 @@ export default {
             }
 
             if (!raw) return null;
-            let code = String(raw).trim().toLowerCase();
+            let val = String(raw).trim();
 
-            if (code.startsWith('http') || code.startsWith('/')) {
-                return raw;
+            if (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('/')) {
+                return val;
             }
 
+            let code = val.toLowerCase();
             return `https://flagcdn.com/w40/${code.slice(0, 2)}.png`;
         },
 
@@ -636,16 +637,21 @@ export default {
         async savePlayer() {
             if (!this.playerForm.name) return alert("Введите имя игрока!");
 
+            const countryVal = this.playerForm.country.trim();
+            const formattedCountry = (countryVal.startsWith('http://') || countryVal.startsWith('https://') || countryVal.startsWith('/')) 
+                ? countryVal 
+                : countryVal.toLowerCase();
+
             if (this.isEditing) {
                 if (this.selectedPlayer.user !== undefined) this.selectedPlayer.user = this.playerForm.name;
                 this.selectedPlayer.name = this.playerForm.name;
-                this.selectedPlayer.country = this.playerForm.country.toLowerCase().trim();
+                this.selectedPlayer.country = formattedCountry;
                 this.selectedPlayer.avatar = this.playerForm.avatar.trim();
             } else {
                 const newPlayer = {
                     user: this.playerForm.name,
                     name: this.playerForm.name,
-                    country: this.playerForm.country.toLowerCase().trim(),
+                    country: formattedCountry,
                     avatar: this.playerForm.avatar.trim(),
                     records: [],
                     verified: []
