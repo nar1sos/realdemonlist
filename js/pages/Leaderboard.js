@@ -4,7 +4,6 @@ const GITHUB_USER = "nar1sos";
 const GITHUB_REPO = "realdemonlist";
 const GITHUB_BRANCH = "main";
 const GITHUB_LEADERBOARD_PATH = "data/_leaderboard.json";
-const GITHUB_LIST_PATH = "data/_list.json";
 
 function utf8ToBase64(str) {
     const bytes = new TextEncoder().encode(str);
@@ -73,12 +72,20 @@ export default {
                     </div>
                 </div>
 
-                <div class="single-stat-container">
+                <!-- БЛОК СТАТИСТИКИ (РАНГ И ОЧКИ) -->
+                <div class="single-stat-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div class="card-stat">
                         <span class="stat-icon">🏆</span>
                         <div class="stat-info">
                             <span class="val">#{{ selectedRank }}</span>
                             <span class="lbl">RANK</span>
+                        </div>
+                    </div>
+                    <div class="card-stat">
+                        <span class="stat-icon">⚡</span>
+                        <div class="stat-info">
+                            <span class="val">{{ getPlayerPoints(selectedPlayer) }}</span>
+                            <span class="lbl">POINTS</span>
                         </div>
                     </div>
                 </div>
@@ -116,6 +123,7 @@ export default {
                             style="display: inline-flex; align-items: center; gap: 6px;"
                         >
                             <span>{{ item.title }}</span>
+                            <span style="font-size: 10px; opacity: 0.7; color: #f59e0b;">+{{ getLevelPoints(item.title) }}pt</span>
                             <button v-if="isAdmin" @click.stop="deleteRecord(item.originalIndex)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
                         </div>
                     </div>
@@ -139,6 +147,7 @@ export default {
                             @drop="onRecordDrop($event, prog.originalIndex)"
                         >
                             {{ prog.item.levelName || prog.item.level || prog.item }} <span v-if="prog.item.percent" class="blue-text">({{ prog.item.percent }}%)</span>
+                            <span style="font-size: 10px; opacity: 0.7; color: #60a5fa; margin-left: 4px;">+{{ getProgressPoints(prog.item) }}pt</span>
                             <button v-if="isAdmin" @click.stop="deleteRecord(prog.originalIndex)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0; margin-left: 4px;">×</button>
                         </div>
                     </div>
@@ -168,6 +177,7 @@ export default {
                             style="display: inline-flex; align-items: center; gap: 6px;"
                         >
                             <span>{{ ver.title }}</span>
+                            <span style="font-size: 10px; opacity: 0.7; color: #10b981;">+{{ getLevelPoints(ver.title) }}pt</span>
                             <button v-if="isAdmin" @click.stop="deleteVerify(idx)" style="background: none; border: none; color: #ef4444; font-weight: 900; cursor: pointer; padding: 0;">×</button>
                         </div>
                     </div>
@@ -177,7 +187,7 @@ export default {
             <!-- ПРАВАЯ КОЛОНКА: ТОП ИГРОКОВ -->
             <div class="sidebar-list">
                 <div 
-                    v-for="(player, index) in filteredPlayers" 
+                    v-for="(player, index) in sortedPlayers" 
                     :key="player.user || player.name || index"
                     class="sidebar-item"
                     :class="{ 'active': (selectedPlayer?.user || selectedPlayer?.name) === (player.user || player.name) }"
@@ -189,7 +199,7 @@ export default {
                 >
                     <span class="rank-num">#{{ index + 1 }}</span>
                     
-                    <div class="user-block">
+                    <div class="user-block" style="flex: 1;">
                         <img 
                             :src="getAvatarUrl(player)" 
                             class="list-avatar" 
@@ -203,6 +213,11 @@ export default {
                         />
                         <span class="username">{{ player.user || player.name }}</span>
                     </div>
+
+                    <!-- ОЧКИ ИГРОКА В СПИСКЕ -->
+                    <span style="font-size: 12px; font-weight: 700; color: #f59e0b; background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 12px; margin-left: auto;">
+                        {{ getPlayerPoints(player) }} pt
+                    </span>
                 </div>
             </div>
 
@@ -361,13 +376,18 @@ export default {
     }),
 
     computed: {
-        filteredPlayers() {
-            if (!this.searchQuery) return this.leaderboard;
-            const q = this.searchQuery.toLowerCase();
-            return this.leaderboard.filter(p => {
-                const name = p.user || p.name || '';
-                return name.toLowerCase().includes(q);
-            });
+        // Автоматическая сортировка игроков по очкам (по убыванию)
+        sortedPlayers() {
+            let list = [...this.leaderboard];
+            
+            // Фильтрация при поиске
+            if (this.searchQuery) {
+                const q = this.searchQuery.toLowerCase();
+                list = list.filter(p => (p.user || p.name || '').toLowerCase().includes(q));
+            }
+
+            // Сортировка по баллам
+            return list.sort((a, b) => this.getPlayerPoints(b) - this.getPlayerPoints(a));
         },
         filteredDemonList() {
             if (!this.levelSearch) return this.demonList;
@@ -375,9 +395,9 @@ export default {
             return this.demonList.filter(name => name.toLowerCase().includes(q));
         },
         selectedRank() {
-            if (!this.selectedPlayer || !this.leaderboard.length) return '-';
+            if (!this.selectedPlayer || !this.sortedPlayers.length) return '-';
             const selName = this.selectedPlayer.user || this.selectedPlayer.name;
-            const index = this.leaderboard.findIndex(p => (p.user || p.name) === selName);
+            const index = this.sortedPlayers.findIndex(p => (p.user || p.name) === selName);
             return index !== -1 ? index + 1 : '-';
         },
         mainLevelsList() {
@@ -420,6 +440,57 @@ export default {
             this.isAdmin = sessionStorage.getItem('is_admin') === 'true';
         },
 
+        // --- ЛОГИКА РАСЧЕТА ПОИНТОВ ---
+        getLevelPoints(levelName) {
+            if (!this.demonList.length || !levelName) return 0;
+            const rankIndex = this.demonList.findIndex(name => name.toLowerCase() === String(levelName).toLowerCase());
+            if (rankIndex === -1) return 0;
+
+            const total = this.demonList.length;
+            // Формула: #1 уровень даёт 100pt, последний дает пропорционально меньше (минимум 1pt)
+            // (при желании можно заменить на формулу Pointercrate)
+            const pts = Math.round(100 * (1 - rankIndex / total));
+            return Math.max(pts, 1);
+        },
+
+        getProgressPoints(recordObj) {
+            if (typeof recordObj === 'string') return this.getLevelPoints(recordObj);
+            const levelName = recordObj.levelName || recordObj.level;
+            const fullPoints = this.getLevelPoints(levelName);
+            const percent = recordObj.percent || 100;
+
+            if (percent >= 100) return fullPoints;
+            // Дробные очки за процент
+            return Math.round((fullPoints * (percent / 100)) * 0.5); // 50% от стоимости уровня
+        },
+
+        getPlayerPoints(player) {
+            if (!player) return 0;
+            let total = 0;
+
+            // Пройденные уровни и прогрессы
+            if (Array.isArray(player.records)) {
+                player.records.forEach(r => {
+                    if (typeof r === 'string') {
+                        total += this.getLevelPoints(r);
+                    } else if (typeof r === 'object') {
+                        total += this.getProgressPoints(r);
+                    }
+                });
+            }
+
+            // Верификации (дают столько же очков, сколько и прохождение)
+            const verifies = player.verified || player.verifies || [];
+            if (Array.isArray(verifies)) {
+                verifies.forEach(v => {
+                    const name = typeof v === 'string' ? v : (v.levelName || v.level);
+                    total += this.getLevelPoints(name);
+                });
+            }
+
+            return total;
+        },
+
         async loadLeaderboardData() {
             try {
                 const cacheBuster = `?_t=${Date.now()}`;
@@ -436,8 +507,8 @@ export default {
                     this.leaderboard = [];
                 }
 
-                if (this.leaderboard.length > 0) {
-                    this.selectedPlayer = this.leaderboard[0];
+                if (this.sortedPlayers.length > 0) {
+                    this.selectedPlayer = this.sortedPlayers[0];
                 }
             } catch (err) {
                 console.error("Error loading leaderboard:", err);
@@ -670,7 +741,7 @@ export default {
                 const idx = this.leaderboard.findIndex(p => (p.user || p.name) === pName);
                 if (idx !== -1) {
                     this.leaderboard.splice(idx, 1);
-                    this.selectedPlayer = this.leaderboard.length > 0 ? this.leaderboard[0] : null;
+                    this.selectedPlayer = this.sortedPlayers.length > 0 ? this.sortedPlayers[0] : null;
                     await this.saveToGitHub();
                 }
             }
