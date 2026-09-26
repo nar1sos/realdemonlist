@@ -37,7 +37,11 @@
         "name": "Itsfonix",
         "country": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Flag_of_Simferopol_District.jpg/250px-Flag_of_Simferopol_District.jpg?utm_source=ru.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
         "avatar": "https://i1.sndcdn.com/avatars-l2LYw4r2WfGY4j8t-UVyaUg-t500x500.jpg",
-        "records": [],
+        "records": [
+            "Zodiac",
+            "THE JET ENGINE",
+            "Trueffet"
+        ],
         "verified": []
     }
 ]
