@@ -40,6 +40,14 @@
         "verified": []
     },
     {
+        "user": "qzerdd",
+        "name": "qzerdd",
+        "country": "https://upload.wikimedia.org/wikipedia/commons/7/75/Simferopol_flag.svg?utm_source=ru.wikipedia.org&utm_campaign=index&utm_content=original",
+        "avatar": "https://yt3.googleusercontent.com/nr0iASRKpUIWTCG2Pug7zSp70fLx4oDUmWTH2tguAjWM7yY2Lrn0P5BlFJNa4tl8UcQCRLnk0g=s160-c-k-c0x00ffffff-no-rj",
+        "records": [],
+        "verified": []
+    },
+    {
         "user": "ThisIsTriscis",
         "name": "ThisIsTriscis",
         "country": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Flag_of_Sudak.png?utm_source=ru.wikipedia.org&utm_campaign=index&utm_content=original",
@@ -60,14 +68,6 @@
         "name": "Itsfonix",
         "country": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Flag_of_Simferopol_District.jpg/250px-Flag_of_Simferopol_District.jpg?utm_source=ru.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
         "avatar": "https://i1.sndcdn.com/avatars-l2LYw4r2WfGY4j8t-UVyaUg-t500x500.jpg",
-        "records": [],
-        "verified": []
-    },
-    {
-        "user": "qzerdd",
-        "name": "qzerdd",
-        "country": "https://upload.wikimedia.org/wikipedia/commons/7/75/Simferopol_flag.svg?utm_source=ru.wikipedia.org&utm_campaign=index&utm_content=original",
-        "avatar": "https://yt3.googleusercontent.com/nr0iASRKpUIWTCG2Pug7zSp70fLx4oDUmWTH2tguAjWM7yY2Lrn0P5BlFJNa4tl8UcQCRLnk0g=s160-c-k-c0x00ffffff-no-rj",
         "records": [],
         "verified": []
     }
